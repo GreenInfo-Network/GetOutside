@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?= $this->siteconfig->get('title') ?></title>
+
+    <!-- jQuery -->
+    <script src="<?= site_url() ?>/application/views/common/jquery-1.10.2.min.js"></script>
+    <script src="<?= site_url() ?>/application/views/common/jquery-ui-1.10.3/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/jquery-ui-1.10.3/css/<?= $this->siteconfig->get('jquitheme') ?>/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/jquery-ui-1.10.3/css/<?= $this->siteconfig->get('jquitheme') ?>/website.css" />
+
+    <!-- Twitter boostrap: mostly for responsive grid -->
+    <!-- Warning: TB's JavaScript extensions don't play well with much else, e.g. borging JQUI's <button> tags; don't use it -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/bootstrap-3.0.2/css/bootstrap.css" />
+
+    <script type="text/javascript">
+    var BASE_URL = <?= json_encode(site_url()) ?>;
+    </script>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-static-top ui-widget-header" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="<?= site_url('administration') ?>">Administration</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li id="navbar_settings"><a href="<?= site_url('administration/settings') ?>">Settings</a></li>
+        <li id="navbar_users"><a href="<?= site_url('administration/users') ?>">Users</a></li>
+        <li id="navbar_event_sources"><a href="<?= site_url('administration/event_sources') ?>">Event Sources</a></li>
+        <li id="navbar_place_sources"><a href="<?= site_url('administration/place_sources') ?>">Place Sources</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="<?= site_url('') ?>">Public Site</a></li>
+        <li><a href="<?= site_url('site/logout') ?>">Log Out</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</div>
+

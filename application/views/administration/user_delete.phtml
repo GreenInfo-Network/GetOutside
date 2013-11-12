@@ -1,0 +1,12 @@
+<? $this->load->view('administration/header.phtml') ?>
+
+
+<form action="<?= current_url() ?>" method="post" id="deleteform">
+<input type="hidden" name="id" value="<?= $user->id ?>" />
+
+    <p>Really delete <b><?= $user->username ?></b> ?</p>
+
+    <p><input type="submit" name="ok" value="Confirm Deletion" /></p>
+</form>
+
+<? $this->load->view('administration/footer.phtml') ?>

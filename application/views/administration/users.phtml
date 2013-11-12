@@ -1,0 +1,52 @@
+<? $this->load->view('administration/header.phtml') ?>
+
+<script type="text/javascript" src="<?= site_url() ?>/application/views/administration/users.js"></script>
+
+<div class="container" style="text-align:right;">
+    <a href="#" id="button_new">+ New</a>
+</div>
+
+
+<table class="table table-striped table-hover table-condensed table-bordered" style="width:100%;">
+<tr>
+    <th>Username</th>
+    <th>Status</th>
+</tr>
+<?php foreach ($users as $user) { ?>
+<tr>
+    <td><a href="<?= site_url("administration/user/{$user->id}") ?>"><?= $user->username ?></a></td>
+    <td><?= $user->manager ? 'manager' : 'website' ?></td>
+</tr>
+<?php } ?>
+</table>
+
+
+
+
+<div class="dialog" id="dialog_new">
+<form action="javascript:void(0);">
+    <table>
+    <tr>
+        <td>E-mail</td>
+        <td><input type="text" name="username" maxlength="50" style="width:3in;" /></td>
+    </tr>
+    <tr>
+        <td>Password</td>
+        <td><input type="text" name="password" maxlength="50" style="width:3in;" /></td>
+    </tr>
+
+<!--some day we'll want to have non-manager accounts, though they won't admit it yet and if we add this it'd confuse them
+    <tr>
+        <td>Status</td>
+        <td><?= form_dropdown('manager', array(0=>'Non-Manager', 1=>'Manager'), 0, 'style="width:3in;"') ?></td>
+    </tr>
+-->
+    <input type="hidden" name="manager" value="1" />
+
+    </table>
+</form>
+</div>
+
+
+
+<? $this->load->view('administration/footer.phtml') ?>

@@ -1,0 +1,36 @@
+<? $this->load->view('administration/header.phtml') ?>
+
+
+<script type="text/javascript" src="<?= site_url() ?>/application/views/administration/settings.js"></script>
+
+
+<form action="javascript:void(0);" id="settingsform">
+<table class="table table-condensed table-bordered" style="width:100%;">
+
+<tr>
+    <td>Web Site Title</td>
+    <td><input type="text" name="title" size="50" maxlength="50" value="<?= htmlspecialchars( $this->siteconfig->get('title') ) ?>" /></td>
+</tr>
+
+<tr>
+    <td>Web Site Theme</td>
+    <td>
+        <?= form_dropdown('jquitheme', $themes, $this->siteconfig->get('jquitheme') ) ?>
+        <br/>
+        <img id="jquitheme_swatch" src="about:blank;" />
+    </td>
+</tr>
+
+
+<tr>
+    <td></td>
+    <td><input type="submit" value="Save Changes" /></td>
+</tr>
+
+</table>
+</form>
+
+
+
+
+<? $this->load->view('administration/footer.phtml') ?>

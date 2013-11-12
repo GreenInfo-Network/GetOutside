@@ -1,0 +1,43 @@
+<? $this->load->view('administration/header.phtml') ?>
+
+<script type="text/javascript" src="<?= site_url() ?>/application/views/administration/user.js"></script>
+
+
+<form action="javascript:void(0);" id="editform">
+<input type="hidden" name="id" value="<?= $user->id ?>" />
+<table class="table-condensed table-bordered">
+<tr>
+    <td>Username</td>
+    <td><input type="text" name="username" value="<?= $user->username ?>" /></td>
+</tr>
+<tr>
+    <td>Password</td>
+    <td><input type="text" name="password" /><br/><small>only if you want to change it</small></td>
+</tr>
+
+<!--some day we'll want to have non-manager accounts, though they won't admit it yet and if we add this it'd confuse them
+    <tr>
+        <td>Status</td>
+        <td><?= form_dropdown('manager', array(0=>'Non-Manager', 1=>'Manager'), 0, 'style="width:3in;"') ?></td>
+    </tr>
+-->
+    <input type="hidden" name="manager" value="1" />
+
+
+<tr>
+    <td></td>
+    <td><input type="submit" value="Save Changes" /></td>
+</tr>
+</table>
+</form>
+
+
+
+
+
+<form action="<?= site_url('administration/user_delete') ?>" method="post" style="text-align:right;">
+    <input type="hidden" name="id" value="<?= $user->id ?>" />
+    <input type="submit" value="delete" />
+</form>
+
+<? $this->load->view('administration/footer.phtml') ?>

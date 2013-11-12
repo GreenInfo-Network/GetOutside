@@ -1,0 +1,22 @@
+# route all requests that are NOT static files, through index.php to make the /rest/ful/ URL style
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?$1 [L]
+
+# disable file listings for directories; one must know the target filename
+Options -Indexes
+
+# disable the fetching of .phtml templates, and direct access to .php files
+<Files ~ "\.phtml$">
+  Order allow,deny
+  Deny from all
+</Files>
+<Files ~ "\.php$">
+  Order allow,deny
+  Deny from all
+</Files>
+<Files "index.php">
+  Order allow,deny
+  Allow from all
+</Files>
