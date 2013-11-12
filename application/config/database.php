@@ -8,10 +8,10 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'localhost';
-$db['default']['username'] = 'getoutside';
-$db['default']['password'] = '254sfa5djhg093nf76d6t';
-$db['default']['database'] = 'getoutside';
+$db['default']['hostname'] = 'mysql.yourhost.com';
+$db['default']['username'] = 'db_user';
+$db['default']['password'] = 'secret123!';
+$db['default']['database'] = 'db_databasename';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
