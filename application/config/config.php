@@ -18,15 +18,6 @@ $config['base_url'] = 'http://www.yourwebsite.org/finder/';
 $config['encryption_key'] = 'ABCDEFGHIJKLMNOPQRSTUVWYXZ123456';
 
 
-/*
-|--------------------------------------------------------------------------
-| Bing Maps API Key
-| Used for address searches (geocoding) and directions.
-| To sign up for a Bing Maps API key, visit http://msdn.microsoft.com/en-us/library/ff428642.aspx
-|--------------------------------------------------------------------------
-*/
-$config['bing_key'] = 'ABCDEFGH12345678';
-
 
 /*
 |--------------------------------------------------------------------------
