@@ -15,7 +15,7 @@
 <?php foreach ($users as $user) { ?>
 <tr>
     <td><a href="<?= site_url("administration/user/{$user->id}") ?>"><?= $user->username ?></a></td>
-    <td><?= $user->manager ? 'manager' : 'website' ?></td>
+    <td><?= $user->manager ? 'administration' : 'website' ?></td>
 </tr>
 <?php } ?>
 </table>

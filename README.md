@@ -17,6 +17,7 @@ Requirements are very basic:
 * PHP with MySQLi extension (5.1 or later)
 * MySQL database (4.x or later)
 * Apache with mod_rewrite enabled
+* A Bing Maps API key (for address searches and directions)
 
 Get Outside! is designed to use standard PHP extensions and the MySQL database server, so it may be deployed on common, low-cost web hosting services.
 
@@ -39,9 +40,14 @@ The base framework for Get Outside! was inspired by the [https://github.com/gilb
 
 ##To-Do, Issues, & Bugs
 
-* Bootstrap sequence: populate initial database, non-destructively if only the config was damaged
+* Admin panel: Users: do not allow user #1 to be deleted, nor to have manager status revoked (no widget for it, check POST data anyway)
 
-* Adapt DBModel class to use PHP PDO rather than.
+* Setup controller: will need ongoing work during development, as needs change and new config elements are added
 
-* Implement cookie encryption in Session helper, DB storage, other scalab8ility & security practices learned from CodeIgniter session class
+* Data sources: abstract class general Events Data Source and for Places Data Sources
 
+* Admin UI: data sources UI
+
+* Front page: basic map with OSM
+
+* Front page: add to map the collected events and places from data view

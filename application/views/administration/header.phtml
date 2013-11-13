@@ -3,15 +3,23 @@
 <head>
     <title><?= $this->siteconfig->get('title') ?></title>
 
-    <!-- jQuery -->
-    <script src="<?= site_url() ?>/application/views/common/jquery-1.10.2.min.js"></script>
-    <script src="<?= site_url() ?>/application/views/common/jquery-ui-1.10.3/js/jquery-ui-1.10.3.custom.min.js"></script>
+    <!-- jQuery and jQuery UI -->
+    <script type="text/javascript" src="<?= site_url() ?>/application/views/common/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="<?= site_url() ?>/application/views/common/jquery-ui-1.10.3/js/jquery-ui-1.10.3.custom.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/jquery-ui-1.10.3/css/<?= $this->siteconfig->get('jquitheme') ?>/jquery-ui.css" />
-    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/jquery-ui-1.10.3/css/<?= $this->siteconfig->get('jquitheme') ?>/website.css" />
+    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/jquery-ui-1.10.3/css/<?= $this->siteconfig->get('jquitheme') ?>/customizations.css" />
 
     <!-- Twitter boostrap: mostly for responsive grid -->
     <!-- Warning: TB's JavaScript extensions don't play well with much else, e.g. borging JQUI's <button> tags; don't use it -->
     <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/bootstrap-3.0.2/css/bootstrap.css" />
+    <script type="text/javascript" src="<?= site_url() ?>/application/views/common/bootstrap-3.0.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+    // patch to make TB's button programming not mess with JQUI's button decoration
+    var btn = $.fn.button.noConflict() // reverts $.fn.button to jqueryui btn
+    $.fn.btn = btn // assigns bootstrap button functionality to $.fn.btn
+    </script>
+
+
 
     <script type="text/javascript">
     var BASE_URL = <?= json_encode(site_url()) ?>;

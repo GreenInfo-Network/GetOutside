@@ -16,6 +16,10 @@ public function __construct() {
 }
 
 
+/***************************************************************************************
+ * LOGIN AND LOGOUT
+ ***************************************************************************************/
+
 public function login() {
     // no user/pass? no problem, give 'em a form
     if (!@$_POST['username'] or !@$_POST['password']) return $this->load->view('site/login.phtml');
@@ -37,8 +41,24 @@ public function logout() {
 }
 
 
+/***************************************************************************************
+ * WEB PAGES
+ ***************************************************************************************/
+
 public function index() {
     $this->load->view('site/index.phtml');
+}
+
+public function about() {
+    $this->load->view('site/about.phtml');
+}
+
+public function map() {
+    $this->load->view('site/map.phtml');
+}
+
+public function calendar() {
+    $this->load->view('site/calendar.phtml');
 }
 
 

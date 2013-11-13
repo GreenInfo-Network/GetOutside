@@ -30,7 +30,7 @@ public function index() {
     ");
     $this->db->query("
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER NOT NULL AUTO_INCREMENT,
+            id integer NOT NULL AUTO_INCREMENT,
             username varchar(50) NOT NULL,
             password varchar(40) NOT NULL,
             manager BOOLEAN NOT NULL DEFAULT FALSE,
@@ -43,6 +43,52 @@ public function index() {
             keyword varchar(50) NOT NULL,
             value text NOT NULL DEFAULT '',
             PRIMARY KEY (keyword)
+        )
+    ");
+    $this->db->query("
+        CREATE TABLE places (
+            id INTEGER AUTO_INCREMENT NOT NULL,
+            type varchar(50) NOT NULL,
+            datasource_id integer NOT NULL,
+            remoteid varchar(50),
+            title varchar(50) NOT NULL DEFAULT 'Location',
+            address varchar(100) NOT NULL DEFAULT '',
+            description text NOT NULL DEFAULT '',
+            latitude float,
+            longitiude float,
+            PRIMARY KEY (id),
+            KEY datasource_id_idx (datasource_id)
+        )
+    ");
+    $this->db->query("
+        CREATE TABLE events (
+            id INTEGER AUTO_INCREMENT NOT NULL,
+            type varchar(50) NOT NULL,
+            datasource_id integer NOT NULL,
+            remoteid varchar(50),
+            title varchar(50) NOT NULL DEFAULT 'Location',
+            address varchar(100) NOT NULL DEFAULT '',
+            description text NOT NULL DEFAULT '',
+            latitude float,
+            longitiude float,
+            PRIMARY KEY (id),
+            KEY datasource_id_idx (datasource_id)
+        )
+    ");
+
+//GDA these are largely TBD
+    $this->db->query("
+        CREATE TABLE placedatasources (
+            id INTEGER AUTO_INCREMENT NOT NULL,
+            type varchar(50) NOT NULL,
+            PRIMARY KEY (id)
+        )
+    ");
+    $this->db->query("
+        CREATE TABLE eventdatasources (
+            id INTEGER AUTO_INCREMENT NOT NULL,
+            type varchar(50) NOT NULL,
+            PRIMARY KEY (id)
         )
     ");
 
@@ -58,7 +104,13 @@ public function index() {
     $siteconfig = new SiteConfig();
     $siteconfig->set('title','Get Outside!');
     $siteconfig->set('jquitheme','pepper-grinder');
-
+    $siteconfig->set('html_frontpage', '<h1>GetOutside!</h1>\n<p>Your new installation is up and running. To fill in this page, visit the <a href="administration">administration panel.</a></p>');
+    $siteconfig->set('html_about', 'GetOutside! is a project of <a target="_blank" href="http://www.greeninfo.org/">GreenInfo Network</a> made possible by a grant for <a target="_blank" href="http://www.knightfoundation.org/">The Knight Foundation</a>.');
+    $siteconfig->set('bbox_w', -179.0000);
+    $siteconfig->set('bbox_s',  -89.0000);
+    $siteconfig->set('bbox_e',  179.0000);
+    $siteconfig->set('bbox_n',   89.0000);
+    $siteconfig->set('bing_api_key', '');
 
     /////
     ///// initial admin password

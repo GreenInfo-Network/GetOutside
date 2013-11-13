@@ -1,34 +1,115 @@
 <? $this->load->view('administration/header.phtml') ?>
 
+<link rel="stylesheet" href="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
+<!--[if lte IE 8]>
+<link rel="stylesheet" href="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
+<![endif]-->
+<script src="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
+
+<script type="text/javascript" src="<?= site_url() ?>/application/views/common/tinymce/js/tinymce/tinymce.min.js"></script>
 
 <script type="text/javascript" src="<?= site_url() ?>/application/views/administration/settings.js"></script>
 
+<script type="text/javascript">
+var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
+</script>
+
+<style type="text/css">
+textarea {
+    width:5in;
+    height:3in;
+}
+
+td,th {
+    vertical-align:top;
+}
+
+th {
+    padding-top:1em;
+    font-size:16pt;
+}
+
+.ui-icon-info {
+    display:inline-block;
+    margin-left:1em;
+}
+
+#bbox_map_canvas {
+    width:6.0in;
+    height:4.5in;
+}
+</style>
+
 
 <form action="javascript:void(0);" id="settingsform">
-<table class="table table-condensed table-bordered" style="width:100%;">
+    <div class="tabs">
+        <ul>
+            <li><a href="#settingsform_tab_basic">Web Site Title &amp; Theme</a></li>
+            <li><a href="#settingsform_tab_html">HTML Web Pages</a></li>
+            <li><a href="#settingsform_tab_extent">Map Services</a></li>
+        </ul>
+        <div id="settingsform_tab_basic">
+            <table class="table-condensed">
+            <tr>
+                <td>Web Site Title <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This title appears in the browser's navigation tab and in bookmarks. In most other places, you would manually enter the title like any other website content."></div></td>
+                <td><input type="text" name="title" size="50" maxlength="50" value="<?= htmlspecialchars( $this->siteconfig->get('title') ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Web Site Theme <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Select a color theme for your website."></div></td>
+                <td>
+                    <?= form_dropdown('jquitheme', $themes, $this->siteconfig->get('jquitheme') ) ?>
+                    <br/>
+                    <img id="jquitheme_swatch" src="about:blank;" title="This is an example of the selected color scheme." />
+                </td>
+            </tr>
+            </table>
+        </div>
+        <div id="settingsform_tab_html">
+            <table class="table-condensed">
+            <tr>
+                <td>HTML for the front page <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This HTML will form the content of the front page of your site at <?= htmlentities(site_url()) ?>"></div></td>
+                <td>
+                    <textarea name="html_frontpage"><?= htmlspecialchars($this->siteconfig->get('html_frontpage')) ?></textarea>
+                    </td>
+            </tr>
+            <tr>
+                <td>HTML for the &quot;About&quot; page <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This HTML will form the content of the About page."></div></td>
+                <td>
+                    <textarea name="html_about"><?= htmlspecialchars($this->siteconfig->get('html_about')) ?></textarea>
+                </td>
+            </tr>
+            </table>
+        </div>
+        <div id="settingsform_tab_extent">
+            <table class="table-condensed">
+            <tr>
+                <td>Bing Maps API Key <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Address searching and directions are courtesy of Bing Maps. To use these, you need a Bing Maps API Key."></div></td>
+                <td><input type="text" name="bing_api_key" size="80" maxlength="100" value="<?= htmlspecialchars( $this->siteconfig->get('bing_api_key') ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Starting Map View <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Pan and zoom the map to define the area displayed when a visitor first visits the Map page."></div></td>
+                <td>
+                    <input type="text" name="bbox_w" value="<?= $this->siteconfig->get('bbox_w') ?>" style="display:none;" />
+                    <input type="text" name="bbox_s" value="<?= $this->siteconfig->get('bbox_s') ?>" style="display:none;" />
+                    <input type="text" name="bbox_e" value="<?= $this->siteconfig->get('bbox_e') ?>" style="display:none;" />
+                    <input type="text" name="bbox_n" value="<?= $this->siteconfig->get('bbox_n') ?>" style="display:none;" />
+                    <div id="bbox_map_canvas"></div>
+                    <input type="text" id="geocode" size="65" placeholder="Search for your city or neighborhood" /> <input type="button" id="geocode_go" value="Search" />
+                </td>
+            </tr>
+            </table>
+        </div>
 
-<tr>
-    <td>Web Site Title</td>
-    <td><input type="text" name="title" size="50" maxlength="50" value="<?= htmlspecialchars( $this->siteconfig->get('title') ) ?>" /></td>
-</tr>
+    </div><!-- end of tabset -->
 
-<tr>
-    <td>Web Site Theme</td>
-    <td>
-        <?= form_dropdown('jquitheme', $themes, $this->siteconfig->get('jquitheme') ) ?>
-        <br/>
-        <img id="jquitheme_swatch" src="about:blank;" />
-    </td>
-</tr>
+    <div style="text-align:center; margin-top:2em;">
+        <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" style="width:50%;">
+            <span class="ui-button-text">Save Changes</span>
+        </button>
+    </div>
 
-
-<tr>
-    <td></td>
-    <td><input type="submit" value="Save Changes" /></td>
-</tr>
-
-</table>
 </form>
+
 
 
 

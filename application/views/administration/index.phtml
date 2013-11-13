@@ -1,6 +1,20 @@
 <? $this->load->view('administration/header.phtml') ?>
 
+<div class="container">
+    <h2>Menu Items</h2>
+    <ul>
+        <li><b>Settings</b> -- Adjust general settings such as the color theme and website title.</li>
+        <li><b>Event Sources</b> -- Define data sources from which events will be loaded.</li>
+        <li><b>Place Sources</b> -- Define data sources from which locations will be loaded.</li>
+        <li><b>Users</b> -- Decide who can use this administration panel.</li>
+    </ul>
+</div>
 
-
+<div class="container">
+    <h2>Instructions &amp; Concepts</h2>
+    <p>The <?= $this->config->item('app_title') ?> system is built on the assumption that you already have your data stored in Google Drive spreadsheets, a Google Calendar, events posted on Facebook, and so on. Rather than duplicate this same information into <?= $this->config->item('app_title') ?> and maintain two copies, you define these as <i>data sources</i> within <?= $this->config->item('app_title') ?> and allow it to load the content automatically. You can think of <?= $this->config->item('app_title') ?> as an &quot;aggregator&quot; of your location and event data, unifying it into one website, calendar, and map.</p>
+    <p>There are two types of data sources: <i>places</i> and <i>events</i>. The most basic difference, is that events have a specific date and time and thus expire from the website, while places do not &quot;expire&quot;. Both events and places have location, which can be an address or a latitude &amp; longitude, and can be loaded into the map.</p>
+    <p>If you are just getting started, the first thing you'll want to do is define some data sources using the menus at the top.</p>
+</div>
 
 <? $this->load->view('administration/footer.phtml') ?>
