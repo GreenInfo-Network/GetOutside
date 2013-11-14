@@ -1,3 +1,26 @@
-<p><hr/></p>
+
+<div id="footer" class="navbar navbar-default navbar-static-bottom ui-widget-header" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+        <?php if ($this->siteconfig->get('company_url') and $this->siteconfig->get('company_name')) { ?>
+        <a class="navbar-brand" target="_blank" href="http://<?= $this->siteconfig->get('company_url') ?>/"><?= htmlspecialchars($this->siteconfig->get('company_name')) ?></a>
+        <?php } ?>
+    </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="footer_credits">
+                    <img src="<?= site_url() ?>/application/views/images/knightfoundation.jpg" />
+                    Get Outside! funded by<br/><a target="_blank" href="http://www.knightfoundation.org/">Knight Foundation</a>
+                </li>
+                <li class="footer_credits">
+                    <img src="<?= site_url() ?>/application/views/images/greeninfo.jpg" />
+                    Interactive mapping by<br/><a target="_blank" href="http://www.greeninfo.org/">GreenInfo Network</a>
+                </li>
+            </ul>
+        </div>
+  </div>
+</div>
+
+
 </body>
 </html>

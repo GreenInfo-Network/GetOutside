@@ -1,15 +1,17 @@
 <? $this->load->view('administration/header.phtml') ?>
 
+<!-- Leaflet map framework -->
 <link rel="stylesheet" href="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
 <!--[if lte IE 8]>
 <link rel="stylesheet" href="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
 <![endif]-->
 <script src="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
 
+<!-- TinyMCE HTML editor -->
 <script type="text/javascript" src="<?= site_url() ?>/application/views/common/tinymce/js/tinymce/tinymce.min.js"></script>
 
+<!-- code specific to this page -->
 <script type="text/javascript" src="<?= site_url() ?>/application/views/administration/settings.js"></script>
-
 <script type="text/javascript">
 var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
 </script>
@@ -40,6 +42,9 @@ th {
 }
 </style>
 
+<div class="container">
+<br/>
+
 
 <form action="javascript:void(0);" id="settingsform">
     <div class="tabs">
@@ -61,6 +66,14 @@ th {
                     <br/>
                     <img id="jquitheme_swatch" src="about:blank;" title="This is an example of the selected color scheme." />
                 </td>
+            </tr>
+            <tr>
+                <td>Organization Name <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="In the bottom-left of pages, this organization name will appear as a hyperlink to your main website."></div></td>
+                <td><input type="text" name="company_name" size="50" maxlength="50" value="<?= htmlspecialchars( $this->siteconfig->get('company_name') ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Organization Web Site URL<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="In the bottom-left of pages, this hyperlink will be shown so visitors can get to your main website."></div></td>
+                <td><input type="text" name="company_url" size="50" maxlength="50" value="<?= htmlspecialchars( $this->siteconfig->get('company_url') ) ?>" /></td>
             </tr>
             </table>
         </div>
@@ -103,14 +116,15 @@ th {
     </div><!-- end of tabset -->
 
     <div style="text-align:center; margin-top:2em;">
-        <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" style="width:50%;">
-            <span class="ui-button-text">Save Changes</span>
-        </button>
+        <div class="btn-group">
+            <button type="submit" class="btn ui-state-focus"><span class="glyphicon glyphicon-thumbs-up"></span> Save Changes</button>
+        </div>
     </div>
-
 </form>
 
 
+<br/>
+</div>
 
 
 

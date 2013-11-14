@@ -6,6 +6,10 @@ var $has_one = array();
 var $has_many = array();
 var $default_order_by = array('username');
 
+/**********************************************************************************************
+ * STATIC FUNCTIONS
+ * utility functions such as encrypting passwords or validating that a username is okay
+ **********************************************************************************************/
 
 /*
  * checkPassword($username,$password)
@@ -51,6 +55,20 @@ public static function validateUsername($username) {
 }
 
 
+
+/**********************************************************************************************
+ * INSTANCE METHODS
+ **********************************************************************************************/
+
+
+/*
+ * isSuper()
+ * return TRUE or FALSE indicating whether this account is the super-admin, which means User #1
+ * controllers enforce some constraints on User #1 such as refusing to revoke admin permission or to delete it
+ */
+public function isSuper() {
+    return $this->id == 1;
+}
 
 } // end of Class
 

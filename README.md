@@ -13,13 +13,13 @@ The intended audience is parks and recreation departments, community centers, an
 
 #Requirements
 
-Requirements are very basic:
-* PHP with MySQLi extension (5.1 or later)
-* MySQL database (4.x or later)
+Get Outside! is designed to use standard PHP extensions and the MySQL database server, so it may be deployed on common, low-cost web hosting services.
+
+* PHP 5.2 or later
+* PHP PDO and PDO-MySQL extensions
+* MySQL database 4.x or later
 * Apache with mod_rewrite enabled
 * A Bing Maps API key (for address searches and directions)
-
-Get Outside! is designed to use standard PHP extensions and the MySQL database server, so it may be deployed on common, low-cost web hosting services.
 
 
 #Getting Started
@@ -35,19 +35,13 @@ Get Outside! is designed to use standard PHP extensions and the MySQL database s
 
 Thanks to [http://www.knightfoundation.org/](The Knight Foundation) for funding this project.
 
-The base framework for Get Outside! was inspired by the [https://github.com/gilbitron/PIP](PIP framework) by [https://github.com/gilbitron](Gilbert Pellegrom) Little code here resembles PIP, but it was a valuable tutorial on Controller routing and a basic View system.
+As with most open source software, this builds from many other packages. Rather than rely on a CDN, these packages have been bundled with Get Outside! so the exact versions are known to be available, and so we can include the individual licenses. These packages include:
+* _CodeIgniter_ -- PHP framework
+* _Twitter Bootstrap_ -- Responsive grid design, so the page behaves nicely when you resize or view on mobile screens
+* _jQuery and jQuery UI_ -- Toolkit/framework for AJAX, DOM/DHTML work, popup widgets, date pickers, and other such elements
+* _fullCalendar_ -- jQuery plugin for generating AJAX-savvy calendar grids
+* _Leaflet_ -- Map framework
+* _TinyMCE_ -- Turns <textarea> boxes into WYSIWYG HTML editors
+(if we forgot to list you, please mention it!)
 
 
-##To-Do, Issues, & Bugs
-
-* Admin panel: Users: do not allow user #1 to be deleted, nor to have manager status revoked (no widget for it, check POST data anyway)
-
-* Setup controller: will need ongoing work during development, as needs change and new config elements are added
-
-* Data sources: abstract class general Events Data Source and for Places Data Sources
-
-* Admin UI: data sources UI
-
-* Front page: basic map with OSM
-
-* Front page: add to map the collected events and places from data view

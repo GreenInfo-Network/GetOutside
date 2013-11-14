@@ -1,0 +1,75 @@
+<? $this->load->view('administration/header.phtml') ?>
+
+<link rel="stylesheet" media="screen" type="text/css" href="<?= site_url() ?>/application/views/common/colorpicker/css/colorpicker.css" />
+<script type="text/javascript" src="<?= site_url() ?>/application/views/common/colorpicker/js/colorpicker.js"></script>
+
+<script type="text/javascript" src="<?= site_url() ?>/application/views/administration/event_source.js"></script>
+
+<script type="text/javascript">
+var SOURCE_TYPE = <?= json_encode($source->type) ?>;
+</script>
+
+<div class="container">
+    <br/>
+
+    <form action="javascript:void(0);" id="editform">
+    <input type="hidden" name="id" value="<?= $source->id ?>" />
+    <input type="hidden" name="type" value="<?= $source->type ?>" />
+    <table class="table-condensed table-bordered">
+        <tr>
+            <td>Type</td>
+            <td><?= htmlspecialchars($source->type) ?></td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td><input type="text" name="name" value="<?= htmlspecialchars($source->name) ?>" size="50" maxlength="50" /></td>
+        </tr>
+        <tr>
+            <td>Color</td>
+            <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" /></td>
+        </tr>
+        <tr>
+            <td>URL</td>
+            <td>
+                <input type="text" name="url" value="<?= $source->url ?>" size="100" maxlength="500" />
+                <br/>
+                <?php if ($source->type == 'Google Calendar') { ?>
+                The URL should be the XML &quot;feed&quot; version of your calendar. See <a class="link" target="_blank" href="https://support.google.com/calendar/answer/37103?hl=en">Google's web site</a> for instructions on finding the URL of your calendar.
+                <?php } else if ($source->type == 'Google Spreadsheet') { ?>
+                The URL is the same URL you use to view the spreadsheet in your browser. You can copy the URL out of your browser's Address bar.
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <div class="btn-group">
+                <button type="button" class="btn ui-state-focus" id="button_save"><span class="glyphicon glyphicon-thumbs-up"></span> Save and Exit</button>
+                <button type="button" class="btn ui-state-focus" id="button_fetch"><span class="glyphicon glyphicon-transfer"></span> Save and Fetch</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+    </form>
+
+</div>
+
+
+
+<form action="<?= site_url('administration/event_source_delete') ?>" method="post" style="text-align:right;">
+    <input type="hidden" name="id" value="<?= $source->id ?>" />
+    <div class="btn-group">
+        <button type="submit" class="btn ui-state-focus"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+    </div>
+</form>
+
+
+
+<div class="dialog" id="dialog_fetching">
+    This can take a few minutes.
+    <br/>
+    Please be patient.
+</div>
+
+
+<? $this->load->view('administration/footer.phtml') ?>

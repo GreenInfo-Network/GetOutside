@@ -1,0 +1,42 @@
+/* general page elements. some override Twitter Bootstrap, and some are just utility functions such as .center and .bold */
+
+label {
+    font-weight:normal;
+    cursor:pointer;
+}
+
+a.link {
+    text-decoration:underline;
+}
+
+
+/* navbars, such as the header and footer */
+
+div.navbar {
+    margin-bottom:0;
+}
+
+.footer_credits {
+    font-size:8pt;
+    color:black;
+    padding:10px 10px 0 0;
+}
+
+.footer_credits a {
+    color:white;
+    padding:0 !important;
+}
+
+.footer_credits img {
+    float:right;
+    margin:0 0 0 5px;
+}
+
+
+
+/* the floating button bars that are common in the admin panel, but also in user settings */
+
+.btn-group-rightfloater {
+    float:right;
+    margin:1em 1em 1em 0;
+}

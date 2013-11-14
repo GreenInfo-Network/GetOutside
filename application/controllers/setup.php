@@ -33,7 +33,7 @@ public function index() {
             id integer NOT NULL AUTO_INCREMENT,
             username varchar(50) NOT NULL,
             password varchar(40) NOT NULL,
-            manager BOOLEAN NOT NULL DEFAULT FALSE,
+            level TINYINT UNSIGNED NOT NULL DEFAULT 1,
             PRIMARY KEY (id),
             UNIQUE KEY username_idx (username)
         )
@@ -46,31 +46,32 @@ public function index() {
         )
     ");
     $this->db->query("
-        CREATE TABLE places (
+        CREATE TABLE IF NOT EXISTS places (
             id INTEGER AUTO_INCREMENT NOT NULL,
             type varchar(50) NOT NULL,
             datasource_id integer NOT NULL,
-            remoteid varchar(50),
-            title varchar(50) NOT NULL DEFAULT 'Location',
-            address varchar(100) NOT NULL DEFAULT '',
+            remoteid varchar(250),
+            name varchar(50) NOT NULL DEFAULT,
             description text NOT NULL DEFAULT '',
-            latitude float,
-            longitiude float,
             PRIMARY KEY (id),
             KEY datasource_id_idx (datasource_id)
         )
     ");
     $this->db->query("
-        CREATE TABLE events (
+        CREATE TABLE IF NOT EXISTS events (
             id INTEGER AUTO_INCREMENT NOT NULL,
-            type varchar(50) NOT NULL,
-            datasource_id integer NOT NULL,
+            eventdatasource_id INTEGER UNSIGNED NOT NULL,
             remoteid varchar(50),
-            title varchar(50) NOT NULL DEFAULT 'Location',
+            title varchar(50) NOT NULL,
             address varchar(100) NOT NULL DEFAULT '',
             description text NOT NULL DEFAULT '',
+            keywords text NOT NULL DEFAULT '',
             latitude float,
             longitiude float,
+            allday BOOLEAN NOT NULL DEFAULT false,
+            starts INTEGER UNSIGNED NOT NULL,
+            ends INTEGER UNSIGNED NOT NULL,
+            url VARCHAR(500),
             PRIMARY KEY (id),
             KEY datasource_id_idx (datasource_id)
         )
@@ -78,16 +79,20 @@ public function index() {
 
 //GDA these are largely TBD
     $this->db->query("
-        CREATE TABLE placedatasources (
+        CREATE TABLE IF NOT EXISTS placedatasources (
             id INTEGER AUTO_INCREMENT NOT NULL,
             type varchar(50) NOT NULL,
             PRIMARY KEY (id)
         )
     ");
     $this->db->query("
-        CREATE TABLE eventdatasources (
+        CREATE TABLE IF NOT EXISTS eventdatasources (
             id INTEGER AUTO_INCREMENT NOT NULL,
             type varchar(50) NOT NULL,
+            name varchar(50) NOT NULL,
+            url varchar(500) NOT NULL,
+            color VARCHAR(7) NOT NULL DEFAULT '#CCCCCC',
+            last_fetch INTEGER UNSIGNED,
             PRIMARY KEY (id)
         )
     ");
@@ -111,15 +116,17 @@ public function index() {
     $siteconfig->set('bbox_e',  179.0000);
     $siteconfig->set('bbox_n',   89.0000);
     $siteconfig->set('bing_api_key', '');
+    $siteconfig->set('company_url', '');
+    $siteconfig->set('company_name', '');
 
     /////
     ///// initial admin password
     /////
 
-    $admin_username = 'admin';
+    $admin_username = 'admin@example.com';
     for ($admin_password = '', $i = 0, $z = strlen($a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')-1; $i != 10; $x = rand(0,$z), $admin_password .= $a{$x}, $i++);
     $user = new User();
-    $user->manager  = 1;
+    $user->level    = USER_LEVEL_ADMIN;
     $user->username = $admin_username;
     $user->password = User::encryptPassword($admin_password);
     $user->save();

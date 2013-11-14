@@ -1,0 +1,17 @@
+<? $this->load->view('administration/header.phtml') ?>
+
+<div class="container">
+<br/>
+
+    <form action="<?= current_url() ?>" method="post" id="deleteform">
+    <input type="hidden" name="id" value="<?= $source->id ?>" />
+        <p>Really delete <b><?= $source->name ?></b> ?</p>
+        <div class="btn-group">
+        <button type="submit" name="ok" value="ok" class="btn ui-state-focus"><span class="glyphicon glyphicon-trash"></span> Confirm Deletion</button>
+        </div>
+    </form>
+
+<br/>
+</div>
+
+<? $this->load->view('administration/footer.phtml') ?>

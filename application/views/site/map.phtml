@@ -1,6 +1,52 @@
 <? $this->load->view('site/header.phtml') ?>
 
-hello world
+<!-- Leaflet map framework -->
+<link rel="stylesheet" href="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
+<!--[if lte IE 8]>
+<link rel="stylesheet" href="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
+<![endif]-->
+<script src="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
+
+<!-- code specific to this page -->
+<script type="text/javascript" src="<?= site_url() ?>/application/views/site/map.js"></script>
+<script type="text/javascript">
+var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
+var START_W = <?= $this->siteconfig->get('bbox_w') ?>;
+var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
+var START_E = <?= $this->siteconfig->get('bbox_e') ?>;
+var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
+</script>
+
+
+<style type="text/css">
+#map_canvas {
+    /* height is overridden by handleResize() code, to fill the page */
+    width:100%;
+    height:4in;
+}
+</style>
+
+
+<div class="container" style="padding: 0 15px 0 0; width:100%;">
+    <div class="row">
+        <div class="col-xs-8">
+            <div id="map_canvas"></div>
+        </div>
+        <div class="col-xs-4">
+            <div>
+                <input type="text" id="geocode" style="width:80%" placeholder="Search for your city or neighborhood" /> <input type="button" id="geocode_go" value="Search" style="width:15%;" />
+            </div>
+
+            Places:<br/>
+            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
+            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
+            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
+            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
+            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
+            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
+        </div>
+    </div>
+</div>
 
 
 <? $this->load->view('site/footer.phtml') ?>

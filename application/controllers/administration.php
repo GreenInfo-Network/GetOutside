@@ -9,7 +9,7 @@ public function __construct() {
 
     $this->load->library('Session');
     $session = @$this->session->userdata('loggedin');
-    if (! $session or ! $session->manager ) die(redirect(site_url('site/login')));
+    if (! $session or ! $session->level) die(redirect(site_url('site/login')));
 
     $this->load->model('SiteConfig');
     $this->siteconfig = new SiteConfig();
@@ -57,6 +57,8 @@ public function ajax_save_settings() {
     $this->siteconfig->set('bbox_e', $_POST['bbox_e']);
     $this->siteconfig->set('bbox_n', $_POST['bbox_n']);
     $this->siteconfig->set('bing_api_key', $_POST['bing_api_key']);
+    $this->siteconfig->set('company_name', $_POST['company_name']);
+    $this->siteconfig->set('company_url', $_POST['company_url']);
 
     // AJAX endpoint: just say OK
     print 'ok';
@@ -73,6 +75,8 @@ public function users() {
     $data['users'] = new User();
     $data['users']->get();
 
+    $data['levels'] = $this->config->item('user_levels');
+
     $this->load->view('administration/users.phtml', $data);
 }
 
@@ -81,6 +85,9 @@ public function user($id) {
     $data['user'] = new User();
     $data['user']->where('id',$id)->get();
     if (! $data['user']->id) return redirect(site_url('administration/users'));
+
+    // load the list of user level options
+    $data['levels'] = $this->config->item('user_levels');
 
     // then bail to a form
     return $this->load->view('administration/user.phtml', $data);
@@ -92,47 +99,50 @@ public function ajax_save_user() {
     $data['user']->where('id',$_POST['id'])->get();
     if (! $data['user']->id) return print "Not a valid user. How did you get here?";
 
-    // if their username is changing, validate it as being an email address
-    // we only do this if it's changing, to allow for "admin" and maybe some other reason there'd be non-email usernames
+    // validation: special case, user #1 must be a admin
+    // anyone else still must be on the list
+    if ($data['user']->isSuper()) $_POST['level'] = USER_LEVEL_ADMIN;
+    if (! array_key_exists( (integer) @$_POST['level'] , $this->config->item('user_levels') )) return print "The account level is not a valid selection.";
+
+    // validation: check that the username is valid
     $_POST['username'] = strtolower($_POST['username']);
-    if ($_POST['username'] != $data['user']->username) {
-        if (! User::validateUsername($_POST['username']) ) return print "The username must be an email address.";
+    if (! User::validateUsername($_POST['username'])) return print "The username must be an email address.";
 
-        $already = new User();
-        $already->where('username',$_POST['username'])->where('id !=',$data['user']->id)->get();
-        if ($already->id) return print "That username is already in use.";
+    // validation: check that the username isn't in use
+    $already = new User();
+    $already->where('username',$_POST['username'])->where('id !=',$data['user']->id)->get();
+    if ($already->id) return print "That username is already in use.";
 
-        $data['user']->username = $_POST['username'];
-        $data['user']->save();
-    }
+    // validation: if they gave a password, encrypt it
+    if (@$_POST['password']) $_POST['password'] = User::encryptPassword($_POST['password']);
 
-    // are they changing their password?
-    if (@$_POST['password']) {
-        $data['user']->password = User::encryptPassword($_POST['password']);
-        $data['user']->save();
-    }
+    // save it!
+    $data['user']->username = $_POST['username'];
+    $data['user']->level    = (integer) $_POST['level'];
+    if (@$_POST['password']) $data['user']->password = $_POST['password'];
+    $data['user']->save();
 
     // AJAX endpoint: just say OK
     print 'ok';
 }
 
 public function ajax_create_user() {
+    // cast the username (email) to lowercase; MySQL is case-insensitive, but I hate relying on that behavior, e.g. if a future revision uses a different DB
     // make sure all elements are provided
-    $username = strtolower(@$_POST['username']);
-    $password = @$_POST['password'];
-    $manager  = (integer) @$_POST['manager'];
-    if (! $username or ! $password) return print "All fields are required.";
-    if (! User::validateUsername($username) ) return print "The username must be an email address.";
+    if (! @$_POST['username'] or ! @$_POST['password']) return print "All fields are required.";
+    $_POST['username'] = strtolower($_POST['username']);
+    if (! User::validateUsername(@$_POST['username']) ) return print "The username must be an email address.";
+    if (! array_key_exists( (integer) @$_POST['level'], $this->config->item('user_levels') )) return print "The account level is not a valid selection.";
 
     // is this account already in use?
     $user = new User();
-    $user->where('username',$username)->get();
+    $user->where('username',$_POST['username'])->get();
     if ($user->username) return print "That username is already in use.";
 
     // guess we're clear; go ahead and save it
-    $user->username = $username;
-    $user->password = User::encryptPassword($password);
-    $user->manager  = $manager;
+    $user->username = $_POST['username'];
+    $user->password = User::encryptPassword($_POST['password']);
+    $user->level    = $_POST['level'];
     $user->save();
 
     // AJAX endpoint: just say OK
@@ -141,9 +151,13 @@ public function ajax_create_user() {
 
 public function user_delete() {
     // fetch the user or die trying
+    $data = array();
     $data['user'] = new User();
     $data['user']->where('id',$_POST['id'])->get();
     if (! $data['user']->id) return redirect(site_url('administration/users'));
+
+    // if this is the super-admin, don't even think about it
+    if ($data['user']->isSuper()) return redirect(site_url('administration/users'));
 
     // if they're not POSTing a confirmation, bail
     if (! @$_POST['ok']) return $this->load->view('administration/user_delete.phtml', $data);
@@ -161,8 +175,101 @@ public function user_delete() {
 
 public function event_sources() {
     $data = array();
+    $data['sources'] = new EventDataSource();
+    $data['sources']->get();
+
+    $data['types'] = array();
+    foreach ($this->config->item('event_datasource_types') as $t) $data['types'][$t] = $t;
+
     $this->load->view('administration/event_sources.phtml', $data);
 }
+
+public function event_source($id) {
+    $data = array();
+    if ($id == 'new') {
+        $data['source'] = null;
+    } else {
+        $data['source'] = new EventDataSource();
+        $data['source']->where('id',$id)->get();
+        if (! $data['source']->id) return redirect(site_url('administration/event_sources'));
+    }
+    $this->load->view('administration/event_source.phtml', $data);
+}
+
+public function ajax_create_event_source() {
+    // validation: the type must be valid, and the name must be given
+    if (! @$_POST['name']) return print "All fields are required.";
+    if (! array_key_exists( (integer) @$_POST['type'], $this->config->item('event_datasource_types') )) return print "The type is not a valid selection.";
+
+    // save the data source
+    $source = new EventDataSource();
+    $source->type = $_POST['type'];
+    $source->name = trim(strip_tags($_POST['name']));
+    $source->url  = '';
+    $source->save();
+
+    // AJAX endpoint: just say OK
+    print $source->id;
+}
+
+public function ajax_load_event_source() {
+    // fetch the data source by its ID# or die trying
+    $source = new EventDataSource();
+    $source->where('id',$_POST['id'])->get();
+    if (! $source->id) return print "Could not find that data source.";
+
+    // swap out this EventDataSource with the appropriate subclass, e.g. a EventDataSource_GoogleCalendar instance
+    // so the driver-specific methods will be used, e.g. reloadContent()
+    try {
+        $source = $source->convertToDriver();
+        $source->reloadContent();
+    } catch (EventDataSourceSuccessException $e) {
+        return print "SUCCESS: " . $e->getMessage();
+    } catch (EventDataSourceErrorException $e) {
+        return print "ERROR: " . $e->getMessage();
+    }
+}
+
+
+public function ajax_save_event_source() {
+    // fetch the data source by its ID# or die trying
+    $source = new EventDataSource();
+    $source->where('id',$_POST['id'])->get();
+    if (! $source->id) return print "Could not find that data source.";
+
+    // validation: name and URL are required
+    $_POST['name'] = trim(strip_tags(@$_POST['name']));
+    $_POST['url']  = trim(@$_POST['url']);
+    if (! $_POST['name'] or ! $_POST['url']) return print "The name and URL are required.";
+
+    // validation: color must be #XXXXXX
+    if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['color'])) return print "Select a valid color.";
+
+    // save it
+    $source->name  = $_POST['name'];
+    $source->url   = $_POST['url'];
+    $source->color = $_POST['color'];
+    $source->save();
+
+    // AJAX endpoint, just say OK
+    print 'ok';
+}
+
+public function event_source_delete() {
+    // fetch the specified data source or die trying
+    $data = array();
+    $data['source'] = new EventDataSource();
+    $data['source']->where('id',$_POST['id'])->get();
+    if (! $data['source']->id) return redirect(site_url('administration/event_sources'));
+
+    // if they're not POSTing a confirmation, bail
+    if (! @$_POST['ok']) return $this->load->view('administration/event_source_delete.phtml', $data);
+
+    // delete it, send the user home
+    $data['source']->delete();
+    redirect(site_url('administration/event_sources'));
+}
+
 
 
 /*******************************************************************************************************
@@ -170,6 +277,10 @@ public function event_sources() {
  *******************************************************************************************************/
 
 public function place_sources() {
+    $data = array();
+    $data['sources'] = new PlaceDataSource();
+    $data['sources']->get();
+
     $data = array();
     $this->load->view('administration/place_sources.phtml', $data);
 }

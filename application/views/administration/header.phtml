@@ -19,11 +19,12 @@
     $.fn.btn = btn // assigns bootstrap button functionality to $.fn.btn
     </script>
 
-
-
     <script type="text/javascript">
     var BASE_URL = <?= json_encode(site_url()) ?>;
     </script>
+
+    <!-- sitewide styling overriding the selected theme -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/website.css" />
 </head>
 <body>
 

@@ -32,7 +32,7 @@ public function login() {
     // then send them on to the logged-in page
     $this->load->library('Session');
     $this->session->set_userdata('loggedin', $user->stored);
-    $url = $user->manager ? 'administration' : 'site';
+    $url = $user->level >= USER_LEVEL_MANAGER ? 'administration' : 'site';
     return redirect(site_url($url));
 }
 
@@ -42,7 +42,7 @@ public function logout() {
 
 
 /***************************************************************************************
- * WEB PAGES
+ * OTHER WEB PAGES
  ***************************************************************************************/
 
 public function index() {
@@ -53,12 +53,46 @@ public function about() {
     $this->load->view('site/about.phtml');
 }
 
+
+
+/***************************************************************************************
+ * MAP AND SUPPORTING AJAX ENDPOINTS
+ ***************************************************************************************/
+
 public function map() {
     $this->load->view('site/map.phtml');
 }
 
+
+
+/***************************************************************************************
+ * CALENDAR AND SUPPORTING AJAX ENDPOINTS
+ ***************************************************************************************/
+
 public function calendar() {
     $this->load->view('site/calendar.phtml');
+}
+
+public function ajax_calendar_events() {
+    $events = new Event();
+    $events->where('starts >=',$_GET['startdate'])->where('ends <',$_GET['enddate'])->get();
+
+    // the output format here is specific to fullCalendar, the chosen client-side calendar renderer
+    $output = array();
+    foreach ($events as $event) {
+        $thisone = array();
+        $thisone['id'] = $event->id;
+        $thisone['title']   = $event->name;
+        $thisone['allDay']  = (boolean) $event->allday;
+        $thisone['start']   = $event->starts;
+        $thisone['end']     = $event->ends;
+        $thisone['url']     = $event->url;
+        $thisone['color']   = $event->eventdatasource->color;
+
+        $output[] = $thisone;
+    }
+
+    print json_encode($output);
 }
 
 

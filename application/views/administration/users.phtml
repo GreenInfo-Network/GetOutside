@@ -2,8 +2,8 @@
 
 <script type="text/javascript" src="<?= site_url() ?>/application/views/administration/users.js"></script>
 
-<div class="container" style="text-align:right;">
-    <a href="#" id="button_new">+ New</a>
+<div class="btn-group btn-group-rightfloater">
+    <button type="button" class="btn ui-state-focus" id="button_new"><span class="glyphicon glyphicon-certificate"></span> New</button>
 </div>
 
 
@@ -15,7 +15,7 @@
 <?php foreach ($users as $user) { ?>
 <tr>
     <td><a href="<?= site_url("administration/user/{$user->id}") ?>"><?= $user->username ?></a></td>
-    <td><?= $user->manager ? 'administration' : 'website' ?></td>
+    <td><?= $levels[$user->level] ?></td>
 </tr>
 <?php } ?>
 </table>
@@ -28,21 +28,16 @@
     <table>
     <tr>
         <td>E-mail</td>
-        <td><input type="text" name="username" maxlength="50" style="width:3in;" /></td>
+        <td><input type="text" name="username" maxlength="50" style="width:3in;" placeholder="E-mail address" /></td>
     </tr>
     <tr>
         <td>Password</td>
-        <td><input type="text" name="password" maxlength="50" style="width:3in;" /></td>
+        <td><input type="text" name="password" maxlength="50" style="width:3in;" placeholder="Password" /></td>
     </tr>
-
-<!--some day we'll want to have non-manager accounts, though they won't admit it yet and if we add this it'd confuse them
     <tr>
         <td>Status</td>
-        <td><?= form_dropdown('manager', array(0=>'Non-Manager', 1=>'Manager'), 0, 'style="width:3in;"') ?></td>
+        <td><?= form_dropdown('level', $levels, 1) ?></td>
     </tr>
--->
-    <input type="hidden" name="manager" value="1" />
-
     </table>
 </form>
 </div>

@@ -1,11 +1,76 @@
 <? $this->load->view('administration/header.phtml') ?>
 
-<script type="text/javascript">
-$(document).ready(function () {
-    $('#navbar_event_sources').addClass('ui-state-focus');
-});
-</script>
+<script type="text/javascript" src="<?= site_url() ?>/application/views/administration/event_sources.js"></script>
+<style type="text/css">
+.swatch {
+    height:1em;
+    width:1em;
+    display:inline-block;
+}
+.refresh {
+    cursor:pointer;
+}
+</style>
 
-    
+
+<div class="btn-group btn-group-rightfloater">
+    <button type="button" class="btn ui-state-focus" id="button_new"><span class="glyphicon glyphicon-certificate"></span> New</button>
+</div>
+
+<table class="table table-condensed table-bordered">
+<tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th># Events</th>
+    <th>Last Fetch</th>
+</tr>
+<?php foreach ($sources as $source) { ?>
+<tr>
+    <td>
+        <div class="swatch" style="background-color:<?= htmlspecialchars($source->color) ?>;"></div>
+        <a href="<?= site_url("administration/event_source/{$source->id}") ?>"><?= htmlspecialchars($source->name) ?></a>
+    </td>
+    <td><?= $source->type ?></td>
+    <td><?= $source->howManyEvents() ?></td>
+    <td><span class="glyphicon glyphicon-refresh refresh" data-id="<?= $source->id ?>" title="Fetch now"></span> <?= $source->lastFetch() ?></td>
+</tr>
+<?php } ?>
+</table>
+
+
+
+
+<div class="dialog" id="dialog_new">
+<form action="javascript:void(0);">
+    <table>
+    <tr>
+        <td>Name</td>
+        <td><input type="text" name="name" maxlength="50" style="width:3in;" placeholder="A name for this data source" /></td>
+    </tr>
+    <tr>
+        <td>Type</td>
+        <td><?= form_dropdown('type', $types) ?></td>
+    </tr>
+    </table>
+
+<div style="font-size:70%;">
+    Tips:
+    <ul>
+    <li>Google Calendar -- The URL should be the XML &quot;feed&quot; version of your calendar. See <a class="link" target="_blank" href="https://support.google.com/calendar/answer/37103?hl=en">Google's web site</a> for instructions on finding the URL of your calendar.</li>
+    <li>Google Spreadsheet -- The URL is the same URL you use to view the spreadsheet in your browser. You can copy the URL out of your browser's Address bar.</li>
+    </ul>
+</div>
+
+</form>
+</div>
+
+
+
+<div class="dialog" id="dialog_fetching">
+    This can take a few minutes.
+    <br/>
+    Please be patient.
+</div>
+
 
 <? $this->load->view('administration/footer.phtml') ?>

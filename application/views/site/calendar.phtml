@@ -1,6 +1,24 @@
 <? $this->load->view('site/header.phtml') ?>
 
-hello world
+
+<link rel="stylesheet" href="<?= site_url() ?>/application/views/common/fullcalendar-1.6.4/fullcalendar/fullcalendar.css" />
+<script src="<?= site_url() ?>/application/views/common/fullcalendar-1.6.4/fullcalendar/fullcalendar.js"></script>
+
+<script type="text/javascript" src="<?= site_url() ?>/application/views/site/calendar.js"></script>
+
+
+<div class="container" style="width:100%;">
+    <div class="row">
+        <div class="col-xs-2">
+        </div>
+        <div class="col-xs-8">
+            <div id="calendar"></div>
+        </div>
+        <div class="col-xs-2">
+        </div>
+    </div>
+</div>
+
 
 
 <? $this->load->view('site/footer.phtml') ?>
