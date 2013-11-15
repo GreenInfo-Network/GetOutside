@@ -62,7 +62,8 @@ $config['app_title'] = 'Get Outside!';
 $config['event_datasource_types'] = array(
     'Google Calendar',
     'Google Spreadsheet',
-    'Atom/RSS Feed',
+    'Atom Feed',
+    'RSS 2.0 Feed',
     'ActiveNet API',
 );
 $config['place_datasource_types'] = array(
