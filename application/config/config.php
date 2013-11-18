@@ -54,21 +54,6 @@ $config['user_levels'] = array(
 $config['app_title'] = 'Get Outside!';
 
 
-/*
-|--------------------------------------------------------------------------
-| Types of supported data sources for Events and Places
-|--------------------------------------------------------------------------
-*/
-$config['event_datasource_types'] = array(
-    'Google Calendar',
-    'Google Spreadsheet',
-    'Atom Feed',
-    'RSS 2.0 Feed',
-    'ActiveNet API',
-);
-$config['place_datasource_types'] = array(
-    'Google Spreadsheet',
-);
 
 
 /*
