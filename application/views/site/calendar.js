@@ -17,11 +17,8 @@ $(document).ready(function () {
             window.open(calEvent.url);
             return false;
         },
-        // only one data source: our own feed
-        // we don't use the Google Calendar functionality since we need to merge in events from other sources too, so it makes sense to have one unified feed
-        eventSources: [
-            BASE_URL + 'site/ajax_calendar_events'
-        ],
+        // nop data sources; these are added by checkbox event handlers below
+        eventSources: [ ],
         // override the viewDisplay to show only 6 months into the futgure and none of the past; thank you, Joel Correa on StackOverflow
         viewDisplay   : function(view) {
             var now = new Date(); 
@@ -39,6 +36,21 @@ $(document).ready(function () {
             else { jQuery('.fc-button-next').removeClass("fc-state-disabled"); }
         }
     });
+
+    // data source checkboxes: checking them relates them to a Data Source in DATA_SOURCES
+    // and adds/removes the DS from the Calendar
+    // define this event handler, then trigger it right now to load up the content
+    $('input[type="checkbox"][name="sources[]"]').change(function () {
+        var id = $(this).prop('value')
+        var ds = BASE_URL + 'site/ajax_calendar_events/' + id;
+
+        var showhide = $(this).is(':checked');
+        if (showhide) {
+            $('#calendar').fullCalendar('addEventSource',ds);
+        } else {
+            $('#calendar').fullCalendar('removeEventSource',ds);
+        }
+    }).trigger('change');
 });
 
 

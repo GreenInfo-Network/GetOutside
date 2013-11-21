@@ -70,12 +70,21 @@ public function map() {
  ***************************************************************************************/
 
 public function calendar() {
-    $this->load->view('site/calendar.phtml');
+    $data = array();
+
+    // assocarray of Event Data Sources: ID -> Name
+    // used to generate the checkbox list, which is used to toggle the data source
+    $data['sources'] = array();
+    $dsx = new EventDataSource();
+    $dsx->get();
+    foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color);
+
+    $this->load->view('site/calendar.phtml',$data);
 }
 
-public function ajax_calendar_events() {
+public function ajax_calendar_events($id=0) {
     $events = new Event();
-    $events->where('starts >=',$_GET['startdate'])->where('ends <',$_GET['enddate'])->get();
+    $events->where('eventdatasource_id',$id)->where('starts >=',$_GET['startdate'])->where('ends <',$_GET['enddate'])->get();
 
     // the output format here is specific to fullCalendar, the chosen client-side calendar renderer
     $output = array();
