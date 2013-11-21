@@ -107,7 +107,7 @@ public function reloadContent() {
         $end_midnight   = date_parse($end);
         if (!$start_midnight['hour'] and !$start_midnight['minute'] and !$end_midnight['hour'] and !$end_midnight['minute']) {
             $event->allday = 1;
-            $event->ends -= 1;
+            $event->ends  -= 1;
         }
         $event->save();
 
