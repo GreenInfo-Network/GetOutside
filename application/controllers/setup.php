@@ -90,9 +90,13 @@ public function index() {
             id INTEGER AUTO_INCREMENT NOT NULL,
             type varchar(50) NOT NULL,
             name varchar(50) NOT NULL,
-            url varchar(500) NOT NULL,
-            color VARCHAR(7) NOT NULL DEFAULT '#CCCCCC',
             last_fetch INTEGER UNSIGNED,
+            color VARCHAR(7) NOT NULL DEFAULT '#CCCCCC',
+            url varchar(500) NOT NULL,
+            option1 varchar(500),
+            option2 varchar(500),
+            option3 varchar(500),
+            option4 varchar(500),
             PRIMARY KEY (id)
         )
     ");

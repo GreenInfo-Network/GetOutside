@@ -9,11 +9,19 @@ var $has_one          = array(
                                 'join_other_as' => 'eventdatasource',
                                 'join_table' => 'eventdatasources'
                             ),
-                            'eventdatasource_googlespreadsheet' => array(
+                            'eventdatasource_ical' => array(
                                 'join_other_as' => 'eventdatasource',
                                 'join_table' => 'eventdatasources'
                             ),
-                            'eventdatasource_activenet' => array(
+                            'eventdatasource_atom' => array(
+                                'join_other_as' => 'eventdatasource',
+                                'join_table' => 'eventdatasources'
+                            ),
+                            'eventdatasource_rss2' => array(
+                                'join_other_as' => 'eventdatasource',
+                                'join_table' => 'eventdatasources'
+                            ),
+                            'eventdatasource_active' => array(
                                 'join_other_as' => 'eventdatasource',
                                 'join_table' => 'eventdatasources'
                             ),

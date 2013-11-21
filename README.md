@@ -35,13 +35,17 @@ Get Outside! is designed to use standard PHP extensions and the MySQL database s
 
 Thanks to [http://www.knightfoundation.org/](The Knight Foundation) for funding this project.
 
-As with most open source software, this builds from many other packages. Rather than rely on a CDN, these packages have been bundled with Get Outside! so the exact versions are known to be available, and so we can include the individual licenses. These packages include:
+As with most open source software, this builds from many other packages. These packages have been bundled with Get Outside! so the exact versions are available, and so we can include the individual licenses.
+
+These packages include:
+
 * _CodeIgniter_ -- PHP framework
 * _Twitter Bootstrap_ -- Responsive grid design, so the page behaves nicely when you resize or view on mobile screens
 * _jQuery and jQuery UI_ -- Toolkit/framework for AJAX, DOM/DHTML work, popup widgets, date pickers, and other such elements
 * _fullCalendar_ -- jQuery plugin for generating AJAX-savvy calendar grids
 * _Leaflet_ -- Map framework
 * _TinyMCE_ -- Turns <textarea> boxes into WYSIWYG HTML editors
+* _ics-parser_ -- by John Grogg, for parsing iCal event feeds.
 (if we forgot to list you, please mention it!)
 
 

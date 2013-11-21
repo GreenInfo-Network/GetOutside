@@ -179,7 +179,7 @@ public function event_sources() {
     $data['sources']->get();
 
     $data['types'] = array();
-    foreach ($this->config->item('event_datasource_types') as $t) $data['types'][$t] = $t;
+    foreach (EventDataSource::$SOURCE_TYPES as $t) $data['types'][$t] = $t;
 
     $this->load->view('administration/event_sources.phtml', $data);
 }
@@ -191,6 +191,7 @@ public function event_source($id) {
     } else {
         $data['source'] = new EventDataSource();
         $data['source']->where('id',$id)->get();
+        $data['source'] = $data['source']->convertToDriver();
         if (! $data['source']->id) return redirect(site_url('administration/event_sources'));
     }
     $this->load->view('administration/event_source.phtml', $data);
@@ -199,7 +200,7 @@ public function event_source($id) {
 public function ajax_create_event_source() {
     // validation: the type must be valid, and the name must be given
     if (! @$_POST['name']) return print "All fields are required.";
-    if (! array_key_exists( (integer) @$_POST['type'], $this->config->item('event_datasource_types') )) return print "The type is not a valid selection.";
+    if (! array_key_exists( (integer) @$_POST['type'],EventDataSource::$SOURCE_TYPES)) return print "The type is not a valid selection.";
 
     // save the data source
     $source = new EventDataSource();
@@ -220,8 +221,11 @@ public function ajax_load_event_source() {
 
     // swap out this EventDataSource with the appropriate subclass, e.g. a EventDataSource_GoogleCalendar instance
     // so the driver-specific methods will be used, e.g. reloadContent()
+    // NOTE: we're violating models by stuffing our SiteConfig item into the instance; not seeing any other clean way to get siteconfig into the instance
+    // for some site-specific things, e.g. loading the bounding box for a spatial filter
     try {
         $source = $source->convertToDriver();
+        $source->siteconfig = $this->siteconfig;
         $source->reloadContent();
     } catch (EventDataSourceSuccessException $e) {
         return print "SUCCESS: " . $e->getMessage();
@@ -235,20 +239,34 @@ public function ajax_save_event_source() {
     // fetch the data source by its ID# or die trying
     $source = new EventDataSource();
     $source->where('id',$_POST['id'])->get();
+    $source = $source->convertToDriver();
     if (! $source->id) return print "Could not find that data source.";
 
     // validation: name and URL are required
-    $_POST['name'] = trim(strip_tags(@$_POST['name']));
-    $_POST['url']  = trim(@$_POST['url']);
-    if (! $_POST['name'] or ! $_POST['url']) return print "The name and URL are required.";
+    $_POST['name']      = trim(strip_tags(@$_POST['name']));
+    $_POST['url']       = trim(@$_POST['url']);
+    $_POST['option1']   = trim(@$_POST['option1']);
+    $_POST['option2']   = trim(@$_POST['option2']);
+    $_POST['option3']   = trim(@$_POST['option3']);
+    $_POST['option4']   = trim(@$_POST['option4']);
+    if (! $_POST['name']) return print "The name is required.";
+    if ($source->option_fields['url']     and $source->option_fields['url']['required']     and !$_POST['url'])      return print "Missing required field: {$source->option_fields['url']['name']}";
+    if ($source->option_fields['option1'] and $source->option_fields['option1']['required'] and !$_POST['option1'])  return print "Missing required field: {$source->option_fields['option1']['name']}";
+    if ($source->option_fields['option2'] and $source->option_fields['option2']['required'] and !$_POST['option2'])  return print "Missing required field: {$source->option_fields['option2']['name']}";
+    if ($source->option_fields['option3'] and $source->option_fields['option3']['required'] and !$_POST['option3'])  return print "Missing required field: {$source->option_fields['option3']['name']}";
+    if ($source->option_fields['option4'] and $source->option_fields['option4']['required'] and !$_POST['option4'])  return print "Missing required field: {$source->option_fields['option4']['name']}";
 
     // validation: color must be #XXXXXX
     if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['color'])) return print "Select a valid color.";
 
     // save it
-    $source->name  = $_POST['name'];
-    $source->url   = $_POST['url'];
-    $source->color = $_POST['color'];
+    $source->name    = $_POST['name'];
+    $source->color   = $_POST['color'];
+    $source->url     = $_POST['url'];
+    $source->option1 = $_POST['option1'];
+    $source->option2 = $_POST['option2'];
+    $source->option3 = $_POST['option3'];
+    $source->option4 = $_POST['option4'];
     $source->save();
 
     // AJAX endpoint, just say OK

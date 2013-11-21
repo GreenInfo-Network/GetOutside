@@ -9,6 +9,13 @@
 var SOURCE_TYPE = <?= json_encode($source->type) ?>;
 </script>
 
+<style type="text/css">
+em {
+    font-size:75%;
+}
+</style>
+
+
 <div class="container">
     <br/>
 
@@ -26,20 +33,58 @@ var SOURCE_TYPE = <?= json_encode($source->type) ?>;
         </tr>
         <tr>
             <td>Color</td>
-            <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" /></td>
+            <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" /></td>
         </tr>
+        <?php if ($source->option_fields['url']) { ?>
         <tr>
-            <td>URL</td>
+            <td><?= $source->option_fields['url']['name'] ?></td>
             <td>
                 <input type="text" name="url" value="<?= $source->url ?>" size="100" maxlength="500" />
                 <br/>
-                <?php if ($source->type == 'Google Calendar') { ?>
-                The URL should be the XML &quot;feed&quot; version of your calendar. See <a class="link" target="_blank" href="https://support.google.com/calendar/answer/37103?hl=en">Google's web site</a> for instructions on finding the URL of your calendar.
-                <?php } else if ($source->type == 'Google Spreadsheet') { ?>
-                The URL is the same URL you use to view the spreadsheet in your browser. You can copy the URL out of your browser's Address bar.
-                <?php } ?>
+                <em><?= $source->option_fields['url']['help'] ?></em>
             </td>
         </tr>
+        <?php } ?>
+        <?php if ($source->option_fields['option1']) { ?>
+        <tr>
+            <td><?= $source->option_fields['option1']['name'] ?></td>
+            <td>
+                <input type="text" name="option1" value="<?= $source->option1 ?>" size="100" maxlength="500" />
+                <br/>
+                <em><?= $source->option_fields['option1']['help'] ?></em>
+            </td>
+        </tr>
+        <?php } ?>
+        <?php if ($source->option_fields['option2']) { ?>
+        <tr>
+            <td><?= $source->option_fields['option2']['name'] ?></td>
+            <td>
+                <input type="text" name="option2" value="<?= $source->option2 ?>" size="100" maxlength="500" />
+                <br/>
+                <em><?= $source->option_fields['option2']['help'] ?></em>
+            </td>
+        </tr>
+        <?php } ?>
+        <?php if ($source->option_fields['option3']) { ?>
+        <tr>
+            <td><?= $source->option_fields['option3']['name'] ?></td>
+            <td>
+                <input type="text" name="option3" value="<?= $source->option3 ?>" size="100" maxlength="500" />
+                <br/>
+                <em><?= $source->option_fields['option3']['help'] ?></em>
+            </td>
+        </tr>
+        <?php } ?>
+        <?php if ($source->option_fields['option4']) { ?>
+        <tr>
+            <td><?= $source->option_fields['option4']['name'] ?></td>
+            <td>
+                <input type="text" name="option4" value="<?= $source->option4 ?>" size="100" maxlength="500" />
+                <br/>
+                <em><?= $source->option_fields['option4']['help'] ?></em>
+            </td>
+        </tr>
+        <?php } ?>
         <tr>
             <td></td>
             <td>

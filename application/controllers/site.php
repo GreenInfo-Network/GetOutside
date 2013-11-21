@@ -92,6 +92,7 @@ public function ajax_calendar_events() {
         $output[] = $thisone;
     }
 
+    header('Content-type: application/json');
     print json_encode($output);
 }
 
