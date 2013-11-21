@@ -9,7 +9,7 @@ var $has_many         = array('event',);
 var $option_fields = array(
     'url'     => NULL,
     'option1' => array('required'=>TRUE, 'name'=>"API Key", 'help'=>"Your Active.com API key for the Event Search API v2"),
-    'option2' => array('required'=>FALSE, 'name'=>"Org ID", 'help'=>"Optional: Enter your Organization ID to filter the listings, showing only your events from Active.com"),
+    'option2' => array('required'=>FALSE, 'name'=>"Org ID", 'help'=>"Optional: Enter your Organization GUID to filter the listings, showing only your events from Active.com. To find your Organization GUID, contact Active.com technical support."),
     'option3' => NULL,
     'option4' => NULL,
 );
