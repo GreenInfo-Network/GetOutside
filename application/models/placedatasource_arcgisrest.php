@@ -37,13 +37,17 @@ public function __construct() {
  * This allows for more complex communication than a simple true/false return, e.g. the name of the data source and an error code (number of placed loaded/failed)
  */
 public function reloadContent() {
-    // make sure no shenanigans: ArcGIS REST services fit a pattern, and field names shouldn't have tricky characters
+    // make sure no shenanigans: ArcGIS REST services fit a pattern, and field names must be on the list
     $url = $this->url;
+    if (! preg_match('!^http://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException('That URL does not fit the format for a REST endpoint.');
+
     $namefield = $this->option1;
     $descfield = $this->option2;
-    if (! preg_match('!^http://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException('That URL does not fit the format for a REST endpoint.');
-    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Missing or invalid field: Name field');
-    if (! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Missing or invalid field: Description field');
+    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
+    if (! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
+    $fields = $this->listFields(TRUE);
+    if (! @$fields[$namefield]) throw new PlaceDataSourceErrorException('Chosen Name field  does not exist in the ArcGIS service.');
+    if (! @$fields[$descfield]) throw new PlaceDataSourceErrorException('Chosen Description field does not exist in the ArcGIS service.');
 
     // expand upon the base URL, adding parameters to make a query for expected JSON content
     $params = array(
@@ -102,13 +106,9 @@ public function reloadContent() {
  * Connect to the data source and grab a list of field names. Return an array of string field names.
  */
 public function listFields($assoc=FALSE) {
-    // make sure no shenanigans: ArcGIS REST services fit a pattern, and field names shouldn't have tricky characters
+    // make sure no shenanigans: ArcGIS REST services fit a pattern
     $url = $this->url;
-    $namefield = $this->option1;
-    $descfield = $this->option2;
     if (! preg_match('!^http://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException('That URL does not fit the format for a REST endpoint.');
-    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Missing or invalid field: Name field');
-    if (! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Missing or invalid field: Description field');
 
     // the base URL plus only one param asking for JSON output
     $params = array(

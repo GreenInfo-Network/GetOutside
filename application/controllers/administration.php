@@ -315,11 +315,15 @@ public function place_source($id) {
         $data['source'] = $data['source']->convertToDriver();
         if (! $data['source']->id) return redirect(site_url('administration/place_sources'));
 
-        // get the list of fields too, and convert to an assocarray, so they can pick from the list   (for any options that are 'isfield')
-        try {
-            $data['fields'] = $data['source']->listFields(TRUE);
-        } catch (PlaceDataSourceErrorException $e) {
-            $data['fields'] = array();
+        // get the list of fields too, and convert to an assocarray, so they can pick from the list for any options that are 'isfield'
+        // this is only necessary if any options are 'isfield', so check that and only ping the datasource if necessary
+        $needs_fields = @$data['source']->option1['isfield'] or @$data['source']->option2['isfield'] or @$data['source']->option3['isfield'] or @$data['source']->option4['isfield'];
+        if ($needs_fields) {
+            try {
+                $data['fields'] = $data['source']->listFields(TRUE);
+            } catch (PlaceDataSourceErrorException $e) {
+                $data['fields'] = array();
+            }
         }
     }
     $this->load->view('administration/place_source.phtml', $data);
