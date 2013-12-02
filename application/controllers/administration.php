@@ -314,6 +314,13 @@ public function place_source($id) {
         $data['source']->where('id',$id)->get();
         $data['source'] = $data['source']->convertToDriver();
         if (! $data['source']->id) return redirect(site_url('administration/place_sources'));
+
+        // get the list of fields too, and convert to an assocarray, so they can pick from the list   (for any options that are 'isfield')
+        try {
+            $data['fields'] = $data['source']->listFields(TRUE);
+        } catch (PlaceDataSourceErrorException $e) {
+            $data['fields'] = array();
+        }
     }
     $this->load->view('administration/place_source.phtml', $data);
 }

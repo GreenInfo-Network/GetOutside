@@ -1,0 +1,30 @@
+Do you have Places or Events in some other format which isn't supported by the
+existing PlaceDataSource or EventDataSource driver subclasses? Then feel free
+to write it! Here's a guide to get you started.
+
+
+GETTING STARTED
+
+Check out the base class for these data sources. There are some lengthy comments describing
+how to subclass it into a driver:
+    models/placedatasource.php
+    models/eventdatasource.php
+
+You can crib from the existing drivers, that's a great way to get a start. Customize the _$option_fields_, then
+the functions described in _INSTANCE METHODS_ and you should be 90% there.
+
+
+SECURITY
+
+Keep in mind that the URL field and the _option_ fields are user-supplied, usually using the admin UI but
+hypothetically using plain olds UPDATE statements in the DB and bypassing the UI. _As such, the url and option fields
+should be treated as untrustworthy input_ or at least no more trustworthy than an admin who accidentally enters
+an URL incorrectly.
+
+If you allow just any URL to be used with any supplied options, a "rogue datasource" could be used to send garbage
+requests to other websites, and could hypothetically be used to attack other websites.
+
+Please follow the usal common sense for such things:
+* reloadContent() and listFields() should check the URL for proper formatting, e.g. starts with _http_, has the right file extension, trimming off query params and constructing them yourself, and so on.
+* Implement extensive checking of the file content: starts with the "<?xml" header, has a "title" field, etc. If the file doesn't open properly, or doesn't look right, bail!
+

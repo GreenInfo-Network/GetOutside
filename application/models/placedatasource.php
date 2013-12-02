@@ -96,6 +96,8 @@ var $has_many         = array('place',);
 // if a field is not used by your driver, make it NULL; this causes the field not to be displayed in the event datasource editing page
 // if the field is used, set it to an array and it will appear in the event datasource editing page
 //      required => TRUE/FALSE      indicates whether this field MUST be filled in; use FALSE if it's okay for it to be blank (of course, make your driver smart enough to handle both its presence and absence)
+//      isfield => TRUE/FALSE       indicates whether this field must be a selected field from the data source, e.g. "select one of these columns"
+//                                  if this is set, the UI will make this entry a selection, from a list of fields present in the data source
 //      title => text               on the editing page, the title of this field, e.g. "API Key"
 //      help => text                on the editing page, this forms the text instructions for the field, e.g. "Contact your CSR for more info..."
 // The text fields accept HTML and will not be escaped. Tip: If you include hyperlinks, use target=_blank so they don't lose the admin UI.
@@ -118,6 +120,16 @@ var $option_fields = array(
  */
 public function reloadContent() {
     throw new PlaceDataSourceErrorException('Cannot call reloadContent() on a root data source class. Use a driver subclass instead.');
+}
+
+
+/*
+ * listFields()
+ * List the fields in this PlaceDataSource. This is specific to each driver, and in this base class it's an error to try since it's not a driver.
+ * Primary use here is to return a list of field names, so they can be selected as "option" fields, e.g. "option3 (title) is the PROJECT_NAME field"
+ */
+public function listFields() {
+    throw new PlaceDataSourceErrorException('Cannot call listFields() on a root data source class. Use a driver subclass instead.');
 }
 
 

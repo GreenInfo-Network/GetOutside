@@ -8,8 +8,8 @@ var $has_many         = array('place',);
 
 var $option_fields = array(
     'url'     => array('required'=>TRUE, 'name'=>"REST URL with Layer ID", 'help'=>"The URL of the REST endpoint, including the layer ID.<br/>Example: http://your.server.com/arcgis/rest/services/Places/Minneapolis/MapServer/5<br/>NOTE: Only layers of type <i>esriGeometryPoint</i> are supported."),
-    'option1' => array('required'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
-    'option2' => array('required'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
+    'option1' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
+    'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option3' => NULL,
     'option4' => NULL,
 );
@@ -37,9 +37,7 @@ public function __construct() {
  * This allows for more complex communication than a simple true/false return, e.g. the name of the data source and an error code (number of placed loaded/failed)
  */
 public function reloadContent() {
-
-    // make sure no shenanigans: all Google feed URLs start with https and www.google.com
-    // strip off any query params, and replace the default /basic "projection" component with a /full-noattendees so we get full info
+    // make sure no shenanigans: ArcGIS REST services fit a pattern, and field names shouldn't have tricky characters
     $url = $this->url;
     $namefield = $this->option1;
     $descfield = $this->option2;
@@ -95,6 +93,44 @@ public function reloadContent() {
     $this->last_fetch = time();
     $this->save();
     throw new PlaceDataSourceSuccessException("Loaded $success points.");
+}
+
+
+
+/*
+ * listFields()
+ * Connect to the data source and grab a list of field names. Return an array of string field names.
+ */
+public function listFields($assoc=FALSE) {
+    // make sure no shenanigans: ArcGIS REST services fit a pattern, and field names shouldn't have tricky characters
+    $url = $this->url;
+    $namefield = $this->option1;
+    $descfield = $this->option2;
+    if (! preg_match('!^http://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException('That URL does not fit the format for a REST endpoint.');
+    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Missing or invalid field: Name field');
+    if (! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Missing or invalid field: Description field');
+
+    // the base URL plus only one param asking for JSON output
+    $params = array(
+        'f' => 'json',
+    );
+    $url = sprintf("%s?%s", $url, http_build_query($params) );
+
+    // fetch it, see if it looks right
+    $fields = @json_decode(file_get_contents($url));
+    if (! @is_array($fields->fields) or ! @sizeof($fields->fields)) throw new PlaceDataSourceErrorException('Did not get a field list back for this data source.');
+
+    // generate the output, either as a straight list or an assocarray
+    // assocs are for CodeIgniter or other "dropdown generators" which expect value=>label mappings
+    $output = array();
+    if ($assoc) {
+        foreach ($fields->fields as $f) $output[$f->name] = $f->name;
+        ksort($output);
+    } else {
+        foreach ($fields->fields as $f) $output[] = $f->name;
+        sort($output);
+    }
+    return $output;
 }
 
 

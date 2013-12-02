@@ -40,6 +40,14 @@ public function reloadContent() {
 }
 
 
+/*
+ * listFields()
+ * Connect to the data source and grab a list of field names. Return an array of string field names.
+ */
+public function listFields() {
+    
+}
+
 
 /**********************************************************************************************
  * STATIC FUNCTIONS

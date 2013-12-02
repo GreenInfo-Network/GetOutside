@@ -15,7 +15,6 @@ em {
 }
 </style>
 
-
 <div class="container">
     <br/>
 
@@ -49,7 +48,11 @@ em {
         <tr>
             <td><?= $source->option_fields['option1']['name'] ?></td>
             <td>
-                <input type="text" name="option1" value="<?= $source->option1 ?>" size="100" maxlength="500" />
+                <?php if (@$source->option_fields['option1']['isfield']) { ?>
+                    <?= form_dropdown('option1',$fields,$source->option1) ?>
+                <?php } else { ?>
+                    <input type="text" name="option1" value="<?= $source->option1 ?>" size="100" maxlength="500" />
+                <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option1']['help'] ?></em>
             </td>
@@ -59,7 +62,11 @@ em {
         <tr>
             <td><?= $source->option_fields['option2']['name'] ?></td>
             <td>
-                <input type="text" name="option2" value="<?= $source->option2 ?>" size="100" maxlength="500" />
+                <?php if (@$source->option_fields['option2']['isfield']) { ?>
+                    <?= form_dropdown('option2',$fields,$source->option2) ?>
+                <?php } else { ?>
+                    <input type="text" name="option2" value="<?= $source->option2 ?>" size="100" maxlength="500" />
+                <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option2']['help'] ?></em>
             </td>
@@ -69,7 +76,11 @@ em {
         <tr>
             <td><?= $source->option_fields['option3']['name'] ?></td>
             <td>
-                <input type="text" name="option3" value="<?= $source->option3 ?>" size="100" maxlength="500" />
+                <?php if (@$source->option_fields['option3']['isfield']) { ?>
+                    <?= form_dropdown('option3',$fields,$source->option3) ?>
+                <?php } else { ?>
+                    <input type="text" name="option3" value="<?= $source->option3 ?>" size="100" maxlength="500" />
+                <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option3']['help'] ?></em>
             </td>
@@ -79,7 +90,11 @@ em {
         <tr>
             <td><?= $source->option_fields['option4']['name'] ?></td>
             <td>
-                <input type="text" name="option4" value="<?= $source->option4 ?>" size="100" maxlength="500" />
+                <?php if (@$source->option_fields['option4']['isfield']) { ?>
+                    <?= form_dropdown('option4',$fields,$source->option4) ?>
+                <?php } else { ?>
+                    <input type="text" name="option4" value="<?= $source->option4 ?>" size="100" maxlength="500" />
+                <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option4']['help'] ?></em>
             </td>
