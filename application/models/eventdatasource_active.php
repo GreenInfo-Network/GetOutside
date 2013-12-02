@@ -64,6 +64,7 @@ public function reloadContent() {
     // make the request, get some JSON
     $content = @json_decode(@file_get_contents($url));
     if (!$content or !$content->results) throw new EventDataSourceSuccessException("No results. Check that this API key is active for the Activity Search API v2");
+
     // guess we're good! delete the existing ones...
     foreach ($this->event as $old) $old->delete();
 
