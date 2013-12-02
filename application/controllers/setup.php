@@ -48,13 +48,14 @@ public function index() {
     $this->db->query("
         CREATE TABLE IF NOT EXISTS places (
             id INTEGER AUTO_INCREMENT NOT NULL,
-            type varchar(50) NOT NULL,
-            datasource_id integer NOT NULL,
+            placedatasource_id integer NOT NULL,
             remoteid varchar(250),
-            name varchar(50) NOT NULL DEFAULT,
+            name varchar(50) NOT NULL,
             description text NOT NULL DEFAULT '',
+            latitude FLOAT NOT NULL,
+            longitude FLOAT NOT NULL,
             PRIMARY KEY (id),
-            KEY datasource_id_idx (datasource_id)
+            KEY datasource_id_idx (placedatasource_id)
         )
     ");
     $this->db->query("
@@ -62,7 +63,7 @@ public function index() {
             id INTEGER AUTO_INCREMENT NOT NULL,
             eventdatasource_id INTEGER UNSIGNED NOT NULL,
             remoteid varchar(50),
-            title varchar(50) NOT NULL,
+            name varchar(50) NOT NULL,
             address varchar(100) NOT NULL DEFAULT '',
             description text NOT NULL DEFAULT '',
             keywords text NOT NULL DEFAULT '',
@@ -73,15 +74,21 @@ public function index() {
             ends INTEGER UNSIGNED NOT NULL,
             url VARCHAR(500),
             PRIMARY KEY (id),
-            KEY datasource_id_idx (datasource_id)
+            KEY datasource_id_idx (eventdatasource_id)
         )
     ");
 
-//GDA these are largely TBD
     $this->db->query("
         CREATE TABLE IF NOT EXISTS placedatasources (
             id INTEGER AUTO_INCREMENT NOT NULL,
             type varchar(50) NOT NULL,
+            name varchar(50) NOT NULL,
+            last_fetch INTEGER UNSIGNED,
+            url varchar(500) NOT NULL,
+            option1 varchar(500),
+            option2 varchar(500),
+            option3 varchar(500),
+            option4 varchar(500),
             PRIMARY KEY (id)
         )
     ");

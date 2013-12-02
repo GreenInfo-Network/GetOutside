@@ -299,10 +299,111 @@ public function place_sources() {
     $data['sources'] = new PlaceDataSource();
     $data['sources']->get();
 
-    $data = array();
+    $data['types'] = array();
+    foreach (PlaceDataSource::$SOURCE_TYPES as $t) $data['types'][$t] = $t;
+
     $this->load->view('administration/place_sources.phtml', $data);
 }
 
+public function place_source($id) {
+    $data = array();
+    if ($id == 'new') {
+        $data['source'] = null;
+    } else {
+        $data['source'] = new PlaceDataSource();
+        $data['source']->where('id',$id)->get();
+        $data['source'] = $data['source']->convertToDriver();
+        if (! $data['source']->id) return redirect(site_url('administration/place_sources'));
+    }
+    $this->load->view('administration/place_source.phtml', $data);
+}
+
+public function ajax_create_place_source() {
+    // validation: the type must be valid, and the name must be given
+    if (! @$_POST['name']) return print "All fields are required.";
+    if (! array_key_exists( (integer) @$_POST['type'],PlaceDataSource::$SOURCE_TYPES)) return print "The type is not a valid selection.";
+
+    // save the data source
+    $source = new PlaceDataSource();
+    $source->type = $_POST['type'];
+    $source->name = trim(strip_tags($_POST['name']));
+    $source->url  = '';
+    $source->save();
+
+    // AJAX endpoint: just say OK
+    print $source->id;
+}
+
+public function ajax_load_place_source() {
+    // fetch the data source by its ID# or die trying
+    $source = new PlaceDataSource();
+    $source->where('id',$_POST['id'])->get();
+    if (! $source->id) return print "Could not find that data source.";
+
+    // swap out this PlaceDataSource with the appropriate subclass, e.g. a PlaceDataSource_GoogleSpreadsheet instance
+    // so the driver-specific methods will be used, e.g. reloadContent()
+    // NOTE: we're violating models by stuffing our SiteConfig item into the instance; not seeing any other clean way to get siteconfig into the instance
+    // for some site-specific things, e.g. loading the bounding box for a spatial filter
+    try {
+        $source = $source->convertToDriver();
+        $source->siteconfig = $this->siteconfig;
+        $source->reloadContent();
+    } catch (PlaceDataSourceSuccessException $e) {
+        return print "SUCCESS: " . $e->getMessage();
+    } catch (PlaceDataSourceErrorException $e) {
+        return print "ERROR: " . $e->getMessage();
+    }
+}
+
+
+public function ajax_save_place_source() {
+    // fetch the data source by its ID# or die trying
+    $source = new PlaceDataSource();
+    $source->where('id',$_POST['id'])->get();
+    $source = $source->convertToDriver();
+    if (! $source->id) return print "Could not find that data source.";
+
+    // validation: name and URL are required
+    $_POST['name']      = trim(strip_tags(@$_POST['name']));
+    $_POST['url']       = trim(@$_POST['url']);
+    $_POST['option1']   = trim(@$_POST['option1']);
+    $_POST['option2']   = trim(@$_POST['option2']);
+    $_POST['option3']   = trim(@$_POST['option3']);
+    $_POST['option4']   = trim(@$_POST['option4']);
+    if (! $_POST['name']) return print "The name is required.";
+    if ($source->option_fields['url']     and $source->option_fields['url']['required']     and !$_POST['url'])      return print "Missing required field: {$source->option_fields['url']['name']}";
+    if ($source->option_fields['option1'] and $source->option_fields['option1']['required'] and !$_POST['option1'])  return print "Missing required field: {$source->option_fields['option1']['name']}";
+    if ($source->option_fields['option2'] and $source->option_fields['option2']['required'] and !$_POST['option2'])  return print "Missing required field: {$source->option_fields['option2']['name']}";
+    if ($source->option_fields['option3'] and $source->option_fields['option3']['required'] and !$_POST['option3'])  return print "Missing required field: {$source->option_fields['option3']['name']}";
+    if ($source->option_fields['option4'] and $source->option_fields['option4']['required'] and !$_POST['option4'])  return print "Missing required field: {$source->option_fields['option4']['name']}";
+
+    // save it
+    $source->name    = $_POST['name'];
+    $source->url     = $_POST['url'];
+    $source->option1 = $_POST['option1'];
+    $source->option2 = $_POST['option2'];
+    $source->option3 = $_POST['option3'];
+    $source->option4 = $_POST['option4'];
+    $source->save();
+
+    // AJAX endpoint, just say OK
+    print 'ok';
+}
+
+public function place_source_delete() {
+    // fetch the specified data source or die trying
+    $data = array();
+    $data['source'] = new PlaceDataSource();
+    $data['source']->where('id',$_POST['id'])->get();
+    if (! $data['source']->id) return redirect(site_url('administration/place_sources'));
+
+    // if they're not POSTing a confirmation, bail
+    if (! @$_POST['ok']) return $this->load->view('administration/place_source_delete.phtml', $data);
+
+    // delete it, send the user home
+    $data['source']->delete();
+    redirect(site_url('administration/place_sources'));
+}
 
 
 } // end of Controller

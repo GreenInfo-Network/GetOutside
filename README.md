@@ -30,6 +30,8 @@ Get Outside! is designed to use standard PHP extensions and the MySQL database s
 4. Upload the source code to your website hosting service.
 5. Point your web browser at the folder you just uploaded. You will be walked through the setup process.
 
+Additional documentation is in the _docs_ subfolder.
+
 
 ##Credits & Thanks
 
