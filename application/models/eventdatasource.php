@@ -68,7 +68,7 @@ public function convertToDriver() {
             $subclass = "EventDataSource_Active";
             break;
         default:
-            throw new EventDataSourceErrorException('This EventDataSource is of an unknown type. How is that possible?');
+            throw new EventDataSourceErrorException('This EventDataSource is of an unknown type ({$this->type}). How is that possible?');
     }
 
     // instantiate the appropriate DataMapper ORM subclass, and filter it the the one record with my same ID
