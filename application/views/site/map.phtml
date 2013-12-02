@@ -7,6 +7,11 @@
 <![endif]-->
 <script src="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
 
+
+<script src="<?= site_url() ?>/application/views/common/leaflet.markercluster/leaflet.markercluster.min.js"></script>
+<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
+<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
+
 <!-- code specific to this page -->
 <script type="text/javascript" src="<?= site_url() ?>/application/views/site/map.js"></script>
 <script type="text/javascript">
@@ -15,6 +20,7 @@ var START_W = <?= $this->siteconfig->get('bbox_w') ?>;
 var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
 var START_E = <?= $this->siteconfig->get('bbox_e') ?>;
 var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
+var DATA_SOURCES = <?= json_encode($sources) ?>;
 </script>
 
 
@@ -23,6 +29,12 @@ var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
     /* height is overridden by handleResize() code, to fill the page */
     width:100%;
     height:4in;
+}
+
+div.swatch {
+    display:inline-block;
+    width:1em;
+    height:1em;
 }
 </style>
 
@@ -34,16 +46,12 @@ var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
         </div>
         <div class="col-xs-4">
             <div>
-                <input type="text" id="geocode" style="width:80%" placeholder="Search for your city or neighborhood" /> <input type="button" id="geocode_go" value="Search" style="width:15%;" />
+                <input type="text" id="geocode" style="width:80%" placeholder="Search for your address" /> <input type="button" id="geocode_go" value="Search" style="width:15%;" />
             </div>
 
-            Places:<br/>
-            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
-            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
-            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
-            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
-            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
-            <label><input type="checkbox" name="place_category[]" value="1" /> Category name here</label><br/>
+            <?php foreach ($sources as $sourceid=>$sourceinfo) { ?>
+            <label><input type="checkbox" name="sources[]" checked value="<?= $sourceid ?>" /> <div class="swatch" style="background-color:<?= $sourceinfo['color'] ?>;"></div>  <?= htmlspecialchars($sourceinfo['name']) ?></label><br/>
+            <?php } ?>
         </div>
     </div>
 </div>

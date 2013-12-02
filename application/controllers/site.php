@@ -60,7 +60,40 @@ public function about() {
  ***************************************************************************************/
 
 public function map() {
-    $this->load->view('site/map.phtml');
+    $data = array();
+
+    // assocarray of Place Data Sources: ID -> Name
+    // used to generate the checkbox list, which is used to toggle the data source
+    $data['sources'] = array();
+    $dsx = new PlaceDataSource();
+    $dsx->get();
+    foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color );
+
+    $this->load->view('site/map.phtml',$data);
+}
+
+
+public function ajax_map_points($id=0) {
+    $places = new Place();
+    $places->where('placedatasource_id',$id)->get();
+
+    // a simple JSON structure here; no specific standard here, just as compact and purpose-specific as we can make it
+    $output = array();
+    foreach ($places as $place) {
+        if (! (float) $place->longitude or ! (float) $place->latitude) continue;
+
+        $thisone = array();
+        $thisone['id']      = (integer) $place->id;
+        $thisone['name']    = $place->name;
+        $thisone['desc']    = $place->description;
+        $thisone['lat']     = (float) $place->latitude;
+        $thisone['lng']     = (float) $place->longitude;
+
+        $output[] = $thisone;
+    }
+
+    header('Content-type: application/json');
+    print json_encode($output);
 }
 
 
@@ -90,7 +123,7 @@ public function ajax_calendar_events($id=0) {
     $output = array();
     foreach ($events as $event) {
         $thisone = array();
-        $thisone['id'] = $event->id;
+        $thisone['id']      = $event->id;
         $thisone['title']   = $event->name;
         $thisone['allDay']  = (boolean) $event->allday;
         $thisone['start']   = $event->starts;

@@ -83,6 +83,7 @@ public function index() {
             id INTEGER AUTO_INCREMENT NOT NULL,
             type varchar(50) NOT NULL,
             name varchar(50) NOT NULL,
+            color VARCHAR(7) NOT NULL DEFAULT '#FFFFFF',
             last_fetch INTEGER UNSIGNED,
             url varchar(500) NOT NULL,
             option1 varchar(500),

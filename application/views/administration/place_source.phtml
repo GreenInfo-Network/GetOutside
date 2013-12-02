@@ -31,8 +31,8 @@ em {
             <td><input type="text" name="name" value="<?= htmlspecialchars($source->name) ?>" size="50" maxlength="50" /></td>
         </tr>
         <tr>
-            <td>Icon</td>
-            <td>GDA</td>
+            <td>Color</td>
+            <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" /></td>
         </tr>
         <?php if ($source->option_fields['url']) { ?>
         <tr>

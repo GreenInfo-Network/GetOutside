@@ -388,6 +388,9 @@ public function ajax_save_place_source() {
     if ($source->option_fields['option3'] and $source->option_fields['option3']['required'] and !$_POST['option3'])  return print "Missing required field: {$source->option_fields['option3']['name']}";
     if ($source->option_fields['option4'] and $source->option_fields['option4']['required'] and !$_POST['option4'])  return print "Missing required field: {$source->option_fields['option4']['name']}";
 
+    // validation: color must be #XXXXXX
+    if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['color'])) return print "Select a valid color.";
+
     // save it
     $source->name    = $_POST['name'];
     $source->url     = $_POST['url'];
@@ -395,6 +398,7 @@ public function ajax_save_place_source() {
     $source->option2 = $_POST['option2'];
     $source->option3 = $_POST['option3'];
     $source->option4 = $_POST['option4'];
+    $source->color   = $_POST['color'];
     $source->save();
 
     // AJAX endpoint, just say OK
