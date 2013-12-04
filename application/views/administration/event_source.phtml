@@ -35,6 +35,15 @@ em {
             <td>Color</td>
             <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" /></td>
         </tr>
+        <tr>
+            <td>On by default?</td>
+            <td>
+                <?= form_dropdown('on_by_default', array('1'=>'Yes', '0'=>'No'),$source->on_by_default) ?>
+                <br/>
+                On the Map page, should these places be visible (checked) when the page loads?
+            </td>
+        </tr>
+
         <?php if ($source->option_fields['url']) { ?>
         <tr>
             <td><?= $source->option_fields['url']['name'] ?></td>

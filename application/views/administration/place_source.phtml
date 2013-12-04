@@ -15,6 +15,8 @@ em {
 }
 </style>
 
+
+
 <div class="container">
     <br/>
 
@@ -22,6 +24,18 @@ em {
     <input type="hidden" name="id" value="<?= $source->id ?>" />
     <input type="hidden" name="type" value="<?= $source->type ?>" />
     <table class="table-condensed table-bordered">
+
+        <!-- if there's an alert, put it here. inside the table, so it has the right width -->
+        <?php if (@$warning) { ?>
+        <tr>
+        <td colspan="2"><div class="alert alert-danger"> &nbsp; <?= htmlspecialchars($warning) ?></div></td>
+        </tr>
+        <?php } ?>
+
+        <tr>
+            <td>Type</td>
+            <td><?= htmlspecialchars($source->type) ?></td>
+        </tr>
         <tr>
             <td>Type</td>
             <td><?= htmlspecialchars($source->type) ?></td>
@@ -34,6 +48,15 @@ em {
             <td>Color</td>
             <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" /></td>
         </tr>
+        <tr>
+            <td>On by default?</td>
+            <td>
+                <?= form_dropdown('on_by_default', array('1'=>'Yes', '0'=>'No'),$source->on_by_default) ?>
+                <br/>
+                On the Map page, should these places be visible (checked) when the page loads?
+            </td>
+        </tr>
+
         <?php if ($source->option_fields['url']) { ?>
         <tr>
             <td><?= $source->option_fields['url']['name'] ?></td>
@@ -48,7 +71,7 @@ em {
         <tr>
             <td><?= $source->option_fields['option1']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option1']['isfield']) { ?>
+                <?php if (@$source->option_fields['option1']['isfield'] and $fields and is_array($fields)) { ?>
                     <?= form_dropdown('option1',$fields,$source->option1) ?>
                 <?php } else { ?>
                     <input type="text" name="option1" value="<?= $source->option1 ?>" size="100" maxlength="500" />
@@ -62,7 +85,7 @@ em {
         <tr>
             <td><?= $source->option_fields['option2']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option2']['isfield']) { ?>
+                <?php if (@$source->option_fields['option2']['isfield'] and $fields and is_array($fields)) { ?>
                     <?= form_dropdown('option2',$fields,$source->option2) ?>
                 <?php } else { ?>
                     <input type="text" name="option2" value="<?= $source->option2 ?>" size="100" maxlength="500" />
@@ -76,7 +99,7 @@ em {
         <tr>
             <td><?= $source->option_fields['option3']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option3']['isfield']) { ?>
+                <?php if (@$source->option_fields['option3']['isfield'] and $fields and is_array($fields)) { ?>
                     <?= form_dropdown('option3',$fields,$source->option3) ?>
                 <?php } else { ?>
                     <input type="text" name="option3" value="<?= $source->option3 ?>" size="100" maxlength="500" />
@@ -90,7 +113,7 @@ em {
         <tr>
             <td><?= $source->option_fields['option4']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option4']['isfield']) { ?>
+                <?php if (@$source->option_fields['option4']['isfield'] and $fields and is_array($fields)) { ?>
                     <?= form_dropdown('option4',$fields,$source->option4) ?>
                 <?php } else { ?>
                     <input type="text" name="option4" value="<?= $source->option4 ?>" size="100" maxlength="500" />

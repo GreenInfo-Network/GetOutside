@@ -228,9 +228,9 @@ public function ajax_load_event_source() {
         $source->siteconfig = $this->siteconfig;
         $source->reloadContent();
     } catch (EventDataSourceSuccessException $e) {
-        return print "SUCCESS: " . $e->getMessage();
+        return print "SUCCESS\n" . $e->getMessage();
     } catch (EventDataSourceErrorException $e) {
-        return print "ERROR: " . $e->getMessage();
+        return print "ERROR\n" . $e->getMessage();
     }
 }
 
@@ -260,13 +260,14 @@ public function ajax_save_event_source() {
     if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['color'])) return print "Select a valid color.";
 
     // save it
-    $source->name    = $_POST['name'];
-    $source->color   = $_POST['color'];
-    $source->url     = $_POST['url'];
-    $source->option1 = $_POST['option1'];
-    $source->option2 = $_POST['option2'];
-    $source->option3 = $_POST['option3'];
-    $source->option4 = $_POST['option4'];
+    $source->name          = $_POST['name'];
+    $source->color         = $_POST['color'];
+    $source->url           = $_POST['url'];
+    $source->option1       = $_POST['option1'];
+    $source->option2       = $_POST['option2'];
+    $source->option3       = $_POST['option3'];
+    $source->option4       = $_POST['option4'];
+    $source->on_by_default = $_POST['on_by_default'];
     $source->save();
 
     // AJAX endpoint, just say OK
@@ -317,12 +318,14 @@ public function place_source($id) {
 
         // get the list of fields too, and convert to an assocarray, so they can pick from the list for any options that are 'isfield'
         // this is only necessary if any options are 'isfield', so check that and only ping the datasource if necessary
-        $needs_fields = @$data['source']->option1['isfield'] or @$data['source']->option2['isfield'] or @$data['source']->option3['isfield'] or @$data['source']->option4['isfield'];
+        // in the event of an error, an error is set so they know that there's something wrong
+        $data['fields'] = null;
+        $needs_fields = @$data['source']->option_fields['option1']['isfield'] or @$data['source']->option_fields['option2']['isfield'] or @$data['source']->option_fields['option3']['isfield'] or @$data['source']->option_fields['option4']['isfield'];
         if ($needs_fields) {
             try {
                 $data['fields'] = $data['source']->listFields(TRUE);
             } catch (PlaceDataSourceErrorException $e) {
-                $data['fields'] = array();
+                $data['warning'] = $e->getMessage();
             }
         }
     }
@@ -360,9 +363,9 @@ public function ajax_load_place_source() {
         $source->siteconfig = $this->siteconfig;
         $source->reloadContent();
     } catch (PlaceDataSourceSuccessException $e) {
-        return print "SUCCESS: " . $e->getMessage();
+        return print "SUCCESS\n" . $e->getMessage();
     } catch (PlaceDataSourceErrorException $e) {
-        return print "ERROR: " . $e->getMessage();
+        return print "ERROR\n" . $e->getMessage();
     }
 }
 
@@ -374,34 +377,28 @@ public function ajax_save_place_source() {
     $source = $source->convertToDriver();
     if (! $source->id) return print "Could not find that data source.";
 
-    // validation: name and URL are required
-    $_POST['name']      = trim(strip_tags(@$_POST['name']));
-    $_POST['url']       = trim(@$_POST['url']);
-    $_POST['option1']   = trim(@$_POST['option1']);
-    $_POST['option2']   = trim(@$_POST['option2']);
-    $_POST['option3']   = trim(@$_POST['option3']);
-    $_POST['option4']   = trim(@$_POST['option4']);
+    // validation: some errors cause us to bail right now, before we save
     if (! $_POST['name']) return print "The name is required.";
-    if ($source->option_fields['url']     and $source->option_fields['url']['required']     and !$_POST['url'])      return print "Missing required field: {$source->option_fields['url']['name']}";
-    if ($source->option_fields['option1'] and $source->option_fields['option1']['required'] and !$_POST['option1'])  return print "Missing required field: {$source->option_fields['option1']['name']}";
-    if ($source->option_fields['option2'] and $source->option_fields['option2']['required'] and !$_POST['option2'])  return print "Missing required field: {$source->option_fields['option2']['name']}";
-    if ($source->option_fields['option3'] and $source->option_fields['option3']['required'] and !$_POST['option3'])  return print "Missing required field: {$source->option_fields['option3']['name']}";
-    if ($source->option_fields['option4'] and $source->option_fields['option4']['required'] and !$_POST['option4'])  return print "Missing required field: {$source->option_fields['option4']['name']}";
-
-    // validation: color must be #XXXXXX
     if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['color'])) return print "Select a valid color.";
 
-    // save it
-    $source->name    = $_POST['name'];
-    $source->url     = $_POST['url'];
-    $source->option1 = $_POST['option1'];
-    $source->option2 = $_POST['option2'];
-    $source->option3 = $_POST['option3'];
-    $source->option4 = $_POST['option4'];
-    $source->color   = $_POST['color'];
+    // any remaining errors (below) are non-fatal,
+    // so save it now and then report the errors below
+    $source->name          = trim(strip_tags(@$_POST['name']));
+    $source->url           = @$_POST['url'];
+    $source->option1       = trim(@$_POST['option1']);
+    $source->option2       = trim(@$_POST['option2']);
+    $source->option3       = trim(@$_POST['option3']);
+    $source->option4       = trim(@$_POST['option4']);
+    $source->color         = @$_POST['color'];
+    $source->on_by_default = @$_POST['on_by_default'];
     $source->save();
 
     // AJAX endpoint, just say OK
+    if ($source->option_fields['url']     and $source->option_fields['url']['required']     and !@$_POST['url'])      return print "Missing required field: {$source->option_fields['url']['name']}";
+    if ($source->option_fields['option1'] and $source->option_fields['option1']['required'] and !@$_POST['option1'])  return print "Missing required field: {$source->option_fields['option1']['name']}";
+    if ($source->option_fields['option2'] and $source->option_fields['option2']['required'] and !@$_POST['option2'])  return print "Missing required field: {$source->option_fields['option2']['name']}";
+    if ($source->option_fields['option3'] and $source->option_fields['option3']['required'] and !@$_POST['option3'])  return print "Missing required field: {$source->option_fields['option3']['name']}";
+    if ($source->option_fields['option4'] and $source->option_fields['option4']['required'] and !@$_POST['option4'])  return print "Missing required field: {$source->option_fields['option4']['name']}";
     print 'ok';
 }
 

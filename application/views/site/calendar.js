@@ -17,7 +17,7 @@ $(document).ready(function () {
             window.open(calEvent.url);
             return false;
         },
-        // nop data sources; these are added by checkbox event handlers below
+        // no data sources; these are added by checkbox event handlers below
         eventSources: [ ],
         // override the viewDisplay to show only 6 months into the futgure and none of the past; thank you, Joel Correa on StackOverflow
         viewDisplay   : function(view) {

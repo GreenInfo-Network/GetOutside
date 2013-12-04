@@ -3,41 +3,6 @@ var ALL_MARKERS = []; // array; the set of all markers that exist; a superset of
 var VISIBLE_MARKERS; // L.markerClustergroup; the set of all markers currently displaying on the map via a clusterer; a subset of ALL_MARKERS
 
 
-
-L.ColoredDivIcon = L.DivIcon.extend({
-	options: {
-		bgColor: '#FFFFFF',
-		className: 'leaflet-div-icon',
-		html: false
-	},
-
-	createIcon: function (oldIcon) {
-		var div = (oldIcon && oldIcon.tagName === 'DIV') ? oldIcon : document.createElement('div'), options = this.options;
-
-		if (options.html !== false) {
-			div.innerHTML = options.html;
-		} else {
-			div.innerHTML = '';
-		}
-
-		if (options.bgPos) {
-			div.style.backgroundPosition = (-options.bgPos.x) + 'px ' + (-options.bgPos.y) + 'px';
-		}
-
-div.style.backgroundColor = options.bgColor;
-
-		this._setIconStyles(div, 'icon');
-		return div;
-	},
-
-	createShadow: function () {
-		return null;
-	}
-});
-
-
-
-
 $(document).ready(function () {
     // start the map at the defrault bbox, add the basic layer
     MAP = L.map('map_canvas').fitBounds([[START_S,START_W],[START_N,START_E]]);
@@ -65,24 +30,31 @@ $(document).ready(function () {
 
             for (var i=0, l=points.length; i<l; i++) {
                 // generate a simple DIV icon, so we can use CSS colors
-                var icon = new L.ColoredDivIcon({ bgColor:color, className: 'marker-icon', iconAnchor:L.point(10,10), iconSize:L.point(20,20) });
+                var icon = new L.ColoredDivIcon({ bgColor:color, className:'marker-icon', iconAnchor:L.point(10,10), iconSize:L.point(20,20) });
 
-                // assign the attributes incl the source ID into a marker
+                // compose the HTML popup
+                var html = '';
+                html += '<h5>' + points[i].name + '</h5>';
+                html += points[i].desc;
+
+                // assign the attributes incl the source ID into a marker, with a HTML popup
                 points[i].sourceid = sourceid;
-                var marker = L.marker([points[i].lat,points[i].lng], { icon:icon, attributes:points[i], keyboard:false, tooltip:points[i].name });
+                var marker = L.marker([points[i].lat,points[i].lng], { icon:icon, attributes:points[i], keyboard:false, title:points[i].name }).bindPopup(html);
 
                 // add this new marker to the current bundle that we'll add to the clusterer
                 // AND ALSO add it to the global MARKERS list
                 markers.push(marker);
                 ALL_MARKERS.push(marker);
             }
-            VISIBLE_MARKERS.addLayers(markers);
+
+            // having loaded this datasource into ALL_MARKERS above, trigger it to be shown/hidden to match the checkbox
+            $('input[name="sources[]"][value="'+sourceid+'"]').trigger('change');
         });
     });
 
     // enable the checkboxes which select which data sources are displayed, and check them
     // do not trigger them; they are implicitly loaded already (above) so having them checked brings them into sync with the map display
-    $('input[name="sources[]"]').prop('checked','checked').change(function () {
+    $('input[name="sources[]"]').change(function () {
         var sourceid = $(this).prop('value');
         var viz      = $(this).is(':checked');
         togglePointsBySource(sourceid,viz);

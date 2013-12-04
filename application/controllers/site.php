@@ -67,7 +67,7 @@ public function map() {
     $data['sources'] = array();
     $dsx = new PlaceDataSource();
     $dsx->get();
-    foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color );
+    foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color, 'checked'=>(boolean) (integer) $ds->on_by_default );
 
     $this->load->view('site/map.phtml',$data);
 }
@@ -110,7 +110,7 @@ public function calendar() {
     $data['sources'] = array();
     $dsx = new EventDataSource();
     $dsx->get();
-    foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color);
+    foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color, 'checked'=>(boolean) (integer) $ds->on_by_default );
 
     $this->load->view('site/calendar.phtml',$data);
 }

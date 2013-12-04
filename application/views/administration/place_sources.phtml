@@ -2,7 +2,14 @@
 
 <script type="text/javascript" src="<?= site_url() ?>/application/views/administration/place_sources.js"></script>
 <style type="text/css">
-.icon {
+.swatch {
+    display:inline-block;
+
+    height:14px;
+    width:14px;
+
+    border:1px solid black;
+    border-radius:7px;
 }
 .refresh {
     cursor:pointer;
@@ -24,7 +31,7 @@
 <?php foreach ($sources as $source) { ?>
 <tr>
     <td>
-        <img class="icon">GDA</div>
+        <div class="swatch" style="background-color:<?= htmlspecialchars($source->color) ?>;"></div>
         <a href="<?= site_url("administration/place_source/{$source->id}") ?>"><?= htmlspecialchars($source->name) ?></a>
     </td>
     <td><?= $source->type ?></td>

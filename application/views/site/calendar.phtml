@@ -31,7 +31,7 @@ div.swatch {
             <br/>
 
             <?php foreach ($sources as $sourceid=>$info) { ?>
-            <label><input type="checkbox" name="sources[]" checked="checked" value="<?= $info['id'] ?>" /> <div class="swatch" style="background-color:<?= $info['color'] ?>;"></div> <?= htmlspecialchars($info['name']) ?></label>
+            <label><input type="checkbox" name="sources[]" <?= $info['checked'] ? 'checked' : '' ?> value="<?= $info['id'] ?>" /> <div class="swatch" style="background-color:<?= $info['color'] ?>;"></div> <?= htmlspecialchars($info['name']) ?></label>
             <br/>
             <?php } ?>
         </div>
