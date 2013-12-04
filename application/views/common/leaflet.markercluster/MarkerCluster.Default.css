@@ -1,0 +1,31 @@
+.marker-cluster {
+	background-clip: padding-box;
+	border-radius: 20px;
+}
+.marker-cluster div {
+	width: 30px;
+	height: 30px;
+	margin-left: 5px;
+	margin-top: 5px;
+
+	text-align: center;
+	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-weight:bold;
+
+	background-color: rgba(255, 255, 255, 0.6);
+
+	border-radius: 15px;
+	border:1px solid #333333;
+}
+
+.marker-cluster span {
+	line-height: 30px;
+}
+
+
+.marker-icon {
+	background-color:#FFFFFF;
+	border-radius:10px;
+	border:1px solid #333333;
+}
+
