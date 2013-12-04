@@ -10,7 +10,7 @@ var $option_fields = array(
     'url'     => array('required'=>TRUE, 'name'=>"REST URL with Layer ID", 'help'=>"The URL of the REST endpoint, including the layer ID.<br/>Example: http://your.server.com/arcgis/rest/services/Places/Minneapolis/MapServer/5<br/>NOTE: Only layers of type <i>esriGeometryPoint</i> are supported."),
     'option1' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
     'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
-    'option3' => NULL,
+    'option3' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"Filter Clause", 'help'=>"A filter clause using standard ArcGIS REST syntax, e.g. <i>STATE_FID=16</i> or <i>LocCategor='Water Fountain'</i>"),
     'option4' => NULL,
 );
 
@@ -49,9 +49,13 @@ public function reloadContent() {
     if (! @$fields[$namefield]) throw new PlaceDataSourceErrorException('Chosen Name field  does not exist in the ArcGIS service.');
     if (! @$fields[$descfield]) throw new PlaceDataSourceErrorException('Chosen Description field does not exist in the ArcGIS service.');
 
+    // the filter clause; kinda free-form here, and high potential for them to mess it up
+    $filterclause = $this->option3;
+    if (! $filterclause) $filterclause = "1>0";
+
     // expand upon the base URL, adding parameters to make a query for expected JSON content
     $params = array(
-        'where'          => '1>0',
+        'where'          => $filterclause,
         'outFields'      => implode(',',array('OBJECTID',$namefield,$descfield)),
         'returnGeometry' => 'true',
         'outSR'          => '4326',
@@ -61,7 +65,7 @@ public function reloadContent() {
 
     // try to fetch and decode it; check for some fields that should definitely be there: name, geometry type, and of course features
     $structure = @json_decode(file_get_contents($url));
-    if (@$structure->error->message) throw new PlaceDataSourceErrorException("ArcGIS server gave an error: {$structure->error->message}\nCommon cause is that the name and/or description field is not entered correctly.");
+    if (@$structure->error->message) throw new PlaceDataSourceErrorException("ArcGIS server gave an error: {$structure->error->message}\nCommon cause is that a name or description field, or a filter, is not entered correctly.");
     if (! @$structure->geometryType) throw new PlaceDataSourceErrorException('No data or invalid data received from server. No geometryType found.');
     if (! sizeof(@$structure->features)) throw new PlaceDataSourceErrorException("ArcGIS server contacted, but no features were found.");
 
