@@ -47,6 +47,7 @@ public static $SOURCE_TYPES = array(
     'Shapefile',
     'ArcGIS REST API',
     'CartoDB',
+    'OGC WFS',
 );
 
 public function convertToDriver() {
@@ -62,6 +63,9 @@ public function convertToDriver() {
             break;
         case 'CartoDB':
             $subclass = "PlaceDataSource_CartoDB";
+            break;
+        case 'OGC WFS':
+            $subclass = "PlaceDataSource_WFS";
             break;
         default:
             throw new PlaceDataSourceErrorException('This PlaceDataSource is of an unknown type ({$this->type}). How is that possible?');
