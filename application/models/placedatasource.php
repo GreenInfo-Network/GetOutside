@@ -44,7 +44,6 @@ class PlaceDataSource extends DataMapper {
  */
 public static $SOURCE_TYPES = array(
     'Google Spreadsheet',
-    'CSV File',
     'Shapefile',
     'ArcGIS REST API',
     'CartoDB',
@@ -54,9 +53,6 @@ public function convertToDriver() {
     switch ($this->type) {
         case 'Google Spreadsheet':
             $subclass = "PlaceDataSource_GoogleSpreadsheet";
-            break;
-        case 'CSV File':
-            $subclass = "PlaceDataSource_CSV";
             break;
         case 'Shapefile':
             $subclass = "PlaceDataSource_Shapefile";
