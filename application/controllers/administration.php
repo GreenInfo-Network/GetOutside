@@ -268,6 +268,7 @@ public function ajax_save_event_source() {
     $source->option3       = $_POST['option3'];
     $source->option4       = $_POST['option4'];
     $source->on_by_default = $_POST['on_by_default'];
+    $source->enabled       = $_POST['enabled'];
     $source->save();
 
     // AJAX endpoint, just say OK
@@ -391,6 +392,7 @@ public function ajax_save_place_source() {
     $source->option4       = trim(@$_POST['option4']);
     $source->color         = @$_POST['color'];
     $source->on_by_default = @$_POST['on_by_default'];
+    $source->enabled       = $_POST['enabled'];
     $source->save();
 
     // AJAX endpoint, just say OK

@@ -66,7 +66,7 @@ public function map() {
     // used to generate the checkbox list, which is used to toggle the data source
     $data['sources'] = array();
     $dsx = new PlaceDataSource();
-    $dsx->get();
+    $dsx->where('enabled',1)->get();
     foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color, 'checked'=>(boolean) (integer) $ds->on_by_default );
 
     $this->load->view('site/map.phtml',$data);
@@ -109,7 +109,7 @@ public function calendar() {
     // used to generate the checkbox list, which is used to toggle the data source
     $data['sources'] = array();
     $dsx = new EventDataSource();
-    $dsx->get();
+    $dsx->where('enabled',1)->get();
     foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color, 'checked'=>(boolean) (integer) $ds->on_by_default );
 
     $this->load->view('site/calendar.phtml',$data);

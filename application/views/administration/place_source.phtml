@@ -37,16 +37,16 @@ em {
             <td><?= htmlspecialchars($source->type) ?></td>
         </tr>
         <tr>
-            <td>Type</td>
-            <td><?= htmlspecialchars($source->type) ?></td>
-        </tr>
-        <tr>
             <td>Name</td>
             <td><input type="text" name="name" value="<?= htmlspecialchars($source->name) ?>" size="50" maxlength="50" /></td>
         </tr>
         <tr>
-            <td>Color</td>
-            <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" /></td>
+            <td>Enabled?</td>
+            <td>
+                <?= form_dropdown('enabled', array('1'=>'Enabled', '0'=>'Disabled'),$source->enabled) ?>
+                <br/>
+                If disabled, this data source will not appear on the Map page, and will not be refreshed automatically.
+            </td>
         </tr>
         <tr>
             <td>On by default?</td>
@@ -55,6 +55,10 @@ em {
                 <br/>
                 On the Map page, should these places be visible (checked) when the page loads?
             </td>
+        </tr>
+        <tr>
+            <td>Color</td>
+            <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" /></td>
         </tr>
 
         <?php if ($source->option_fields['url']) { ?>

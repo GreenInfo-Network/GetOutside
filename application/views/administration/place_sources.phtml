@@ -26,6 +26,7 @@
     <th>Name</th>
     <th>Type</th>
     <th># Places</th>
+    <th>Status</th>
     <th>Last Fetch</th>
 </tr>
 <?php foreach ($sources as $source) { ?>
@@ -36,6 +37,7 @@
     </td>
     <td><?= $source->type ?></td>
     <td><?= $source->howManyPlaces() ?></td>
+    <td><?= (integer) $source->enabled ? 'Enabled' : 'Disabled' ?></td>
     <td><span class="glyphicon glyphicon-refresh refresh" data-id="<?= $source->id ?>" title="Fetch now"></span> <?= $source->lastFetch() ?></td>
 </tr>
 <?php } ?>
