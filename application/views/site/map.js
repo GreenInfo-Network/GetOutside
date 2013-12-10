@@ -32,13 +32,15 @@ $(document).ready(function () {
         $('#geocode_go').click(function () {
             geocodeAndZoom( $('#geocode').val() );
         });
-        $('#geocode').keydown(function (key) {
-            if(key.keyCode == 13) $('#geocode_go').click();
-        });
     } else {
         $('#geocode').hide();
         $('#geocode_go').hide();
     }
+
+    // general thing: any text input, when someone presses Enter, should trigger a click on the sibling button  (if any)
+    $('input[type="text"]').keydown(function (key) {
+        if(key.keyCode == 13) $(this).siblings('input[type="button"]').click();
+    });
 
     // when the window resizes, resize the map too
     // then trigger a resize right now, so the map and other elements fit the current page size
@@ -48,6 +50,17 @@ $(document).ready(function () {
     // now various ways to trigger a search: picking a date & time, selecting the category checkboxes, entering a text search, ...
     // these all funnel to the same place:  submitFilters()
     $('input[name="categories[]"]').change(function () {
+        submitFilters();
+    });
+    $('input.search_submit').click(function () {
+        submitFilters();
+    });
+    $('a.check_all').click(function () {
+        $(this).parent().parent().find('input[type="checkbox"]').prop('checked','checked');
+        submitFilters();
+    });
+    $('a.check_none').click(function () {
+        $(this).parent().parent().find('input[type="checkbox"]').removeAttr('checked');
         submitFilters();
     });
 
@@ -60,13 +73,17 @@ $(document).ready(function () {
 function submitFilters() {
     // compile the URL and params
     var url = BASE_URL + 'site/ajax_map_points/';
-    var params = {};
+    var params = $('#tools').serialize();
 
+/*
     params.categories = [];
     $('input[name="categories[]"]:checked').each(function () {
         var catid = $(this).prop('value');
         params.categories.push(catid);
     });
+
+    params.keywords = $('input[name="keywords"]').val();
+*/
 
     // ready!
     $('#dialog_waiting').dialog('open');
@@ -113,7 +130,7 @@ function handleResize() {
     if (MAP) MAP.invalidateSize();
 
     // resize the right hand side to be the same height as the map
-    $('#tools').parent().height(mapheight - 3);
+    $('#tools').parent().height(mapheight - 4);
     $('#tools').accordion('refresh');
 }
 

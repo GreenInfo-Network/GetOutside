@@ -78,13 +78,38 @@ public function ajax_map_points() {
     // start with all Places
     $places = new Place();
 
-    // category filter
+    // category filter is pretty simple; note the handling of an empty array: if we leave it truly blank, it matches all Places with no categories at all
     if (! @$_POST['categories']) $_POST['categories'] = array(-1);
     $_POST['categories']  = array_map('intval', $_POST['categories']);
     $places->where_related_placecategory('id',$_POST['categories']);
 
+    // the keyword matching is complex: we need to AND the keywords (must match all keywords) but OR the clauses (name OR description OR category must match)
+    // AND ( name LIKE '%keyword_1%' AND name LIKE '%keyword_2%' ... )
+    // OR ( description LIKE '%keyword_1%' AND description LIKE '%keyword_2%' ... )
+    // OR ( anycategoryname LIKE '%keyword_1%' AND anycategoryname LIKE '%keyword_2%' ... )
+    if (@$_POST['keywords']) {
+        $keywords = strtolower($_POST['keywords']);
+        $keywords = preg_split('/\s+/',$keywords);
+        $places->group_start();
+
+            $places->or_group_start();
+            foreach ($keywords as $word) $places->like('name',$word);
+            $places->group_end();
+
+            $places->or_group_start();
+            foreach ($keywords as $word) $places->like('description',$word);
+            $places->group_end();
+
+            $places->or_group_start();
+            foreach ($keywords as $word) $places->like_related('placecategory','name',$word);
+            $places->group_end();
+
+        $places->group_end();
+    }
+
     // done with the easy filters, apply them now
     $places->distinct()->get();
+    //$places->check_last_query();
 
     // a simple JSON structure here; no specific standard here, just as compact and purpose-specific as we can make it
     $output = array();
