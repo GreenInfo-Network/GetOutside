@@ -26,7 +26,7 @@ var $has_one          = array(
                                 'join_table' => 'placedatasources'
                             ),
                         );
-var $has_many         = array();
+var $has_many         = array('placecategory',);
 
 
 

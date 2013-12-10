@@ -12,10 +12,15 @@ $(document).ready(function () {
         saveAndFetch();
     });
 
-    // enable the "Fetching..." dialog
+    // enable the "Fetching..." and "Waiting" dialogs
     $('#dialog_fetching').dialog({
         modal:true, closeOnEsc:false, autoOpen:false, width:'auto', height:'auto',
         title: 'Fetching',
+        buttons: { }
+    });
+    $('#dialog_waiting').dialog({
+        modal:true, closeOnEsc:false, autoOpen:false, width:'auto', height:'auto',
+        title: '',
         buttons: { }
     });
 
@@ -37,7 +42,10 @@ $(document).ready(function () {
 function saveAndExit() {
     var url    = BASE_URL + 'administration/ajax_save_place_source';
     var params = $('#editform').serialize();
+
+    $('#dialog_waiting').dialog('open');
     $.post(url, params, function (reply) {
+        $('#dialog_waiting').dialog('close');
         if (reply != 'ok') return alert(reply);
         document.location.href = BASE_URL + 'administration/place_sources';
     });
@@ -47,7 +55,10 @@ function saveAndExit() {
 function saveAndFetch() {
     var url    = BASE_URL + 'administration/ajax_save_place_source';
     var params = $('#editform').serialize();
+
+    $('#dialog_fetching').dialog('open');
     $.post(url, params, function (reply) {
+        $('#dialog_fetching').dialog('close');
         if (reply != 'ok') return alert(reply);
 
         // now call the "load this source" AJAX endpoint, same params

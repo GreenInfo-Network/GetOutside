@@ -59,15 +59,6 @@ $(document).ready(function () {
         width:800,
         height:300
     });
-
-    // now set up the tabs
-    // when the tabsset is created, drop the ui-widget-content class from the tabs and the panels, cuz it's hideously ugly!
-    $('.tabs').tabs({
-        heightStyle:'content',
-        create: function (event,ui) {
-            ui.panel.closest('.tabs').removeClass('ui-widget-content').children('.ui-tabs-panel').removeClass('ui-widget-content');
-        }
-    });
 });
 
 

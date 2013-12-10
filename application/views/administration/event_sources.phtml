@@ -13,31 +13,49 @@
 </style>
 
 
-<div class="btn-group btn-group-rightfloater">
-    <button type="button" class="btn ui-state-focus" id="button_new"><span class="glyphicon glyphicon-certificate"></span> New</button>
-</div>
+<div class="tabs container">
+    <ul>
+        <li><a href="#tab_sources">Sources</a></li>
+    </ul>
+    <div id="tab_sources">
 
-<table class="table table-condensed table-bordered">
-<tr>
-    <th>Name</th>
-    <th>Type</th>
-    <th># Events</th>
-    <th>Status</th>
-    <th>Last Fetch</th>
-</tr>
-<?php foreach ($sources as $source) { ?>
-<tr>
-    <td>
-        <div class="swatch" style="background-color:<?= htmlspecialchars($source->color) ?>;"></div>
-        <a href="<?= site_url("administration/event_source/{$source->id}") ?>"><?= htmlspecialchars($source->name) ?></a>
-    </td>
-    <td><?= $source->type ?></td>
-    <td><?= $source->howManyEvents() ?></td>
-    <td><?= (integer) $source->enabled ? 'Enabled' : 'Disabled' ?></td>
-    <td><span class="glyphicon glyphicon-refresh refresh" data-id="<?= $source->id ?>" title="Fetch now"></span> <?= $source->lastFetch() ?></td>
-</tr>
-<?php } ?>
-</table>
+        <div class="btn-group btn-group-rightfloater">
+            <button type="button" class="btn ui-state-focus" id="button_new"><span class="glyphicon glyphicon-certificate"></span> New</button>
+        </div>
+
+        <p>
+            The Calendar page shows events, and those events are loaded from the sources listed here.
+            Any <i>Enabled</i> sources will be listed on the front-facing Calendar page, and can be toggled off and on to show or hide these events.
+        </p>
+
+        <table class="table table-condensed table-bordered sortable">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th># Events</th>
+            <th>Status</th>
+            <th>Last Fetch</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($sources as $source) { ?>
+        <tr>
+            <td>
+                <div class="swatch" style="background-color:<?= htmlspecialchars($source->color) ?>;"></div>
+                <a href="<?= site_url("administration/event_source/{$source->id}") ?>"><?= htmlspecialchars($source->name) ?></a>
+            </td>
+            <td><?= $source->type ?></td>
+            <td><?= $source->howManyEvents() ?></td>
+            <td><?= (integer) $source->enabled ? 'Enabled' : 'Disabled' ?></td>
+            <td><span class="glyphicon glyphicon-refresh refresh" data-id="<?= $source->id ?>" title="Fetch now"></span> <?= $source->lastFetch() ?></td>
+        </tr>
+        <?php } ?>
+        </tbody>
+        </table>
+
+    </div>
+</div>
 
 
 
@@ -63,6 +81,12 @@
     This can take a few minutes.
     <br/>
     Please be patient.
+</div>
+
+
+<div class="dialog" id="dialog_waiting">
+    One moment please.
+    <br/>
 </div>
 
 

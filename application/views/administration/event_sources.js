@@ -29,6 +29,14 @@ $(document).ready(function () {
         var id = $(this).attr('data-id');
         refreshDataSourceById(id);
     });
+
+    // One Moment Please
+    $('#dialog_waiting').dialog({
+        modal:true, closeOnEsc:false, autoOpen:false, width:'auto', height:'auto',
+        title: '',
+        buttons: { }
+    });
+
 });
 
 

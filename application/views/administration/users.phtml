@@ -2,23 +2,41 @@
 
 <script type="text/javascript" src="<?= site_url() ?>/application/views/administration/users.js"></script>
 
-<div class="btn-group btn-group-rightfloater">
-    <button type="button" class="btn ui-state-focus" id="button_new"><span class="glyphicon glyphicon-certificate"></span> New</button>
+
+
+
+<div class="tabs container">
+    <ul>
+        <li><a href="#tab_users">User Accounts</a></li>
+    </ul>
+    <div id="tab_users">
+
+        <div class="btn-group btn-group-rightfloater">
+            <button type="button" class="btn ui-state-focus" id="button_new"><span class="glyphicon glyphicon-certificate"></span> New</button>
+        </div>
+
+        <h4>User Accounts</h4>
+        <p>This lists the user profiles on this website. Users with <i>Manager</i> or <i>Administrator</i> status can log in to this administration panel and make changes to the website. At this time <i>Website</i> accounts have no function; hypothetically they could login to the website and save profiles or favorites or something.</p>
+
+        <table class="table table-striped table-hover table-condensed table-bordered sortable" style="width:100%;">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($users as $user) { ?>
+        <tr>
+            <td><a href="<?= site_url("administration/user/{$user->id}") ?>"><?= $user->username ?></a></td>
+            <td><?= $levels[$user->level] ?></td>
+        </tr>
+        <?php } ?>
+        </tbody>
+        </table>
+
+    </div>
 </div>
-
-
-<table class="table table-striped table-hover table-condensed table-bordered" style="width:100%;">
-<tr>
-    <th>Username</th>
-    <th>Status</th>
-</tr>
-<?php foreach ($users as $user) { ?>
-<tr>
-    <td><a href="<?= site_url("administration/user/{$user->id}") ?>"><?= $user->username ?></a></td>
-    <td><?= $levels[$user->level] ?></td>
-</tr>
-<?php } ?>
-</table>
 
 
 

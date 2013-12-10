@@ -175,6 +175,7 @@ public function user_delete() {
 
 public function event_sources() {
     $data = array();
+
     $data['sources'] = new EventDataSource();
     $data['sources']->get();
 
@@ -186,14 +187,11 @@ public function event_sources() {
 
 public function event_source($id) {
     $data = array();
-    if ($id == 'new') {
-        $data['source'] = null;
-    } else {
-        $data['source'] = new EventDataSource();
-        $data['source']->where('id',$id)->get();
-        $data['source'] = $data['source']->convertToDriver();
-        if (! $data['source']->id) return redirect(site_url('administration/event_sources'));
-    }
+    $data['source'] = new EventDataSource();
+    $data['source']->where('id',$id)->get();
+    $data['source'] = $data['source']->convertToDriver();
+    if (! $data['source']->id) return redirect(site_url('administration/event_sources'));
+
     $this->load->view('administration/event_source.phtml', $data);
 }
 
@@ -298,8 +296,12 @@ public function event_source_delete() {
 
 public function place_sources() {
     $data = array();
+
     $data['sources'] = new PlaceDataSource();
     $data['sources']->get();
+
+    $data['categories'] = new PlaceCategory();
+    $data['categories']->get();
 
     $data['types'] = array();
     foreach (PlaceDataSource::$SOURCE_TYPES as $t) $data['types'][$t] = $t;
@@ -309,27 +311,38 @@ public function place_sources() {
 
 public function place_source($id) {
     $data = array();
-    if ($id == 'new') {
-        $data['source'] = null;
-    } else {
-        $data['source'] = new PlaceDataSource();
-        $data['source']->where('id',$id)->get();
-        $data['source'] = $data['source']->convertToDriver();
-        if (! $data['source']->id) return redirect(site_url('administration/place_sources'));
 
-        // get the list of fields too, and convert to an assocarray, so they can pick from the list for any options that are 'isfield'
-        // this is only necessary if any options are 'isfield', so check that and only ping the datasource if necessary
-        // in the event of an error, an error is set so they know that there's something wrong
-        $data['fields'] = null;
-        $needs_fields = @$data['source']->option_fields['option1']['isfield'] or @$data['source']->option_fields['option2']['isfield'] or @$data['source']->option_fields['option3']['isfield'] or @$data['source']->option_fields['option4']['isfield'];
-        if ($needs_fields) {
-            try {
-                $data['fields'] = $data['source']->listFields(TRUE);
-            } catch (PlaceDataSourceErrorException $e) {
-                $data['warning'] = $e->getMessage();
-            }
-        }
+    $data['source'] = new PlaceDataSource();
+    $data['source']->where('id',$id)->get();
+    $data['source'] = $data['source']->convertToDriver();
+    if (! $data['source']->id) return redirect(site_url('administration/place_sources'));
+
+    // list of categories, for the list of auto-categoization rules
+    $data['categories'] = new PlaceCategory();
+    $data['categories']->get();
+
+    // get the list of fields too, and convert to an assocarray, so they can pick from the list for any options that are 'isfield'
+    // or so they can specify filters for the placedatasource's association to placecategories
+    $data['fields'] = null;
+    try {
+        $data['fields'] = $data['source']->listFields(TRUE);
+
+        // a copy of them with a blank option, for the rule pickers
+        // the name __ALLRECORDS is magical, but so contrived it's unlikely to come up in the real world
+        $data['rule_fields'] = array(''=>'', '__ALLRECORDS'=>'ALL RECORDS');
+        $data['rule_fields'] = array_merge($data['rule_fields'],$data['fields']);
+    } catch (PlaceDataSourceErrorException $e) {
+        $data['warning'] = $e->getMessage();
     }
+
+    // load an assoc of the rules for each category for this data source
+    // e.g. category 17 has the rule "allowBike=1"
+    $data['rules'] = array();
+    $rules = new PlaceCategoryRule();
+    $rules->where('placedatasource_id',$data['source']->id)->get();
+    foreach ($rules as $r) $data['rules'][$r->placecategory_id] = array( 'field'=>$r->field, 'value'=>$r->value );
+
+    // done!
     $this->load->view('administration/place_source.phtml', $data);
 }
 
@@ -360,16 +373,26 @@ public function ajax_load_place_source() {
     // NOTE: we're violating models by stuffing our SiteConfig item into the instance; not seeing any other clean way to get siteconfig into the instance
     // for some site-specific things, e.g. loading the bounding box for a spatial filter
     try {
-        $source = $source->convertToDriver();
-        $source->siteconfig = $this->siteconfig;
-        $source->reloadContent();
-    } catch (PlaceDataSourceSuccessException $e) {
-        return print "SUCCESS\n" . $e->getMessage();
+        $driver = $source->convertToDriver();
+        $driver->siteconfig = $this->siteconfig;
+        $driver->reloadContent();
     } catch (PlaceDataSourceErrorException $e) {
         return print "ERROR\n" . $e->getMessage();
+    } catch (PlaceDataSourceSuccessException $e) {
+        $message = "SUCCESS\n" . $e->getMessage();
+    }
+
+    // if we got here then it was successful and we already have a message to hand back to the client
+    // but first... go over the Places and have them re-categorized (silently)
+    try {
+        $source->recategorizeAllPlaces();
+    } catch (PlaceDataSourceErrorException $e) {
+        return print "ERROR\n" . $e->getMessage();
+    } catch (PlaceDataSourceSuccessException $e) {
+        $message .= "\n\n" . $e->getMessage();
+        return print $message;
     }
 }
-
 
 public function ajax_save_place_source() {
     // fetch the data source by its ID# or die trying
@@ -377,10 +400,6 @@ public function ajax_save_place_source() {
     $source->where('id',$_POST['id'])->get();
     $source = $source->convertToDriver();
     if (! $source->id) return print "Could not find that data source.";
-
-    // validation: some errors cause us to bail right now, before we save
-    if (! $_POST['name']) return print "The name is required.";
-    if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['color'])) return print "Select a valid color.";
 
     // any remaining errors (below) are non-fatal,
     // so save it now and then report the errors below
@@ -390,12 +409,24 @@ public function ajax_save_place_source() {
     $source->option2       = trim(@$_POST['option2']);
     $source->option3       = trim(@$_POST['option3']);
     $source->option4       = trim(@$_POST['option4']);
-    $source->color         = @$_POST['color'];
-    $source->on_by_default = @$_POST['on_by_default'];
     $source->enabled       = $_POST['enabled'];
     $source->save();
 
-    // AJAX endpoint, just say OK
+    // more stuff to be saved EVEN IF we're about to encounter an error
+    // this is the "rules" for this data source as pertaining to each PlaceCategory
+    foreach ($_POST['categorization'] as $categoryid=>$field_and_value) {
+        $rule = new PlaceCategoryRule();
+        $rule->where('placecategory_id',$categoryid)->where('placedatasource_id',$source->id)->get();
+        $rule->placecategory_id   = $categoryid;
+        $rule->placedatasource_id = $source->id;
+        $rule->field              = $field_and_value['field'];
+        $rule->value              = $field_and_value['value'];
+        $rule->save();
+    }
+
+    // AJAX endpoint, just say OK if we get that far
+    // these fields are saved after the main attributes are saved, to solver a chicken-and-egg problem of having a bad URL or field name,
+    // preventing us from finding valid field names, preventing this from being saved so we can find the right field names on the next load
     if ($source->option_fields['url']     and $source->option_fields['url']['required']     and !@$_POST['url'])      return print "Missing required field: {$source->option_fields['url']['name']}";
     if ($source->option_fields['option1'] and $source->option_fields['option1']['required'] and !@$_POST['option1'])  return print "Missing required field: {$source->option_fields['option1']['name']}";
     if ($source->option_fields['option2'] and $source->option_fields['option2']['required'] and !@$_POST['option2'])  return print "Missing required field: {$source->option_fields['option2']['name']}";
@@ -416,6 +447,67 @@ public function place_source_delete() {
 
     // delete it, send the user home
     $data['source']->delete();
+    redirect(site_url('administration/place_sources'));
+}
+
+public function ajax_create_place_category() {
+    // validation: the type must be valid, and the name must be given
+    $_POST['name'] = trim(strip_tags(@$_POST['name']));
+    if (! $_POST['name']) return print "The category name is required.";
+
+    // check that this name isn't already in use
+    // a weak precaution, spaces and simply adding a comma can "fool" it, but prevents a common user error
+    $already = new PlaceCategory();
+    $already->where('name',$_POST['name'])->get();
+    if ($already->id) return print "There is already a category with that name.";
+
+    // save the category
+    $category = new PlaceCategory();
+    $category->name = $_POST['name'];
+    $category->save();
+
+    // AJAX endpoint: just say OK
+    print $category->id;
+}
+
+public function place_category($id=null) {
+    $data = array();
+
+    $data['category'] = new PlaceCategory();
+    $data['category']->where('id',$id)->get();
+    if (! $data['category']->id) return redirect(site_url('administration/place_sources'));
+
+    $this->load->view('administration/place_category.phtml', $data);
+}
+
+public function ajax_save_place_category() {
+    // fetch the data source by its ID# or die trying
+    $category = new PlaceCategory();
+    $category->where('id',$_POST['id'])->get();
+    if (! $category->id) return print "Could not find that data category.";
+
+    // any remaining errors (below) are non-fatal,
+    // so save it now and then report the errors below
+    $category->name    = trim(strip_tags(@$_POST['name']));
+    $category->enabled = $_POST['enabled'];
+    $category->save();
+
+    // AJAX endpoint, just say OK
+    print 'ok';
+}
+
+public function place_category_delete() {
+    // fetch the specified data source or die trying
+    $data = array();
+    $data['category'] = new PlaceCategory();
+    $data['category']->where('id',$_POST['id'])->get();
+    if (! $data['category']->id) return redirect(site_url('administration/place_sources'));
+
+    // if they're not POSTing a confirmation, bail
+    if (! @$_POST['ok']) return $this->load->view('administration/place_category_delete.phtml', $data);
+
+    // delete it, send the user home
+    $data['category']->delete();
     redirect(site_url('administration/place_sources'));
 }
 

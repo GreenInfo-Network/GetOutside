@@ -58,6 +58,7 @@ public function index() {
             KEY datasource_id_idx (placedatasource_id)
         )
     ");
+
     $this->db->query("
         CREATE TABLE IF NOT EXISTS events (
             id INTEGER AUTO_INCREMENT NOT NULL,
@@ -67,8 +68,6 @@ public function index() {
             address varchar(100) NOT NULL DEFAULT '',
             description text NOT NULL DEFAULT '',
             keywords text NOT NULL DEFAULT '',
-            latitude float,
-            longitiude float,
             allday BOOLEAN NOT NULL DEFAULT false,
             starts INTEGER UNSIGNED NOT NULL,
             ends INTEGER UNSIGNED NOT NULL,
@@ -79,12 +78,46 @@ public function index() {
     ");
 
     $this->db->query("
+        CREATE TABLE IF NOT EXISTS places (
+            id INTEGER AUTO_INCREMENT NOT NULL,
+            placedatasource_id INTEGER UNSIGNED NOT NULL,
+            remoteid varchar(50),
+            latitude float,
+            longitude float,
+            name varchar(50) NOT NULL,
+            description text NOT NULL DEFAULT '',
+            keywords text NOT NULL DEFAULT '',
+            attributes_json TEXT,
+            PRIMARY KEY (id),
+            KEY datasource_id_idx (placedatasource_id)
+        )
+    ");
+    $this->db->query("
+        CREATE TABLE IF NOT EXISTS placecategories (
+            id INTEGER AUTO_INCREMENT NOT NULL,
+            name varchar(50) NOT NULL,
+            enabled BOOLEAN NOT NULL DEFAULT true,
+            PRIMARY KEY (id)
+        )
+    ");
+    $this->db->query("INSERT INTO placecategories (name,enabled) VALUES ('Parks',1)");
+    $this->db->query("INSERT INTO placecategories (name,enabled) VALUES ('Swimming',1)");
+    $this->db->query("INSERT INTO placecategories (name,enabled) VALUES ('Community Centers',1)");
+
+    $this->db->query("
+        CREATE TABLE IF NOT EXISTS placecategories_places (
+            placecategory_id INTEGER NOT NULL,
+            place_id INTEGER NOT NULL,
+            KEY placecategory_id_idx (placecategory_id),
+            KEY place_id_idx (place_id)
+        )
+    ");
+
+    $this->db->query("
         CREATE TABLE IF NOT EXISTS placedatasources (
             id INTEGER AUTO_INCREMENT NOT NULL,
             type varchar(50) NOT NULL,
             name varchar(50) NOT NULL,
-            color VARCHAR(7) NOT NULL DEFAULT '#FFFFFF',
-            on_by_default BOOLEAN NOT NULL DEFAULT false,
             enabled BOOLEAN NOT NULL DEFAULT false,
             last_fetch INTEGER UNSIGNED,
             url varchar(500) NOT NULL,
@@ -95,6 +128,24 @@ public function index() {
             PRIMARY KEY (id)
         )
     ");
+
+    $this->db->query("
+        CREATE TABLE IF NOT EXISTS placecategoryrules (
+            id integer NOT NULL AUTO_INCREMENT,
+            placecategory_id INTEGER NOT NULL,
+            placedatasource_id INTEGER NOT NULL,
+            field TEXT,
+            value TEXT,
+            PRIMARY KEY (id),
+            KEY placedatasource_id_idx (placedatasource_id),
+            KEY placecategory_id_idx (placecategory_id)
+        )
+    ");
+
+    $this->db->query("
+        INSERT INTO placedatasources (type, name, enabled, url, option1, option2, option3) VALUES ('ArcGIS REST API', 'Brooklyn Park ArcGIS Service', 1, 'https://cityview.brooklynpark.org/arcgis/rest/services/Public/Parks_wAmenities/MapServer/0', 'NAME', 'STREETNM', '')
+    ");
+
     $this->db->query("
         CREATE TABLE IF NOT EXISTS eventdatasources (
             id INTEGER AUTO_INCREMENT NOT NULL,

@@ -23,8 +23,13 @@
     var BASE_URL = <?= json_encode(site_url()) ?>;
     </script>
 
+    <!-- a sorting plugin, for the tables -->
+    <script type="text/javascript" src="<?= site_url() ?>/application/views/common/jquery.tablesorter.min.js"></script>
+
     <!-- sitewide styling overriding the selected theme -->
     <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/website.css" />
+    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/administration/administration.css" />
+    <script type="text/javascript" src="<?= site_url() ?>/application/views/administration/administration.js"></script>
 </head>
 <body>
 
@@ -43,8 +48,8 @@
       <ul class="nav navbar-nav">
         <li id="navbar_settings"><a href="<?= site_url('administration/settings') ?>">Settings</a></li>
         <li id="navbar_users"><a href="<?= site_url('administration/users') ?>">Users</a></li>
-        <li id="navbar_event_sources"><a href="<?= site_url('administration/event_sources') ?>">Event Sources</a></li>
-        <li id="navbar_place_sources"><a href="<?= site_url('administration/place_sources') ?>">Place Sources</a></li>
+        <li id="navbar_event_sources"><a href="<?= site_url('administration/event_sources') ?>">Events</a></li>
+        <li id="navbar_place_sources"><a href="<?= site_url('administration/place_sources') ?>">Places</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="<?= site_url('') ?>">Public Site</a></li>

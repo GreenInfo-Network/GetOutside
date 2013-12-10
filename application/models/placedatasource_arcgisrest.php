@@ -10,7 +10,7 @@ var $option_fields = array(
     'url'     => array('required'=>TRUE, 'name'=>"REST URL with Layer ID", 'help'=>"The URL of the REST endpoint, including the layer ID.<br/>Example: http://your.server.com/arcgis/rest/services/Places/Minneapolis/MapServer/5<br/>NOTE: Only Point and Polygon layers are supported."),
     'option1' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
     'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
-    'option3' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"Filter Clause", 'help'=>"A filter clause using standard ArcGIS REST syntax, e.g. <i>STATE_FID=16</i> or <i>LocCategor='Water Fountain'</i>"),
+    'option3' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"Filter Clause", 'help'=>"A filter clause using standard ArcGIS REST syntax, e.g. <i>STATE_FID=16</i> or OPENPUBLIC='Yes'<br/>This is used to filter the features, e.g. to remove those that are closed or non-public, or to narrow down results if only a few features are relevant."),
     'option4' => NULL,
 );
 
@@ -50,13 +50,15 @@ public function reloadContent() {
     if (! @$fields[$descfield]) throw new PlaceDataSourceErrorException('Chosen Description field does not exist in the ArcGIS service.');
 
     // the filter clause; kinda free-form here, and high potential for them to mess it up
+    // that's why we're so thorough on catching possible exceptions such as missing field names
     $filterclause = $this->option3;
     if (! $filterclause) $filterclause = "1>0";
 
     // expand upon the base URL, adding parameters to make a query for expected JSON content
     $params = array(
         'where'          => $filterclause,
-        'outFields'      => implode(',',array('OBJECTID',$namefield,$descfield)),
+        //'outFields'      => implode(',',array('OBJECTID',$namefield,$descfield)),
+        'outFields'      => implode(',',$fields),
         'returnGeometry' => 'true',
         'outSR'          => '4326',
         'f'              => 'pjson',
@@ -90,14 +92,20 @@ public function reloadContent() {
         if ( strcasecmp($field->name,$descfield) == 0) $descfield = $field->name;
     }
 
-    // great; clear out existing Places from the database, so we can load the new ones
-    foreach ($this->place as $old) $old->delete();
+    // do not clear out old records; grab their remote-ID and make an assoc
+    // we will remove items from this "list" to indicate that they are in fact in the remote feed
+    // and after the loop below where we load 'em up we will delete these "leftovers"
+    $deletions = array();
+    foreach ($this->place as $old) $deletions[$old->remoteid] = TRUE;
 
     // load 'em up!
-    $success = 0;
-    $warn_noname = 0;
-    $warn_nodesc = 0;
+    // iterate over the features in the web service output, figure out the name and unique ID, then either update or create the Place entry
+    $records_new     = 0;
+    $records_updated = 0;
+    $warn_noname     = 0;
+    $warn_nodesc     = 0;
     foreach ($structure->features as $feature) {
+        $remoteid    = (integer) $feature->attributes->OBJECTID;
         $name        = $feature->attributes->{$namefield};
         $description = $feature->attributes->{$descfield};
         if (! $name)        { $name= ' ';        $warn_noname++; }
@@ -105,23 +113,48 @@ public function reloadContent() {
 
         list($longitude,$latitude) = call_user_func_array(array($this, $geom_extractor), array($feature->geometry));
 
+        // either update the existing Place or create a new one
         $place = new Place();
-        $place->placedatasource_id  = $this->id;
-        $place->remoteid            = (integer) $feature->attributes->OBJECTID;
-        $place->name                = substr($name,0,50);
-        $place->description         = $description;
-        $place->latitude            = $latitude;
-        $place->longitude           = $longitude;
+        $place->where('placedatasource_id',$this->id)->where('remoteid',$remoteid)->get();
+        if ($place->id) {
+            // update of an existing Place; remove this record from the "to be deleted cuz it's not in the remote source" list
+            unset($deletions[$remoteid]);
+
+            $records_updated++;
+        } else {
+            // a new Place; set the DSID, and also Remote ID so we can identify it on future runs
+            $place->placedatasource_id  = $this->id;
+            $place->remoteid            = $remoteid;
+
+            $records_new++;
+        }
+        $place->name             = substr($name,0,50);
+        $place->description      = $description;
+        $place->latitude         = $latitude;
+        $place->longitude        = $longitude;
+        $place->attributes_json  = json_encode($feature->attributes);
         $place->save();
-        $success++;
+    }
+
+    // delete any "leftover" records in $deletions
+    // any that are in the remote data source, would have been removed based on their 'remoteid' field
+    if (sizeof($deletions)) {
+        $deletions = array_keys($deletions);
+        $place->where_in('id',$deletions)->delete();
+        $deletions = sizeof($deletions);
+    } else {
+        $deletions = false;
     }
 
     // success! update our last_fetch date then throw an exception
     $this->last_fetch = time();
     $this->save();
-    $message = array("Loaded $success locations.",);
-    if ($warn_noname) $message[] = "$warn_noname had a blank name.";
-    if ($warn_nodesc) $message[] = "$warn_nodesc had a blank description.";
+    $message = array();
+    $message[] = "$records_new new locations added to database.";
+    $message[] = "$records_updated locations updated.";
+    if ($deletions)   $message[] = "$deletions outdated locations deleted.";
+    if ($warn_noname) $message[] = "$warn_noname places had a blank name.";
+    if ($warn_nodesc) $message[] = "$warn_nodesc places had a blank description.";
     if ($warn_geom)   $message[] = $warn_geom;
     $message = implode("\n",$message);
     throw new PlaceDataSourceSuccessException($message);

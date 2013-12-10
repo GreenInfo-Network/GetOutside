@@ -88,7 +88,7 @@ public function convertToDriver() {
 var $table            = 'placedatasources';
 var $default_order_by = array('name','type');
 var $has_one          = array();
-var $has_many         = array('place',);
+var $has_many         = array('place','placecategoryrule',);
 
 // these defines which fields/features are appropriate to your driver, and you will override these in subclasses
 // e.g. Google Spreadsheet needs an URL but does not need an App ID nor username, while Active.com can *optionally* use the App ID to store your Org ID for filtering
@@ -153,8 +153,96 @@ public function howManyPlaces() {
 }
 
 
-} // end of Model
+/*
+ * howManyEvents()
+ * Return a count of how many events are "in" this data source.
+ */
+public function recategorizePlace($place,$attribs) {
+    return $this->place->count();
+}
 
+
+/*
+ * recategorizeAllrecategorizeAllPlaces()
+ * Look over all of our Places and assign them to zero or more PlaceCategories
+ * No params, no return; it's all done in-place.
+ * 
+ * This makes use of the attributes_json field where we stored the complete attributes from the data source,
+ * and of calculateCategoryIDsFromAttributes() which parses these attributes and compares them to the DataSource's categorization rules
+ *
+ * Typical use case, would be after loading a data source's locations, after which new Places won't have categories
+ * and pre-existing Places may be using outdated categorizations. A calling context would be similar to this:
+ */
+public function recategorizeAllPlaces() {
+    // initialize the counters
+    $looked_good = 0;
+    $had_none    = 0;
+
+    // don't reuse the existing Place affiliations, as they're probably outdated
+    // after all, we'd usually call this after refreshing
+    $places = new Place();
+    $places->where('placedatasource_id',$this->id)->get();
+    foreach ($places as $place) {
+        // fetch the stored attributes, then figure out what categories would fit it
+        $attribs = @json_decode($place->attributes_json);
+        $category_ids = $this->calculateCategoryIDsFromAttributes($attribs);
+
+        // increment whichever counter
+        if (sizeof($category_ids)) {
+            $looked_good++;
+            $place->placecategory->delete($place);
+            foreach ($category_ids as $catid) {
+                $cat = new PlaceCategory();
+                $cat->where('id',$catid)->get();
+                $cat->save($place);
+            }
+        } else {
+            $place->placecategory->delete($place);
+            $had_none++;
+        }
+    }
+
+    // done, hand back our message
+    $message = array();
+    if ($looked_good) $message[] = "$looked_good places assigned to categories OK.";
+    if ($had_none) $message[] = "$had_none places fit no categories.";
+    $message = implode("\n",$message);
+    throw new PlaceDataSourceSuccessException($message);
+}
+
+
+
+/*
+ * calculateCategoryIDsFromAttributes($attribs)
+ * Given an object of attributes (not an assocarray!)
+ * examine our own PlaceCategoryRule set and figure out what set of categories should apply to that hypothetical Place.
+ *
+ * Primarily used by recategorizeAllrecategorizeAllPlaces()
+ */
+public function calculateCategoryIDsFromAttributes($attribs) {
+    $catids = array();
+
+    foreach ($this->placecategoryrule as $rule) {
+        if (! $rule->field or ! $rule->value) continue; // no rule for this category, skip it
+
+        // the special __ALLRECORDS case matches all records, no matter their attributes
+        // otherwise, it's a field name and value, and there must be a match
+        $match = FALSE;
+        if      ($rule->field == '__ALLRECORDS')                            $match = TRUE;
+        else if (0 == strcasecmp(@$attribs->{$rule->field},$rule->value))   $match = TRUE;
+
+        // okay, did we find anything?
+        if (! $match) continue;
+        $catids[] = $rule->placecategory_id;
+    }
+
+    return $catids;
+}
+
+
+
+
+} // end of Model
 
 
 /**********************************************************************************************

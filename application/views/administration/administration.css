@@ -1,0 +1,7 @@
+td,th {
+    vertical-align:top;
+}
+
+table.sortable thead th {
+    cursor:pointer;
+}

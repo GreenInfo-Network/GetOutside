@@ -48,18 +48,6 @@ em {
                 If disabled, this data source will not appear on the Map page, and will not be refreshed automatically.
             </td>
         </tr>
-        <tr>
-            <td>On by default?</td>
-            <td>
-                <?= form_dropdown('on_by_default', array('1'=>'Yes', '0'=>'No'),$source->on_by_default) ?>
-                <br/>
-                On the Map page, should these places be visible (checked) when the page loads?
-            </td>
-        </tr>
-        <tr>
-            <td>Color</td>
-            <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" /></td>
-        </tr>
 
         <?php if ($source->option_fields['url']) { ?>
         <tr>
@@ -127,6 +115,38 @@ em {
             </td>
         </tr>
         <?php } ?>
+
+        <tr>
+            <td>Automatic Categorization</td>
+            <td>
+                <p>
+                    Places loaded from this data source can be automatically categorized by matching a field and value, for example <i>Swimming=Yes</i>
+                    <br/>
+                    <i>All matching rules will be used, so a place may be assigned multiple categories.</i>
+                    <br/>
+                    &bull; A blank rule will skip that category. Use this if you don't want any places in this source to fit that category.
+                    <br/>
+                    &bull; The "ALL RECORDS" rule will match all places loaded from this source. Use this if all places should be in the same category, e.g. &quot;County Parks&quot;.
+                </p>
+
+                <?php foreach ($categories as $category) { ?>
+                <div class="row">
+                    <div class="col-md-4">
+                        <?= htmlspecialchars($category->name) ?>
+                    </div>
+                    <div class="col-md-8">
+                        <?= form_dropdown("categorization[{$category->id}][field]", $rule_fields, $rules[$category->id]['field'], "style=\"max-width:50%;\"") ?>
+                        =
+                        <input type="text" name="categorization[<?= $category->id ?>][value]" value="<?= @$rules[$category->id]['value'] ?>" style="width:40%;" />
+                    </div>
+                </div>
+                <?php } ?>
+
+            </td>
+        </tr>
+
+
+        <!-- DONE -->
         <tr>
             <td></td>
             <td>
@@ -156,6 +176,12 @@ em {
     This can take a few minutes.
     <br/>
     Please be patient.
+</div>
+
+
+<div class="dialog" id="dialog_waiting">
+    One moment please.
+    <br/>
 </div>
 
 
