@@ -12,6 +12,7 @@
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
 
 <!-- code specific to this page -->
+<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/site/map.css" />
 <script type="text/javascript" src="<?= site_url() ?>/application/views/site/map.js"></script>
 <script type="text/javascript">
 var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
@@ -23,28 +24,40 @@ var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
 </script>
 
 
-<style type="text/css">
-#map_canvas {
-    /* height is overridden by handleResize() code, to fill the page */
-    width:100%;
-    height:4in;
-}
-</style>
-
 
 <div class="container" style="padding: 0 15px 0 0; width:100%;">
-    <div class="row">
-        <div class="col-xs-8">
+    <div class="row" id="bigwrapper">
+        <div class="col-xs-8" id="lhs">
             <div id="map_canvas"></div>
         </div>
-        <div class="col-xs-4">
-            <div>
-                <input type="text" id="geocode" style="width:80%" placeholder="Search for your address" /> <input type="button" id="geocode_go" value="Search" style="width:15%;" />
-            </div>
+        <div class="col-xs-4" id="rhs">
+            <div id="tools">
 
-            <?php foreach ($categories as $catid=>$catinfo) { ?>
-            <label><input type="checkbox" name="categories[]" <?= $catinfo['checked'] ? 'checked' : '' ?> value="<?= $catid ?>" /> <?= htmlspecialchars($catinfo['name']) ?></label><br/>
-            <?php } ?>
+                <h5>Address Search</h5>
+                <div>
+                    <input type="text" id="geocode" style="width:80%" placeholder="Search for your address" /> <input type="button" id="geocode_go" value="Search" style="width:15%;" />
+                    <br/>
+                </div>
+
+                <h5>Filter by tags</h5>
+                <div>
+                    <p>Show only places containing <b>any of</b> these tags:</p>
+                    <?php foreach ($categories as $catid=>$catinfo) { ?>
+                    <label><input type="checkbox" name="categories[]" <?= $catinfo['checked'] ? 'checked' : '' ?> value="<?= $catid ?>" /> <?= htmlspecialchars($catinfo['name']) ?></label><br/>
+                    <?php } ?>
+                </div>
+
+                <h5>Filter by keywords</h5>
+                <div>
+                    Filter places by searching for keywords:<br/>
+                </div>
+
+                <h5>Filter by date &amp; time</h5>
+                <div>
+                    <p>Show places open at this date &amp; time:</p>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>

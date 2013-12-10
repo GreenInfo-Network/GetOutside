@@ -23,8 +23,9 @@
     var BASE_URL = <?= json_encode(site_url()) ?>;
     </script>
 
-    <!-- sitewide styling overriding the selected theme -->
+    <!-- sitewide styling overriding the selected theme and providing common code & style to the front-facing site -->
     <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/website.css" />
+    <script type="text/javascript" src="<?= site_url() ?>/application/views/site/site.js"></script>
 </head>
 <body>
 

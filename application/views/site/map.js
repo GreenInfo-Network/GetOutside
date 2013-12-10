@@ -9,6 +9,13 @@ $(document).ready(function () {
         buttons: { }
     });
 
+    // set up the accordion of filter options, on the right-hand side
+    $('#tools').accordion({
+        heightStyle:'fill',
+        header: 'h5',
+        collapsible: true
+    });
+
     // start the map at the default bbox, add the basic layer
     MAP = L.map('map_canvas').fitBounds([[START_S,START_W],[START_N,START_E]]);
     L.tileLayer('http://{s}.tiles.mapbox.com/v3/greeninfo.map-fdff5ykx/{z}/{x}/{y}.jpg', {}).addTo(MAP);
@@ -97,12 +104,17 @@ function reloadMapPoints(points) {
 
 
 function handleResize() {
-    var height = $(window).height();
+    // resize the map, to the height of the screen minus header & footer
+    var mapheight = $(window).height();
     $('div.navbar').each(function () {
-        height -= $(this).height() + 2;
+        mapheight -= $(this).height() + 2;
     });
-    $('#map_canvas').height(height);
+    $('#map_canvas').height(mapheight - 5);
     if (MAP) MAP.invalidateSize();
+
+    // resize the right hand side to be the same height as the map
+    $('#tools').parent().height(mapheight - 3);
+    $('#tools').accordion('refresh');
 }
 
 
