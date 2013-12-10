@@ -9,7 +9,7 @@ var $has_many         = array('place',);
 var $option_fields = array(
     'url'     => array('required'=>TRUE, 'name'=>"REST URL with Layer ID", 'help'=>"The URL of the REST endpoint, including the layer ID.<br/>Example: http://your.server.com/arcgis/rest/services/Places/Minneapolis/MapServer/5<br/>NOTE: Only Point and Polygon layers are supported."),
     'option1' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
-    'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
+    'option2' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option3' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"Filter Clause", 'help'=>"A filter clause using standard ArcGIS REST syntax, e.g. <i>STATE_FID=16</i> or OPENPUBLIC='Yes'<br/>This is used to filter the features, e.g. to remove those that are closed or non-public, or to narrow down results if only a few features are relevant."),
     'option4' => NULL,
 );
@@ -44,7 +44,7 @@ public function reloadContent() {
     $namefield = $this->option1;
     $descfield = $this->option2;
     if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
-    if ($descfieldand ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
+    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
     $fields = $this->listFields(TRUE);
     if (! @$fields[$namefield]) throw new PlaceDataSourceErrorException('Chosen Name field  does not exist in the ArcGIS service.');
     if ($descfield and ! @$fields[$descfield]) throw new PlaceDataSourceErrorException('Chosen Description field does not exist in the ArcGIS service.');
