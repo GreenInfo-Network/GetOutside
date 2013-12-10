@@ -67,7 +67,6 @@ public function index() {
             name varchar(50) NOT NULL,
             address varchar(100) NOT NULL DEFAULT '',
             description text NOT NULL DEFAULT '',
-            keywords text NOT NULL DEFAULT '',
             allday BOOLEAN NOT NULL DEFAULT false,
             starts INTEGER UNSIGNED NOT NULL,
             ends INTEGER UNSIGNED NOT NULL,
@@ -86,7 +85,6 @@ public function index() {
             longitude float,
             name varchar(50) NOT NULL,
             description text NOT NULL DEFAULT '',
-            keywords text NOT NULL DEFAULT '',
             attributes_json TEXT,
             PRIMARY KEY (id),
             KEY datasource_id_idx (placedatasource_id)

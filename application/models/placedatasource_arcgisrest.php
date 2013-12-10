@@ -44,10 +44,10 @@ public function reloadContent() {
     $namefield = $this->option1;
     $descfield = $this->option2;
     if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
-    if (! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
+    if ($descfieldand ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
     $fields = $this->listFields(TRUE);
     if (! @$fields[$namefield]) throw new PlaceDataSourceErrorException('Chosen Name field  does not exist in the ArcGIS service.');
-    if (! @$fields[$descfield]) throw new PlaceDataSourceErrorException('Chosen Description field does not exist in the ArcGIS service.');
+    if ($descfield and ! @$fields[$descfield]) throw new PlaceDataSourceErrorException('Chosen Description field does not exist in the ArcGIS service.');
 
     // the filter clause; kinda free-form here, and high potential for them to mess it up
     // that's why we're so thorough on catching possible exceptions such as missing field names
@@ -55,6 +55,7 @@ public function reloadContent() {
     if (! $filterclause) $filterclause = "1>0";
 
     // expand upon the base URL, adding parameters to make a query for expected JSON content
+    // grab ALL fields, not simply the 2 we care about; we need to do categorization so we likely need fields beyond those specified
     $params = array(
         'where'          => $filterclause,
         //'outFields'      => implode(',',array('OBJECTID',$namefield,$descfield)),
@@ -107,7 +108,7 @@ public function reloadContent() {
     foreach ($structure->features as $feature) {
         $remoteid    = (integer) $feature->attributes->OBJECTID;
         $name        = $feature->attributes->{$namefield};
-        $description = $feature->attributes->{$descfield};
+        $description = $descfield ? $feature->attributes->{$descfield} : '';
         if (! $name)        { $name= ' ';        $warn_noname++; }
         if (! $description) { $description = ''; $warn_nodesc++; }
 
