@@ -84,7 +84,7 @@ function reloadMapPoints(points) {
         var html = '';
         html += '<h5>' + points[i].name + '</h5>';
         html += points[i].desc;
-        html += '<p>' + 'Categories: ' + points[i].categories.join(', ') + '</p>';
+        html += '<p>' + 'Tags: ' + points[i].categories.join(', ') + '</p>';
 
         // assign the attributes into a marker, and bind it to a HTML popup with implicit click handler
         var marker = L.marker([points[i].lat,points[i].lng], { icon:icon, attributes:points[i], keyboard:false, title:points[i].name }).bindPopup(html);
