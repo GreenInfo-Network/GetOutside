@@ -85,10 +85,8 @@ function newCategoryFromForm() {
         // the reply should be an integer, the new item's ID#
         if (! parseInt(reply)) return alert(reply);
 
-        // reload the page
-        document.location.href = document.location.href;
-        // old version: go to the editing page
-        // document.location.href = BASE_URL + 'administration/place_source/' + reply;
+        // reload the page so the listing refreshes
+        document.location.reload(true);
     });
 }
 
@@ -101,6 +99,8 @@ function refreshDataSourceById(id) {
     $.post(url, params, function (reply) {
         $('#dialog_fetching').dialog('close');
         alert(reply);
+
+        // reload the page so the listing refreshes
         document.location.reload(true);
     }).error(function () {
         $('#dialog_fetching').dialog('close');

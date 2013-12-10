@@ -12,9 +12,22 @@ $(document).ready(function () {
         heightStyle:'content',
         create: function (event,ui) {
             ui.panel.closest('.tabs').removeClass('ui-widget-content').children('.ui-tabs-panel').removeClass('ui-widget-content');
+        },
+        activate: function(event, ui) {
+            window.location.hash = ui.newPanel.prop('id');
         }
     });
 
     // enable sorting on tables using tablesorter
     $('table.sortable').tablesorter();
+
+    // afterthought, check for any hash in the URL and focus the specified tab (if it exists)
+    {
+        var tabsearch = window.location.hash;
+        var target = $(tabsearch);
+        if (target.length == 1 && target.hasClass('ui-tabs-panel')) {
+            var i = target.index();
+            target.closest('ui-tabs').tabs('option', 'selected', i);
+        }
+    }
 });

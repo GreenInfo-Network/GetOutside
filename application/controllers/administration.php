@@ -315,7 +315,7 @@ public function place_source($id) {
     $data['source'] = new PlaceDataSource();
     $data['source']->where('id',$id)->get();
     $data['source'] = $data['source']->convertToDriver();
-    if (! $data['source']->id) return redirect(site_url('administration/place_sources'));
+    if (! $data['source']->id) return redirect(site_url('administration/place_sources#tab_sources'));
 
     // list of categories, for the list of auto-categoization rules
     $data['categories'] = new PlaceCategory();
@@ -326,6 +326,7 @@ public function place_source($id) {
     $data['fields'] = null;
     try {
         $data['fields'] = $data['source']->listFields(TRUE);
+        array_unshift($data['fields'], '');
 
         // a copy of them with a blank option, for the rule pickers
         // the name __ALLRECORDS is magical, but so contrived it's unlikely to come up in the real world
@@ -440,14 +441,14 @@ public function place_source_delete() {
     $data = array();
     $data['source'] = new PlaceDataSource();
     $data['source']->where('id',$_POST['id'])->get();
-    if (! $data['source']->id) return redirect(site_url('administration/place_sources'));
+    if (! $data['source']->id) return redirect(site_url('administration/place_sources#tab_sources'));
 
     // if they're not POSTing a confirmation, bail
     if (! @$_POST['ok']) return $this->load->view('administration/place_source_delete.phtml', $data);
 
     // delete it, send the user home
     $data['source']->delete();
-    redirect(site_url('administration/place_sources'));
+    redirect(site_url('administration/place_sources#tab_sources'));
 }
 
 public function ajax_create_place_category() {
@@ -475,7 +476,7 @@ public function place_category($id=null) {
 
     $data['category'] = new PlaceCategory();
     $data['category']->where('id',$id)->get();
-    if (! $data['category']->id) return redirect(site_url('administration/place_sources'));
+    if (! $data['category']->id) return redirect(site_url('administration/place_sources#tab_categories'));
 
     $this->load->view('administration/place_category.phtml', $data);
 }
@@ -502,14 +503,14 @@ public function place_category_delete() {
     $data = array();
     $data['category'] = new PlaceCategory();
     $data['category']->where('id',$_POST['id'])->get();
-    if (! $data['category']->id) return redirect(site_url('administration/place_sources'));
+    if (! $data['category']->id) return redirect(site_url('administration/place_sources#tab_categories'));
 
     // if they're not POSTing a confirmation, bail
     if (! @$_POST['ok']) return $this->load->view('administration/place_category_delete.phtml', $data);
 
     // delete it, send the user home
     $data['category']->delete();
-    redirect(site_url('administration/place_sources'));
+    redirect(site_url('administration/place_sources#tab_categories'));
 }
 
 
