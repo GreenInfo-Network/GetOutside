@@ -488,8 +488,9 @@ public function ajax_save_place_category() {
 
     // any remaining errors (below) are non-fatal,
     // so save it now and then report the errors below
-    $category->name    = trim(strip_tags(@$_POST['name']));
-    $category->enabled = $_POST['enabled'];
+    $category->name          = trim(strip_tags(@$_POST['name']));
+    $category->enabled       = $_POST['enabled'];
+    $category->on_by_default = $_POST['on_by_default'];
     $category->save();
 
     // AJAX endpoint, just say OK

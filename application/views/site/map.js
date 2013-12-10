@@ -1,64 +1,24 @@
 var MAP; // the Leaflet Map object
-var ALL_MARKERS = []; // array; the set of all markers that exist; a superset of VISIBLE_MARKERS
 var VISIBLE_MARKERS; // L.markerClustergroup; the set of all markers currently displaying on the map via a clusterer; a subset of ALL_MARKERS
 
-
 $(document).ready(function () {
-    // start the map at the defrault bbox, add the basic layer
+    // One Moment Please
+    $('#dialog_waiting').dialog({
+        modal:true, closeOnEsc:false, autoOpen:false, width:'auto', height:'auto',
+        title: '',
+        buttons: { }
+    });
+
+    // start the map at the default bbox, add the basic layer
     MAP = L.map('map_canvas').fitBounds([[START_S,START_W],[START_N,START_E]]);
     L.tileLayer('http://{s}.tiles.mapbox.com/v3/greeninfo.map-fdff5ykx/{z}/{x}/{y}.jpg', {}).addTo(MAP);
 
-    // load the point data sources as represented by the sources[] checkboxes
-    // everything loads into the one VISIBLE_MARKERS cluster handler, so it clusters "between" data sources, rather than multiple clusters and outliers which looks funny
+    // add the marker clusterer, though with no markers just yet
     VISIBLE_MARKERS = L.markerClusterGroup({
         showCoverageOnHover:false,
+        maxClusterRadius: 36,
         iconCreateFunction: createClusterDiv
     }).addTo(MAP);
-    $('input[name="sources[]"]').each(function () {
-        // what is the source ID, and therefore also the cluster ID? create a new cluster group
-        var sourceid = $(this).prop('value');
-
-        // ping the server for these locations, and on success add those markers to "cluster"
-        // the markers also get a .attributes attribute, including the sourceid, which will be used later for filtering markers based on checkbox choices
-        var url = BASE_URL + 'site/ajax_map_points/' + sourceid;
-        $.get(url, {}, function (points) {
-            // for performance, collect an array and use addLayers(), instead of addLayer() individually
-            var markers = [];
-
-            // what color do we use?
-            var color = DATA_SOURCES[sourceid]['color'];
-
-            for (var i=0, l=points.length; i<l; i++) {
-                // generate a simple DIV icon, so we can use CSS colors
-                var icon = new L.ColoredDivIcon({ bgColor:color, className:'marker-icon', iconAnchor:L.point(10,10), iconSize:L.point(20,20) });
-
-                // compose the HTML popup
-                var html = '';
-                html += '<h5>' + points[i].name + '</h5>';
-                html += points[i].desc;
-
-                // assign the attributes incl the source ID into a marker, with a HTML popup
-                points[i].sourceid = sourceid;
-                var marker = L.marker([points[i].lat,points[i].lng], { icon:icon, attributes:points[i], keyboard:false, title:points[i].name }).bindPopup(html);
-
-                // add this new marker to the current bundle that we'll add to the clusterer
-                // AND ALSO add it to the global MARKERS list
-                markers.push(marker);
-                ALL_MARKERS.push(marker);
-            }
-
-            // having loaded this datasource into ALL_MARKERS above, trigger it to be shown/hidden to match the checkbox
-            $('input[name="sources[]"][value="'+sourceid+'"]').trigger('change');
-        });
-    });
-
-    // enable the checkboxes which select which data sources are displayed, and check them
-    // do not trigger them; they are implicitly loaded already (above) so having them checked brings them into sync with the map display
-    $('input[name="sources[]"]').change(function () {
-        var sourceid = $(this).prop('value');
-        var viz      = $(this).is(':checked');
-        togglePointsBySource(sourceid,viz);
-    });
 
     // enable the geocoder so they can find their address. well, only if there's a Bing key given
     if (BING_API_KEY) {
@@ -77,8 +37,63 @@ $(document).ready(function () {
     // then trigger a resize right now, so the map and other elements fit the current page size
     $(window).resize(handleResize);
     handleResize();
+
+    // now various ways to trigger a search: picking a date & time, selecting the category checkboxes, entering a text search, ...
+    // these all funnel to the same place:  submitFilters()
+    $('input[name="categories[]"]').change(function () {
+        submitFilters();
+    });
+
+    // submit our initial request, with whatever our initial conditions are
+    submitFilters();
 }); // end of onready
 
+
+
+function submitFilters() {
+    // compile the URL and params
+    var url = BASE_URL + 'site/ajax_map_points/';
+    var params = {};
+
+    params.categories = [];
+    $('input[name="categories[]"]:checked').each(function () {
+        var catid = $(this).prop('value');
+        params.categories.push(catid);
+    });
+
+    // ready!
+    $('#dialog_waiting').dialog('open');
+    $.post(url, params, function (points) {
+        $('#dialog_waiting').dialog('close');
+        reloadMapPoints(points);
+    }, 'json');
+}
+
+
+function reloadMapPoints(points) {
+    // start by clearing the existing markers
+    VISIBLE_MARKERS.clearLayers();
+
+    // and load up the new ones; for performance, build them in memory before clustering, so we don't recluster for every single marker
+    var markers = [];
+    for (var i=0, l=points.length; i<l; i++) {
+        // generate a simple DIV icon, using the selected color
+        var icon = new L.DivIcon({ className:'marker-icon', iconAnchor:L.point(10,10), iconSize:L.point(20,20) });
+
+        // compose the HTML for the popup
+        var html = '';
+        html += '<h5>' + points[i].name + '</h5>';
+        html += points[i].desc;
+        html += '<p>' + 'Categories: ' + points[i].categories.join(', ') + '</p>';
+
+        // assign the attributes into a marker, and bind it to a HTML popup with implicit click handler
+        var marker = L.marker([points[i].lat,points[i].lng], { icon:icon, attributes:points[i], keyboard:false, title:points[i].name }).bindPopup(html);
+        markers.push(marker);
+    }
+
+    // all set, cluster it!
+    VISIBLE_MARKERS.addLayers(markers);
+}
 
 
 function handleResize() {
@@ -99,6 +114,7 @@ function geocodeAndZoom(address) {
     $('<script></script>').prop('type','text/javascript').prop('src',url).appendTo( jQuery('head') );
 }
 
+
 function handleGeocodeResult(results) {
     if (results.authenticationResultCode != 'ValidCredentials') return alert("The Bing Maps API key appears to be invalid.");
 
@@ -118,40 +134,14 @@ function handleGeocodeResult(results) {
 }
 
 
-function togglePointsBySource(sourceid,viz) {
-    viz ? togglePointsBySource_show(sourceid) : togglePointsBySource_hide(sourceid);
-}
-
-function togglePointsBySource_show(sourceid) {
-    // iterate over ALL_MARKERS, showing whichever ones match the given source-ID
-    var changes = [];
-
-    for (var i=0, l=ALL_MARKERS.length; i<l; i++) {
-        if (ALL_MARKERS[i].options.attributes.sourceid == sourceid) changes.push(ALL_MARKERS[i]);
-    }
-
-    VISIBLE_MARKERS.addLayers(changes);
-}
-
-function togglePointsBySource_hide(sourceid) {
-    // iterate over VISIBLE_MARKERS, hiding whichever ones match the given source-ID
-    var changes = [];
-
-    var markers = VISIBLE_MARKERS.getLayers();
-    for (var i=0, l=markers.length; i<l; i++) {
-        if (markers[i].options.attributes.sourceid == sourceid) changes.push(markers[i]);
-    }
-
-    VISIBLE_MARKERS.removeLayers(changes);
-}
-
 
 // callback to create a DIV element for this marker cluster
 function createClusterDiv(cluster) {
     var count    = cluster.getChildCount(); // how many markers in this cluster
-    var size     = new L.Point(40, 40); // all clusters same size, let the colors talk
+    var size     = new L.Point(36, 36); // all clusters same size
     var cssclass = 'marker-cluster';
     var html     = '<div><span>' + count + '</span></div>';
-    return new L.DivIcon({ html:html, className:cssclass, iconSize:size });
+
+    return new L.DivIcon({ html:html, className:'marker-cluster', iconAnchor:L.point(20,20), iconSize:L.point(40,0) });
 }
 

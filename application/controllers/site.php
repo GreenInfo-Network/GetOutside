@@ -64,18 +64,27 @@ public function map() {
 
     // assocarray of Place Data Sources: ID -> Name
     // used to generate the checkbox list, which is used to toggle the data source
-    $data['sources'] = array();
-    $dsx = new PlaceDataSource();
+    $data['categories'] = array();
+    $dsx = new PlaceCategory();
     $dsx->where('enabled',1)->get();
-    foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color, 'checked'=>(boolean) (integer) $ds->on_by_default );
+    foreach ($dsx as $ds) $data['categories'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'checked'=>(boolean) (integer) $ds->on_by_default );
 
     $this->load->view('site/map.phtml',$data);
 }
 
 
-public function ajax_map_points($id=0) {
+public function ajax_map_points() {
+    // the search & filter system for the Map page; accept a POST full of options such as date filtering, category filtering, text searching, ...
+    // start with all Places
     $places = new Place();
-    $places->where('placedatasource_id',$id)->get();
+
+    // category filter
+    if (! @$_POST['categories']) $_POST['categories'] = array(-1);
+    $_POST['categories']  = array_map('intval', $_POST['categories']);
+    $places->where_related_placecategory('id',$_POST['categories']);
+
+    // done with the easy filters, apply them now
+    $places->distinct()->get();
 
     // a simple JSON structure here; no specific standard here, just as compact and purpose-specific as we can make it
     $output = array();
@@ -88,6 +97,9 @@ public function ajax_map_points($id=0) {
         $thisone['desc']    = $place->description;
         $thisone['lat']     = (float) $place->latitude;
         $thisone['lng']     = (float) $place->longitude;
+
+        $thisone['categories'] = array();
+        foreach ($place->placecategory as $pcat) $thisone['categories'][] = $pcat->name;
 
         $output[] = $thisone;
     }

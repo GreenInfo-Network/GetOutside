@@ -96,6 +96,7 @@ public function index() {
         CREATE TABLE IF NOT EXISTS placecategories (
             id INTEGER AUTO_INCREMENT NOT NULL,
             name varchar(50) NOT NULL,
+            on_by_default BOOLEAN NOT NULL DEFAULT false,
             enabled BOOLEAN NOT NULL DEFAULT true,
             PRIMARY KEY (id)
         )

@@ -7,8 +7,6 @@
 <![endif]-->
 <script src="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
 
-<script src="<?= site_url() ?>/application/views/common/leaflet.ColoredDivIcon.min.js"></script>
-
 <script src="<?= site_url() ?>/application/views/common/leaflet.markercluster/leaflet.markercluster.min.js"></script>
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
@@ -17,11 +15,11 @@
 <script type="text/javascript" src="<?= site_url() ?>/application/views/site/map.js"></script>
 <script type="text/javascript">
 var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
+
 var START_W = <?= $this->siteconfig->get('bbox_w') ?>;
 var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
 var START_E = <?= $this->siteconfig->get('bbox_e') ?>;
 var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
-var DATA_SOURCES = <?= json_encode($sources) ?>;
 </script>
 
 
@@ -30,16 +28,6 @@ var DATA_SOURCES = <?= json_encode($sources) ?>;
     /* height is overridden by handleResize() code, to fill the page */
     width:100%;
     height:4in;
-}
-
-div.swatch {
-    display:inline-block;
-
-    border: 1px solid #000000;
-    border-radius: 7px;
-
-    height: 14px;
-    width: 14px;
 }
 </style>
 
@@ -54,11 +42,18 @@ div.swatch {
                 <input type="text" id="geocode" style="width:80%" placeholder="Search for your address" /> <input type="button" id="geocode_go" value="Search" style="width:15%;" />
             </div>
 
-            <?php foreach ($sources as $sourceid=>$sourceinfo) { ?>
-            <label><input type="checkbox" name="sources[]" <?= $sourceinfo['checked'] ? 'checked' : '' ?>  value="<?= $sourceid ?>" /> <div class="swatch" style="background-color:<?= $sourceinfo['color'] ?>;"></div>  <?= htmlspecialchars($sourceinfo['name']) ?></label><br/>
+            <?php foreach ($categories as $catid=>$catinfo) { ?>
+            <label><input type="checkbox" name="categories[]" <?= $catinfo['checked'] ? 'checked' : '' ?> value="<?= $catid ?>" /> <?= htmlspecialchars($catinfo['name']) ?></label><br/>
             <?php } ?>
         </div>
     </div>
+</div>
+
+
+
+<div class="dialog" id="dialog_waiting">
+    One moment please.
+    <br/>
 </div>
 
 
