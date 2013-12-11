@@ -25,6 +25,20 @@ $(document).ready(function () {
         if(key.keyCode == 13) $('#geocode_go').click();
     });
 
+    // also pertaining to the MAP, whenever the tab changes we need to tell the map to update its size
+    // when the map tab isn't selected, the DIV has a wize of 0x0, screws up the map when you switch back
+    $('#settingsform > .tabs').on('tabsactivate', function(event,ui) {
+        var mapdiv = $('#bbox_map_canvas');
+        if (! mapdiv.is(':visible') ) return;
+        MAP.invalidateSize();
+
+        var w = parseFloat( $('input[name="bbox_w"]').val() );
+        var s = parseFloat( $('input[name="bbox_s"]').val() );
+        var e = parseFloat( $('input[name="bbox_e"]').val() );
+        var n = parseFloat( $('input[name="bbox_n"]').val() );
+        MAP.fitBounds([[s,w],[n,e]]);
+    });
+
     // pick the navbar entry to show where we are
     $('#navbar_settings').addClass('ui-state-focus');
 
