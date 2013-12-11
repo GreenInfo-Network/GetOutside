@@ -75,7 +75,7 @@ function submitFilters() {
     var url = BASE_URL + 'site/ajax_map_points/';
     var params = $('#tools').serialize();
 
-/*
+    /* CUSTOM VERSION for when we come up with some custom need that won't just serialize()
     params.categories = [];
     $('input[name="categories[]"]:checked').each(function () {
         var catid = $(this).prop('value');
@@ -83,7 +83,7 @@ function submitFilters() {
     });
 
     params.keywords = $('input[name="keywords"]').val();
-*/
+    */
 
     // ready!
     $('#dialog_waiting').dialog('open');
@@ -108,7 +108,7 @@ function reloadMapPoints(points) {
         var html = '';
         html += '<h5>' + points[i].name + '</h5>';
         html += points[i].desc;
-        html += '<p>' + 'Tags: ' + points[i].categories.join(', ') + '</p>';
+        html += '<p>' + 'Categories: ' + points[i].categories + '</p>';
 
         // assign the attributes into a marker, and bind it to a HTML popup with implicit click handler
         var marker = L.marker([points[i].lat,points[i].lng], { icon:icon, attributes:points[i], keyboard:false, title:points[i].name }).bindPopup(html);
