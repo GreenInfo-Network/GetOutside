@@ -123,8 +123,7 @@ public function ajax_map_points() {
         $thisone['lat']     = (float) $place->latitude;
         $thisone['lng']     = (float) $place->longitude;
 
-        $thisone['categories'] = array();
-        foreach ($place->placecategory as $pcat) $thisone['categories'][] = $pcat->name;
+        $thisone['categories'] = $place->listCategories(', ');
 
         $output[] = $thisone;
     }

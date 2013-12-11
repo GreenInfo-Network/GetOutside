@@ -30,4 +30,25 @@ var $has_many         = array('placecategory',);
 
 
 
+
+/*****************************************************************************
+ * INSTANCE METHODS
+ *****************************************************************************/
+
+// fetch the list of categories for this Place
+// if $join is given, return is a string joined with that separator
+// if $join is omitted, return is a list
+public function listCategories($join=null) {
+    $categories = array();
+    foreach ($this->placecategory as $pcat) $categories[] = $pcat->name;
+
+    if ($join) $categories = implode($join,$categories);
+
+    return $categories;
+}
+
+
+
+
+
 } // end of Model

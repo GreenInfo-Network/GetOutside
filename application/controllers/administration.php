@@ -303,6 +303,9 @@ public function place_sources() {
     $data['categories'] = new PlaceCategory();
     $data['categories']->get();
 
+    $data['places'] = new Place();
+    $data['places']->get();
+
     $data['types'] = array();
     foreach (PlaceDataSource::$SOURCE_TYPES as $t) $data['types'][$t] = $t;
 
@@ -512,6 +515,12 @@ public function place_category_delete() {
     $data['category']->delete();
     redirect(site_url('administration/place_sources#tab_categories'));
 }
+
+
+
+/*******************************************************************************************************
+ * MANAGEMENT OF PLACES   (yeah, the actual points!)
+ *******************************************************************************************************/
 
 
 } // end of Controller
