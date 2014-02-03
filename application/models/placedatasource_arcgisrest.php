@@ -167,7 +167,7 @@ public function reloadContent() {
  * listFields()
  * Connect to the data source and grab a list of field names. Return an array of string field names.
  */
-public function listFields($assoc=FALSE) {
+public function listFields() {
     // make sure no shenanigans: ArcGIS REST services fit a pattern
     $url = $this->url;
     if (! preg_match('!^https?://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException('That URL does not fit the format for a REST endpoint.');
@@ -182,16 +182,11 @@ public function listFields($assoc=FALSE) {
     $fields = @json_decode(file_get_contents($url));
     if (! @is_array($fields->fields) or ! @sizeof($fields->fields)) throw new PlaceDataSourceErrorException('Did not get a field list back for this data source.');
 
-    // generate the output, either as a straight list or an assocarray
-    // assocs are for CodeIgniter or other "dropdown generators" which expect value=>label mappings
+    // generate the output, a flat list
+    // a prior version accepted an $assoc=TRUE param to generate assoc arrays, but this got into "what would the caller want?" guesswork, and is best left to the caller
     $output = array();
-    if ($assoc) {
-        foreach ($fields->fields as $f) $output[$f->name] = $f->name;
-        ksort($output);
-    } else {
-        foreach ($fields->fields as $f) $output[] = $f->name;
-        sort($output);
-    }
+    foreach ($fields->fields as $f) $output[] = $f->name;
+    sort($output);
     return $output;
 }
 
