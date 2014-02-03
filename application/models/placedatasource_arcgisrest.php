@@ -46,8 +46,8 @@ public function reloadContent() {
     if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
     if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
     $fields = $this->listFields(TRUE);
-    if (! @$fields[$namefield]) throw new PlaceDataSourceErrorException('Chosen Name field  does not exist in the ArcGIS service.');
-    if ($descfield and ! @$fields[$descfield]) throw new PlaceDataSourceErrorException('Chosen Description field does not exist in the ArcGIS service.');
+    if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException("Chosen Name field ($namefield) does not exist in the ArcGIS service.");
+    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException("Chosen Description field ($descfield) does not exist in the ArcGIS service.");
 
     // the filter clause; kinda free-form here, and high potential for them to mess it up
     // that's why we're so thorough on catching possible exceptions such as missing field names
