@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
 
-<!-- code specific to this page -->
+<!-- other code specific to this page -->
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/site/map.css" />
 <script type="text/javascript" src="<?= site_url() ?>/application/views/site/map.js"></script>
 <script type="text/javascript">
@@ -39,7 +39,7 @@ var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
                     <br/>
                 </div>
 
-                <h5>Filter by tags</h5>
+                <h5>Filter by Categories</h5>
                 <div>
                     <div style="float:right; font-size:75%;">
                         <a href="javascript:void(0);" class="check_all">all</a>
@@ -53,15 +53,21 @@ var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
                     <?php } ?>
                 </div>
 
-                <h5>Filter by keywords</h5>
+                <h5>Filter by Keywords</h5>
                 <div>
                     Filter places by searching for keywords:<br/>
-                    <input type="text" name="keywords" style="width:80%" placeholder="Enter keywords" /> <input type="button" class="search_submit" value="Search" style="width:15%;" />
+                    <input type="text" name="keywords" style="width:80%" placeholder="Enter keywords" /> <input type="button" class="search_submit" value="Search" />
                 </div>
 
-                <h5>Filter by date &amp; time</h5>
+                <h5>Filter by Date &amp; Time</h5>
                 <div>
-                    <p>Show places open at this date &amp; time:</p>
+                    Show places with activities listed at this date &amp; time:<br/>
+                    <input type="text" class="timeinput" name="time" style="width:80px;" /> <input type="text" class="dateinput" name="date" style="width:100px;" /> <input type="button" class="search_submit" value="Search" />
+                    <div style="text-align:right;">
+                        <a href="javascript:void(0);" id="datetime_now">now</a>
+                        &bull;
+                        <a href="javascript:void(0);" id="datetime_clear">clear</a>
+                    </div>
                 </div>
 
             </form>

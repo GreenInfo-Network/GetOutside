@@ -64,6 +64,24 @@ $(document).ready(function () {
         submitFilters();
     });
 
+    // enable the time picker and date picker, and a Now button to set them both to Right Now, and a Clear button to reset them to blank (no time/date filtering)
+    $('input.timeinput').timepicker({
+    });
+    $('input.dateinput').datepicker({
+        dateFormat:'yy-mm-dd'
+    });
+    $('#datetime_now').click(function () {
+        var now = new Date();
+        $('#tools input[name="time"]').timepicker('setTime', now);
+        $('#tools input[name="date"]').datepicker('setDate', now);
+        submitFilters();
+    });
+    $('#datetime_clear').click(function () {
+        $('#tools input[name="date"]').val('');
+        $('#tools input[name="time"]').val('');
+        submitFilters();
+    });
+
     // submit our initial request, with whatever our initial conditions are
     submitFilters();
 }); // end of onready
@@ -71,11 +89,16 @@ $(document).ready(function () {
 
 
 function submitFilters() {
+    // quick sanity check: if a date or time are given, both must be given
+    var has_date = $('#tools input[name="date"]').val();
+    var has_time = $('#tools input[name="time"]').val();
+    if ( (has_date && ! has_time) || (!has_date && has_time)) return alert("To filter by date and time, select both a date and a time.");
+
     // compile the URL and params
     var url = BASE_URL + 'site/ajax_map_points/';
     var params = $('#tools').serialize();
 
-    /* CUSTOM VERSION for when we come up with some custom need that won't just serialize()
+    /* CUSTOM VERSION for when we come up with some custom need that won't just serialize()   Not sure what, but it's bound to happen...
     params.categories = [];
     $('input[name="categories[]"]:checked').each(function () {
         var catid = $(this).prop('value');
