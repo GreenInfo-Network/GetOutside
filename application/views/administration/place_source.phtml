@@ -40,14 +40,6 @@ em {
             <td>Name</td>
             <td><input type="text" name="name" value="<?= htmlspecialchars($source->name) ?>" size="50" maxlength="50" /></td>
         </tr>
-        <tr>
-            <td>Enabled?</td>
-            <td>
-                <?= form_dropdown('enabled', array('1'=>'Enabled', '0'=>'Disabled'),$source->enabled) ?>
-                <br/>
-                If disabled, this data source will not appear on the Map page, and will not be refreshed automatically.
-            </td>
-        </tr>
 
         <?php if ($source->option_fields['url']) { ?>
         <tr>

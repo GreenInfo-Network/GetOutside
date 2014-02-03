@@ -47,7 +47,7 @@ function saveAndExit() {
     $.post(url, params, function (reply) {
         $('#dialog_waiting').dialog('close');
         if (reply != 'ok') return alert(reply);
-        document.location.href = BASE_URL + 'administration/place_sources';
+        document.location.href = BASE_URL + 'administration/place_sources#tab_places';
     });
 }
 

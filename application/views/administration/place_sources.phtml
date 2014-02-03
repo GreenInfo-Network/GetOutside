@@ -22,6 +22,7 @@
     <ul>
         <li><a href="#tab_categories">Categories</a></li>
         <li><a href="#tab_sources">Sources</a></li>
+        <li><a href="#tab_places">Places</a></li>
     </ul>
     <div id="tab_categories">
 
@@ -75,7 +76,6 @@
             <th>Name</th>
             <th>Type</th>
             <th># Places</th>
-            <th>Status</th>
             <th>Last Fetch</th>
         </tr>
         </thead>
@@ -87,7 +87,6 @@
             </td>
             <td><?= $source->type ?></td>
             <td><?= $source->howManyPlaces() ?></td>
-            <td><?= (integer) $source->enabled ? 'Enabled' : 'Disabled' ?></td>
             <td><span class="glyphicon glyphicon-refresh refresh" data-id="<?= $source->id ?>" title="Fetch now"></span> <?= $source->lastFetch() ?></td>
         </tr>
         <?php } ?>
@@ -95,6 +94,48 @@
         </table>
 
     </div>
+
+    <div id="tab_places">
+        <p>
+            These locations have been loaded into the local database, for display on the Map page.
+            Filters are available to help you find problems and management tasks, such as places which aren't assigned to any categories.
+        </p>
+
+
+<p>
+    GDA these don't work yet
+        Filter:
+        <?= form_dropdown('places_filter_source', $places_filter_source_options, $this->session->userdata('admin_places_filter_source') ) ?>
+        <?= form_dropdown('places_filter_category', $places_filter_category_options, $this->session->userdata('admin_places_filter_category')) ?>
+</p>
+
+        <table class="table table-condensed table-bordered sortable">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Source</th>
+            <th>Categories</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($places as $place) { ?>
+        <tr>
+            <td>
+                <a href="<?= site_url("administration/place/{$place->id}") ?>"><?= htmlspecialchars($place->name) ?></a>
+            </td>
+            <td>
+                <?= htmlspecialchars($place->placedatasource->name) ?>
+            </td>
+            <td>
+                <?= htmlspecialchars($place->listCategories(', ')) ?>
+            </td>
+        </tr>
+        <?php } ?>
+        </tbody>
+        </table>
+
+    </div>
+
 </div>
 
 
