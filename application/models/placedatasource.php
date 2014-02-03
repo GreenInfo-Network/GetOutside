@@ -55,9 +55,6 @@ public function convertToDriver() {
         case 'Google Spreadsheet':
             $subclass = "PlaceDataSource_GoogleSpreadsheet";
             break;
-        case 'Shapefile':
-            $subclass = "PlaceDataSource_Shapefile";
-            break;
         case 'ArcGIS REST API':
             $subclass = "PlaceDataSource_ArcGISREST";
             break;
@@ -223,13 +220,13 @@ public function calculateCategoryIDsFromAttributes($attribs) {
     $catids = array();
 
     foreach ($this->placecategoryrule as $rule) {
-        if (! $rule->field or ! $rule->value) continue; // no rule for this category, skip it
+        if (! $rule->field) continue; // no rule for this category, skip it
 
         // the special __ALLRECORDS case matches all records, no matter their attributes
         // otherwise, it's a field name and value, and there must be a match
         $match = FALSE;
-        if      ($rule->field == '__ALLRECORDS')                            $match = TRUE;
-        else if (0 == strcasecmp(@$attribs->{$rule->field},$rule->value))   $match = TRUE;
+        if      ($rule->field == '__ALLRECORDS')                                            $match = TRUE;
+        else if ($rule->value and 0 == strcasecmp(@$attribs->{$rule->field},$rule->value))  $match = TRUE;
 
         // okay, did we find anything?
         if (! $match) continue;
