@@ -93,9 +93,9 @@ public function reloadContent() {
         if ( strcasecmp($field->name,$descfield) == 0) $descfield = $field->name;
     }
 
-    // do not clear out old records; grab their remote-ID and make an assoc
-    // we will remove items from this "list" to indicate that they are in fact in the remote feed
-    // and after the loop below where we load 'em up we will delete these "leftovers"
+    // compose a list of all Remote-ID currently in the database within this data source
+    // as we go over the records we'll remove them from this list
+    // anything still remaining at the end of this process, is no longer in the remote data source and therefore should be deleted from the local database to match
     $deletions = array();
     foreach ($this->place as $old) $deletions[$old->remoteid] = TRUE;
 
