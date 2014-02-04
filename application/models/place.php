@@ -31,12 +31,19 @@ var $has_many         = array('placecategory',);
  * INSTANCE METHODS
  *****************************************************************************/
 
-// fetch the list of categories for this Place
-// if $join is given, return is a string joined with that separator
-// if $join is omitted, return is a list
-public function listCategories($join=null) {
+// fetch the list of categoryt names for this Place; convenience method for listings and the like
+// if $join is omitted (default) return is a list/array; if $join is given, it's a join-string and the return is a joined string
+public function listCategoryNames($join=null) {
     $categories = array();
     foreach ($this->placecategory as $pcat) $categories[] = $pcat->name;
+
+    if ($join) $categories = implode($join,$categories);
+
+    return $categories;
+}
+public function listCategoryIDs($join=null) {
+    $categories = array();
+    foreach ($this->placecategory as $pcat) $categories[] = $pcat->id;
 
     if ($join) $categories = implode($join,$categories);
 

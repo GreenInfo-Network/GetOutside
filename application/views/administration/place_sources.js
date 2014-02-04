@@ -55,8 +55,34 @@ $(document).ready(function () {
         buttons: { }
     });
 
+    // enable the filters; the rows/entries in #places_list have data tags for their source ID and category IDs
+    // lastly, since Firefox loves to cache controls' statuses (keeping selectors selected) trigger a filter right now, for whatever Firefox thinks is still selected
+    $('#places_list tr').slice(1).each(function () {
+        // preprocessing: each row has a comma-joined list of category IDs; split it into a list and save as a .data item
+        // so we don't need to split every single row, every single time they pick a category filter
+        var $row  = $(this);
+        var ids   = $row.attr('data-category-ids').split(',');
+        $row.data('category-ids',ids);
+    });
+    $('select[name="places_filter_category"]').change(function () {
+        applyFiltersToPlaceListing();
+    });
+    $('select[name="places_filter_source"]').change(function () {
+        applyFiltersToPlaceListing();
+    });
+    applyFiltersToPlaceListing();
 });
 
+
+function applyFiltersToPlaceListing() {
+    var cid = $('select[name="places_filter_category"]').val();
+    var sid = $('select[name="places_filter_source"]').val();
+    $('#places_list tr').slice(1).show().each(function () {
+        var $row  = $(this);
+        var match = (!sid || $row.attr('data-source-id') == sid) && (!cid || $row.data('category-ids').indexOf(cid) != -1); // if a sid, must match; if a cid, must match
+        if (! match) $row.hide();
+    });
+}
 
 function newSourceFromForm() {
     var url    = BASE_URL + 'administration/ajax_create_place_source';

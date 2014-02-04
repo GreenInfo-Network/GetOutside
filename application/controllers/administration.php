@@ -297,18 +297,34 @@ public function event_source_delete() {
 public function place_sources() {
     $data = array();
 
+    // the lists: Sources and Categories
+    // Places list is below; uses filters...
     $data['sources'] = new PlaceDataSource();
     $data['sources']->get();
 
     $data['categories'] = new PlaceCategory();
     $data['categories']->get();
 
+    // the list of Places, all of them; the filters in the admin page are done in-browser and we don't filter here
     $data['places'] = new Place();
     $data['places']->get();
 
+    // some filter assocs for the filters in the Places section
+    // these aren't used server side, they're done in-browser
+    $data['places_filter_source_options'] = array();
+    $data['places_filter_source_options'][''] = '(filter by source)';
+    foreach ($data['sources'] as $s) $data['places_filter_source_options'][ $s->id ] = $s->name;
+
+    $data['places_filter_category_options'] = array();
+    $data['places_filter_category_options']['-1'] = '(filter by category)';
+    $data['places_filter_category_options'][''] = 'UNCATEGORIZED';
+    foreach ($data['categories'] as $s) $data['places_filter_category_options'][ $s->id ] = $s->name;
+
+    // list of data source types, for the New popup
     $data['types'] = array();
     foreach (PlaceDataSource::$SOURCE_TYPES as $t) $data['types'][$t] = $t;
 
+    // finally ready
     $this->load->view('administration/place_sources.phtml', $data);
 }
 
@@ -328,13 +344,16 @@ public function place_source($id) {
     // or so they can specify filters for the placedatasource's association to placecategories
     $data['fields'] = null;
     try {
-        $data['fields'] = $data['source']->listFields(TRUE);
-        array_unshift($data['fields'], '');
+        // get the list of fields, and express it in two different but similar ways:
+        $fields = $data['source']->listFields();;
 
-        // a copy of them with a blank option, for the rule pickers
-        // the name __ALLRECORDS is magical, but so contrived it's unlikely to come up in the real world
+        // A. an assoc of the fields, used to generate SELECT elements
+        $data['fields'] = array();
+        foreach ($fields as $f) $data['fields'][$f] = $f;
+
+        // B. that same assoc but with a blank option
         $data['rule_fields'] = array(''=>'', '__ALLRECORDS'=>'ALL RECORDS');
-        $data['rule_fields'] = array_merge($data['rule_fields'],$data['fields']);
+        foreach ($fields as $f) $data['rule_fields'][$f] = $f;
     } catch (PlaceDataSourceErrorException $e) {
         $data['warning'] = $e->getMessage();
     }
@@ -413,7 +432,6 @@ public function ajax_save_place_source() {
     $source->option2       = trim(@$_POST['option2']);
     $source->option3       = trim(@$_POST['option3']);
     $source->option4       = trim(@$_POST['option4']);
-    $source->enabled       = $_POST['enabled'];
     $source->save();
 
     // more stuff to be saved EVEN IF we're about to encounter an error

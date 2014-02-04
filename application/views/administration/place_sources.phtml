@@ -102,14 +102,13 @@
         </p>
 
 
-<p>
-    GDA these don't work yet
-        Filter:
-        <?= form_dropdown('places_filter_source', $places_filter_source_options, $this->session->userdata('admin_places_filter_source') ) ?>
-        <?= form_dropdown('places_filter_category', $places_filter_category_options, $this->session->userdata('admin_places_filter_category')) ?>
-</p>
+        <p>
+            Filter:
+            <?= form_dropdown('places_filter_source', $places_filter_source_options, $this->session->userdata('admin_places_filter_source') ) ?>
+            <?= form_dropdown('places_filter_category', $places_filter_category_options, $this->session->userdata('admin_places_filter_category')) ?>
+        </p>
 
-        <table class="table table-condensed table-bordered sortable">
+        <table id="places_list" class="table table-condensed table-bordered sortable">
         <thead>
         <tr>
             <th>Name</th>
@@ -119,7 +118,7 @@
         </thead>
         <tbody>
         <?php foreach ($places as $place) { ?>
-        <tr>
+        <tr data-source-id="<?= $place->placedatasource->id ?>" data-category-ids="<?= $place->listCategoryIDs(',') ?>">
             <td>
                 <a href="<?= site_url("administration/place/{$place->id}") ?>"><?= htmlspecialchars($place->name) ?></a>
             </td>
@@ -127,7 +126,7 @@
                 <?= htmlspecialchars($place->placedatasource->name) ?>
             </td>
             <td>
-                <?= htmlspecialchars($place->listCategories(', ')) ?>
+                <?= htmlspecialchars($place->listCategoryNames(', ')) ?>
             </td>
         </tr>
         <?php } ?>
