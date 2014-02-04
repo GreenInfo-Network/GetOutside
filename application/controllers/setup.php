@@ -123,6 +123,11 @@ public function index() {
             option2 varchar(500),
             option3 varchar(500),
             option4 varchar(500),
+            option5 varchar(500),
+            option6 varchar(500),
+            option7 varchar(500),
+            option8 varchar(500),
+            option9 varchar(500),
             PRIMARY KEY (id)
         )
     ");

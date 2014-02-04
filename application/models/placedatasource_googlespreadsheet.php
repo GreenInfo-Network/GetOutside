@@ -12,6 +12,11 @@ var $option_fields = array(
     'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option3' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Latitude Field", 'help'=>"Which field has the latitude of this location?"),
     'option4' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Longitude Field", 'help'=>"Which field has the longitude of this location?"),
+    'option5' => NULL,
+    'option6' => NULL,
+    'option7' => NULL,
+    'option8' => NULL,
+    'option9' => NULL,
 );
 
 

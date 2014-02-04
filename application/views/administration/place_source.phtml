@@ -107,6 +107,76 @@ em {
             </td>
         </tr>
         <?php } ?>
+        <?php if ($source->option_fields['option5']) { ?>
+        <tr>
+            <td><?= $source->option_fields['option5']['name'] ?></td>
+            <td>
+                <?php if (@$source->option_fields['option5']['isfield'] and $fields and is_array($fields)) { ?>
+                    <?= form_dropdown('option5',$fields,$source->option5) ?>
+                <?php } else { ?>
+                    <input type="text" name="option5" value="<?= $source->option5 ?>" size="100" maxlength="500" />
+                <?php } ?>
+                <br/>
+                <em><?= $source->option_fields['option5']['help'] ?></em>
+            </td>
+        </tr>
+        <?php } ?>
+        <?php if ($source->option_fields['option6']) { ?>
+        <tr>
+            <td><?= $source->option_fields['option6']['name'] ?></td>
+            <td>
+                <?php if (@$source->option_fields['option6']['isfield'] and $fields and is_array($fields)) { ?>
+                    <?= form_dropdown('option6',$fields,$source->option6) ?>
+                <?php } else { ?>
+                    <input type="text" name="option6" value="<?= $source->option6 ?>" size="100" maxlength="500" />
+                <?php } ?>
+                <br/>
+                <em><?= $source->option_fields['option6']['help'] ?></em>
+            </td>
+        </tr>
+        <?php } ?>
+        <?php if ($source->option_fields['option7']) { ?>
+        <tr>
+            <td><?= $source->option_fields['option7']['name'] ?></td>
+            <td>
+                <?php if (@$source->option_fields['option7']['isfield'] and $fields and is_array($fields)) { ?>
+                    <?= form_dropdown('option7',$fields,$source->option7) ?>
+                <?php } else { ?>
+                    <input type="text" name="option7" value="<?= $source->option7 ?>" size="100" maxlength="500" />
+                <?php } ?>
+                <br/>
+                <em><?= $source->option_fields['option7']['help'] ?></em>
+            </td>
+        </tr>
+        <?php } ?>
+        <?php if ($source->option_fields['option8']) { ?>
+        <tr>
+            <td><?= $source->option_fields['option8']['name'] ?></td>
+            <td>
+                <?php if (@$source->option_fields['option8']['isfield'] and $fields and is_array($fields)) { ?>
+                    <?= form_dropdown('option8',$fields,$source->option8) ?>
+                <?php } else { ?>
+                    <input type="text" name="option8" value="<?= $source->option8 ?>" size="100" maxlength="500" />
+                <?php } ?>
+                <br/>
+                <em><?= $source->option_fields['option8']['help'] ?></em>
+            </td>
+        </tr>
+        <?php } ?>
+        <?php if ($source->option_fields['option9']) { ?>
+        <tr>
+            <td><?= $source->option_fields['option9']['name'] ?></td>
+            <td>
+                <?php if (@$source->option_fields['option9']['isfield'] and $fields and is_array($fields)) { ?>
+                    <?= form_dropdown('option9',$fields,$source->option9) ?>
+                <?php } else { ?>
+                    <input type="text" name="option9" value="<?= $source->option9 ?>" size="100" maxlength="500" />
+                <?php } ?>
+                <br/>
+                <em><?= $source->option_fields['option9']['help'] ?></em>
+            </td>
+        </tr>
+        <?php } ?>
 
         <tr>
             <td>Automatic Categorization</td>

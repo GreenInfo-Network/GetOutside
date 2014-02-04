@@ -11,7 +11,12 @@ var $option_fields = array(
     'option1' => array('required'=>TRUE, 'isfield'=>FALSE, 'name'=>"CartoDB Username", 'help'=>"Your username at CartoDB."),
     'option2' => array('required'=>TRUE, 'isfield'=>FALSE, 'name'=>"CartoDB API Key", 'help'=>"The API key for your account at CartoDB. See your CartoDB account settings."),
     'option3' => array('required'=>TRUE, 'isfield'=>FALSE, 'name'=>"CartoDB Table Name", 'help'=>"The name of the CartoDB table."),
-    'option4' => NULL,
+    'option4' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
+    'option5' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
+    'option6' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"Filter Clause", 'help'=>"A WHERE clause using standard PostgreSQL or PostGIS syntax, e.g. <i>STATE_FID=16</i> or OPENPUBLIC='Yes'<br/>This is used to filter the features, e.g. to remove those that are closed or non-public, or to narrow down results if only a few features are relevant."),
+    'option7' => NULL,
+    'option8' => NULL,
+    'option9' => NULL,
 );
 
 
@@ -45,14 +50,32 @@ public function reloadContent() {
     if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException('Blank or invalid field: CartoDB API Key');
     if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException('Blank or invalid field: CartoDB Table Name');
 
+    // check the selected name field and description field (if applicable) as also being simple alphanumeric, then make sure they're on the list
+    $namefield = $this->option4;
+    $descfield = $this->option5;
+    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
+    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
+    $fields = $this->listFields();
+    if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException("Chosen Name field ($namefield) does not exist in the CartoDB table.");
+    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException("Chosen Description field ($descfield) does not exist in the CartoDB table.");
+
+    // the SQL clause, well, they can go bananas there, so no validation
+    $whereclause = $this->option6;
+
+    // done checking option fields
+
     // compose the POST query to fetch all rows
     // to optimize transfer volume, we leave out the geometry (we won't use it) and have CartoDB fetch the centroid (it may be lines or polygons)
     // why a POST? cuz we're fetching all fields except the specifically-ignored ones, plus a PostGIS function which makes the SQL even longer
     // remember, over 4k or so and we risk the remote server ignoring us for an over-length GET string
-    $fields   = $this->listFields();
-    $fields[] = "ST_AsText(ST_Centroid(the_geom)) AS the_geom";
+    $queryfields = $fields;
+    $queryfields[] = "ST_AsText(ST_Centroid(the_geom)) AS the_geom";
 
-    $sql = sprintf("SELECT %s FROM %s", implode(',', $fields), $tablename );
+    if ($whereclause) {
+        $sql = sprintf("SELECT %s FROM %s WHERE %s", implode(',', $queryfields), $tablename, $whereclause );
+    } else {
+        $sql = sprintf("SELECT %s FROM %s", implode(',', $queryfields), $tablename );
+    }
     $url  = sprintf("http://%s.cartodb.com/api/v2/sql", $username );
     $params = array(
         'api_key' => $apikey,
@@ -90,8 +113,8 @@ public function reloadContent() {
 
     foreach ($records->features as $feature) {
         $remoteid = $feature->properties->cartodb_id;
-        $name     = ''; // GDA // $feature->properties->{$namefield};
-        $desc     = ''; // GDA // $feature->properties->{$descfield};
+        $name     = $feature->properties->{$namefield};
+        $desc     = $descfield ? $feature->properties->{$descfield} : '';
         $lon      = (float) @$feature->geometry->coordinates[0];
         $lat      = (float) @$feature->geometry->coordinates[1];
 

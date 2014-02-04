@@ -12,6 +12,11 @@ var $option_fields = array(
     'option2' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option3' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"Filter Clause", 'help'=>"A filter clause using standard ArcGIS REST syntax, e.g. <i>STATE_FID=16</i> or OPENPUBLIC='Yes'<br/>This is used to filter the features, e.g. to remove those that are closed or non-public, or to narrow down results if only a few features are relevant."),
     'option4' => NULL,
+    'option5' => NULL,
+    'option6' => NULL,
+    'option7' => NULL,
+    'option8' => NULL,
+    'option9' => NULL,
 );
 
 
@@ -45,7 +50,7 @@ public function reloadContent() {
     $descfield = $this->option2;
     if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
     if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
-    $fields = $this->listFields(TRUE);
+    $fields = $this->listFields();
     if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException("Chosen Name field ($namefield) does not exist in the ArcGIS service.");
     if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException("Chosen Description field ($descfield) does not exist in the ArcGIS service.");
 
