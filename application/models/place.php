@@ -9,19 +9,15 @@ var $has_one          = array(
                                 'join_other_as' => 'placedatasource',
                                 'join_table' => 'placedatasources'
                             ),
-                            'placedatasource_csv' => array(
-                                'join_other_as' => 'placedatasource',
-                                'join_table' => 'placedatasources'
-                            ),
-                            'placedatasource_shapefile' => array(
-                                'join_other_as' => 'placedatasource',
-                                'join_table' => 'placedatasources'
-                            ),
                             'placedatasource_arcgisrest' => array(
                                 'join_other_as' => 'placedatasource',
                                 'join_table' => 'placedatasources'
                             ),
                             'placedatasource_cartodb' => array(
+                                'join_other_as' => 'placedatasource',
+                                'join_table' => 'placedatasources'
+                            ),
+                            'placedatasource_wfs' => array(
                                 'join_other_as' => 'placedatasource',
                                 'join_table' => 'placedatasources'
                             ),

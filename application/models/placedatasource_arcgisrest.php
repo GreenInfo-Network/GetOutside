@@ -97,7 +97,7 @@ public function reloadContent() {
     // as we go over the records we'll remove them from this list
     // anything still remaining at the end of this process, is no longer in the remote data source and therefore should be deleted from the local database to match
     $deletions = array();
-    foreach ($this->place as $old) $deletions[$old->remoteid] = TRUE;
+    foreach ($this->place as $old) $deletions[$old->remoteid] = $old->id;
 
     // load 'em up!
     // iterate over the features in the web service output, figure out the name and unique ID, then either update or create the Place entry
@@ -138,10 +138,13 @@ public function reloadContent() {
     }
 
     // delete any "leftover" records in $deletions
-    // any that are in the remote data source, would have been removed based on their 'remoteid' field
+    // any entry left behind in $deletions is no longer in the source, so we shouldn't have it either
     if (sizeof($deletions)) {
-        $deletions = array_keys($deletions);
-        $place->where_in('id',$deletions)->delete();
+        // do the delete...
+        $delete = new Place();
+        $delete->where('placedatasource_id',$this->id)->where_in('id', array_values($deletions) )->get();
+        foreach ($delete as $d) $d->delete();
+        // then make $deletions simply the number of records deleted
         $deletions = sizeof($deletions);
     } else {
         $deletions = false;
