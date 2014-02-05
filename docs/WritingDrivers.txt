@@ -14,17 +14,28 @@ You can crib from the existing drivers, that's a great way to get a start. Custo
 the functions described in _INSTANCE METHODS_ and you should be 90% there.
 
 
-SECURITY
+SECURITY / VALIDATION
 
 Keep in mind that the URL field and the _option_ fields are user-supplied, usually using the admin UI but
-hypothetically using plain olds UPDATE statements in the DB and bypassing the UI. _As such, the url and option fields
+hypothetically using plain old UPDATE statements in the DB and bypassing the UI. _As such, the url and option fields
 should be treated as untrustworthy input_ or at least no more trustworthy than an admin who accidentally enters
-an URL incorrectly.
+an URL incorrectly. At least check that the URLs look right so you don't confuse the end users by letting
+them try to load URLs that don't even make sense.
 
 If you allow just any URL to be used with any supplied options, a "rogue datasource" could be used to send garbage
-requests to other websites, and could hypothetically be used to attack other websites.
+requests to other websites, and could hypothetically be used to attack other websites. For some drivers there
+may be little you can do about this, and then again a site admin installing this software surely has other means
+to accomplish that.
 
 Please follow the usal common sense for such things:
 * reloadContent() and listFields() should check the URL for proper formatting, e.g. starts with _http_, has the right file extension, trimming off query params and constructing them yourself, and so on.
 * Implement extensive checking of the file content: starts with the "<?xml" header, has a "title" field, etc. If the file doesn't open properly, or doesn't look right, bail!
 
+
+EVENT LOCATIONS
+
+Places are locations, and Events are times, and the two do not meet.
+
+However, some Event data sources support location information (Active.com) creating the concept of EventLocations. This is not the same thing as Places, so don't even think about it.
+
+If your driver supports EventLocations, write that into the reloadContent() function. The suggested mechanism is described in the EventLocations document, and you may also want to refer to the Classes.txt as a refresher on the class hierarchy.

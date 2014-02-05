@@ -1,0 +1,52 @@
+This document describes the classes (or models) present in the models directory.
+
+=Event and Place
+
+Event and Place are just what they sound like: events for the calendar, and places on the map. These are the two items that the public users will see most often.
+
+Places are shown on the Map page. They fit into categories (PlaceCategory) according to a set of categorization rules. Places are loaded from remote data sources such as CartoDB or a Google Spreadsheet with latitude and longitude columns.
+
+Events are a date and time, and they are displayed on a calendar. Events are not displayed on the map, but EventLocations are. That's an important distinction: in itself an Event has no location, but may have EventLocations as children.
+
+
+=EventDataSource and PlaceDataSource
+
+Where do Places and Events come from? From data sources: Google Calendar feeds, CartoDB tables, ArcGIS REST Services, and so on. Get Outside! is built for the web ecosystem: rather than upload your files into GetOutside! you upload them into a cloud service such as Google Docs, then point Get Outside! to them.
+
+There are several drivers for Places and for Events, supporting a variety of cloud services. If you're interested in writing a new driver, see the WritingDrivers.txt document.
+
+Event and Place instances will have a eventdatasource_id and placedatasdource_id linking them to their parent data source. Using this, one could select only Places or Events fitting a specific source, e.g. for toggling, or for listings in an admin panel.
+
+
+=PlaceCategory
+
+When a Place is loaded into the database from a remote source, the Place will be assigned into any number of categories; thus PlaceCategory.
+
+These categories are defined in the admin UI. The assignment of Places into categories, is based on a set of rules which is managed via the admin panel. (e.g. if K9_OK=Y then this feature is tagged with the PlaceCategory named "Dog Friendly")
+
+
+=EventLocation
+
+Events do not appear on the map, Places do. However, some Event Data Sources will support location information and the EventLocation class provides this bridge.
+
+An EventLocation is not a Place: it doesn't get categorized, it doesn't link to a Data Source, and can't be toggled via a category picker. But the Show Events toggle on the Map page will toggle all event locations.
+
+Where do EventLocations come from? In the EventDataSource driver, the reloadContent() method clears out old events and loads new ones from the source. The reloadContent() method for each individual driver will have its own technique for populating the EventLocation instances. (see the WritingDrivers.txt document)
+
+
+=User
+
+This represents a user account on the system, able to log in to the website.
+
+User accounts have 3 levels: *website*, *manager*, and *admin*.
+
+Users with *admin* access may login to the administration portal, and can create other user accounts.
+
+Users with *manager* access are identical to *admin* users at this time (Feb 2014). This account level is a placeholder for possible future functionality, such as restricting user accounts to admins, or allowing managers to edit text content on the site.
+
+User accounts with *website* level, have no function at this time (Feb 2014). This account level is a placeholder for possible future functionality such as saving up for reminders, saving searches, etc.
+
+
+=SiteConfig
+
+This utility class provides access to the _config_ database table. This table stores configuration data where it can be edited via the admin UI. While basic DB connection information must go into _database.php_ and basic framework information must go into _config.php_, this table is for higher-level configuration of the site, such as choice of color scheme or the website title.
