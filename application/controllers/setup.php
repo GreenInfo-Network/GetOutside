@@ -63,7 +63,7 @@ public function index() {
         CREATE TABLE IF NOT EXISTS events (
             id INTEGER AUTO_INCREMENT NOT NULL,
             eventdatasource_id INTEGER UNSIGNED NOT NULL,
-            remoteid varchar(50),
+            remoteid varchar(100),
             name varchar(50) NOT NULL,
             address varchar(100) NOT NULL DEFAULT '',
             description text NOT NULL DEFAULT '',
@@ -80,7 +80,7 @@ public function index() {
         CREATE TABLE IF NOT EXISTS places (
             id INTEGER AUTO_INCREMENT NOT NULL,
             placedatasource_id INTEGER UNSIGNED NOT NULL,
-            remoteid varchar(50),
+            remoteid varchar(100),
             latitude float,
             longitude float,
             name varchar(50) NOT NULL,

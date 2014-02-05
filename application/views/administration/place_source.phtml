@@ -178,7 +178,7 @@ em {
         </tr>
         <?php } ?>
 
-        <tr>
+        <tr style="<?= $rule_fields ? '' : 'display:none;' ?>">
             <td>Automatic Categorization</td>
             <td>
                 <p>
@@ -197,7 +197,7 @@ em {
                         <?= htmlspecialchars($category->name) ?>
                     </div>
                     <div class="col-md-8">
-                        <?= form_dropdown("categorization[{$category->id}][field]", $rule_fields, $rules[$category->id]['field'], "style=\"max-width:50%;\"") ?>
+                        <?= form_dropdown("categorization[{$category->id}][field]", @$rule_fields, @$rules[$category->id]['field'], "style=\"max-width:50%;\"") ?>
                         =
                         <input type="text" name="categorization[<?= $category->id ?>][value]" value="<?= @$rules[$category->id]['value'] ?>" style="width:40%;" />
                     </div>
