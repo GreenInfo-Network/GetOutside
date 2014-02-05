@@ -172,6 +172,17 @@ public function index() {
         )
     ");
 
+    $this->db->query("
+        CREATE TABLE IF NOT EXISTS eventlocations (
+            id INTEGER AUTO_INCREMENT NOT NULL,
+            event_id INTEGER UNSIGNED NOT NULL,
+            latitude FLOAT NOT NULL,
+            longitude FLOAT NOT NULL,
+            PRIMARY KEY (id),
+            KEY event_id_idx (event_id)
+        )
+    ");
+
     // now that we have tables, we can load models
     $this->load->model('User');
     $this->load->model('SiteConfig');

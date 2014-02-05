@@ -26,6 +26,6 @@ var $has_one          = array(
                                 'join_table' => 'eventdatasources'
                             ),
                         );
-var $has_many         = array();
+var $has_many         = array('eventlocation',);
 
 } // end of Model
