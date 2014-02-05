@@ -12,6 +12,11 @@ var $option_fields = array(
     'option2' => NULL,
     'option3' => NULL,
     'option4' => NULL,
+    'option5' => NULL,
+    'option6' => NULL,
+    'option7' => NULL,
+    'option8' => NULL,
+    'option9' => NULL,
 );
 
 public function __construct() {

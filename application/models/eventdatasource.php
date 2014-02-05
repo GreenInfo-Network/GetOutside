@@ -9,7 +9,9 @@ class EventDataSource extends DataMapper {
  * - The factory method convertToDriver() which, when given a EventDataSource instance,
  *      will detect the "type" field, and will instantiate the appropriate subclass.
  *      Thus, you can iterate over a EventDataSource resultset, and if appropriate call
- *      $specific = $instance->convertToDriver() in order to get back the specific subclass.
+ *      $specific = $instance->convertToDriver() in order to get back and instance of
+ *      that specific subclass. This is useful if you're starting with a list of all sources,
+ *      but then want to trigger a driver-dependent behavior on an instance, such as reloading.
  **********************************************************************************************/
 
 /**********************************************************************************************
@@ -105,6 +107,11 @@ var $option_fields = array(
     'option2' => NULL,
     'option3' => NULL,
     'option4' => NULL,
+    'option5' => NULL,
+    'option6' => NULL,
+    'option7' => NULL,
+    'option8' => NULL,
+    'option9' => NULL,
 );
 
 

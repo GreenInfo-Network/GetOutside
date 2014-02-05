@@ -12,6 +12,11 @@ var $option_fields = array(
     'option2' => array('required'=>FALSE, 'name'=>"Org ID", 'help'=>"Optional: Enter your Organization GUID to filter the listings, showing only your events from Active.com. To find your Organization GUID, contact Active.com technical support."),
     'option3' => NULL,
     'option4' => NULL,
+    'option5' => NULL,
+    'option6' => NULL,
+    'option7' => NULL,
+    'option8' => NULL,
+    'option9' => NULL,
 );
 
 public function __construct() {
