@@ -62,7 +62,9 @@ var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
                 <h5>Filter by Keywords</h5>
                 <div>
                     Filter places by searching for keywords:<br/>
-                    <input type="text" name="keywords" style="width:80%" placeholder="Enter keywords" /> <input type="button" class="search_submit" value="Search" />
+                    <input type="text" name="keywords" style="width:50%" placeholder="Enter keywords" /> <input type="button" class="search_submit" value="Search" style="width:20%;" />
+                    &nbsp;
+                    <a href="javascript:void(0);" id="keywords_clear">clear</a>
                 </div>
 
                 <h5>Filter by Date</h5>

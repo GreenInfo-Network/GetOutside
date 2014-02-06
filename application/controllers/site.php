@@ -80,6 +80,12 @@ public function map() {
 
 
 public function ajax_map_points() {
+    // data fix: if they gave keywords, trim and lowercase them
+    if (@$_POST['keywords']) {
+        $keywords = strtolower(trim($_POST['keywords']));
+        $keywords = preg_split('/\s+/',$keywords);
+    }
+
     // the search & filter system for the Map page; accept a POST full of options such as date filtering, category filtering, text searching, ...
     // start with all Places
     $places = new Place();
@@ -94,8 +100,6 @@ public function ajax_map_points() {
     // OR ( description LIKE '%keyword_1%' AND description LIKE '%keyword_2%' ... )
     // OR ( anycategoryname LIKE '%keyword_1%' AND anycategoryname LIKE '%keyword_2%' ... )
     if (@$_POST['keywords']) {
-        $keywords = strtolower($_POST['keywords']);
-        $keywords = preg_split('/\s+/',$keywords);
         $places->group_start();
 
             $places->or_group_start();
@@ -145,6 +149,11 @@ public function ajax_map_points() {
         $els->get();
 
         foreach ($els as $el) {
+            // see whether this EventLocation fits the keyword filter: check the parent Event's title and description fields
+            if (@$_POST['keywords']) {
+                if (! preg_match("/\b{$_POST['keywords']}\b/i", $el->event->name)  and ! preg_match("/{$_POST['keywords']}/i", strip_tags($el->event->description)) ) continue;
+            }
+
             $thisone = array();
             $thisone['id']      = (integer) $el->id;
             $thisone['name']    = $el->event->name;

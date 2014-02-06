@@ -80,6 +80,10 @@ $(document).ready(function () {
         $('#tools input[name="date"]').val('');
         submitFilters();
     });
+    $('#keywords_clear').click(function () {
+        $('#tools input[name="keywords"]').val('');
+        submitFilters();
+    });
 
     // submit our initial request, with whatever our initial conditions are
     submitFilters();
