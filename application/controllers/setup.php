@@ -184,6 +184,24 @@ public function index() {
             KEY event_id_idx (event_id)
         )
     ");
+    $this->db->query("
+        CREATE TABLE IF NOT EXISTS placeactivities (
+            id INTEGER AUTO_INCREMENT NOT NULL,
+            place_id INTEGER UNSIGNED NOT NULL,
+            name varchar(50) NOT NULL,
+            mon BOOLEAN NOT NULL DEFAULT false,
+            tue BOOLEAN NOT NULL DEFAULT false,
+            wed BOOLEAN NOT NULL DEFAULT false,
+            thu BOOLEAN NOT NULL DEFAULT false,
+            fri BOOLEAN NOT NULL DEFAULT false,
+            sat BOOLEAN NOT NULL DEFAULT false,
+            sun BOOLEAN NOT NULL DEFAULT false,
+            starttime TIME NOT NULL default '00:00',
+            endtime   TIME NOT NULL default '17:00',
+            PRIMARY KEY (id),
+            KEY place_id_idx (place_id)
+        )
+    ");
 
     // now that we have tables, we can load models
     $this->load->model('User');

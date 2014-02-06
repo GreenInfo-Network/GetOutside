@@ -22,7 +22,7 @@ var $has_one          = array(
                                 'join_table' => 'placedatasources'
                             ),
                         );
-var $has_many         = array('placecategory',);
+var $has_many         = array('placecategory','placeactivity',);
 
 
 

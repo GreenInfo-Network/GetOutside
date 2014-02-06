@@ -1,0 +1,113 @@
+<? $this->load->view('administration/header.phtml') ?>
+
+<script type="text/javascript" src="<?= site_url() ?>/application/views/administration/place.js"></script>
+
+<style type="text/css">
+input[name="name"] {
+    width:2.3in;
+}
+input[name="starttime"] {
+    width:1in;
+}
+input[name="endtime"] {
+    width:1in;
+}
+</style>
+
+
+
+<div class="container">
+    <br/>
+
+    <div class="btn-group btn-group-rightfloater">
+        <button type="button" class="btn ui-state-focus" id="button_new"><span class="glyphicon glyphicon-certificate"></span> New</button>
+        <br/>
+        <br/>
+        <a href="javascript:void(0);" id="button_explainnoedit">Editing attributes</a>
+    </div>
+
+    <h3>
+    Activity Times and Open Hours
+    <br/>
+    <?= htmlspecialchars($place->name) ?>
+    </h3>
+
+    <table id="activities" class="table-condensed table-bordered" style="width:100%;">
+        <tr>
+            <th>Activity</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+            <th>Sun</th>
+        </tr>
+        <?php foreach ($place->placeactivity as $hour) { ?>
+        <tr data-activity-id="<?= $hour->id ?>">
+            <td><a href="javascript:void(0);"><?= htmlspecialchars($hour->name) ?></a></td>
+            <td><?= PlaceActivity::roundTime($hour->starttime) ?></td>
+            <td><?= PlaceActivity::roundTime($hour->endtime) ?></td>
+            <td><?= $hour->mon ? 'Yes' : '-' ?>
+            <td><?= $hour->tue ? 'Yes' : '-' ?>
+            <td><?= $hour->wed ? 'Yes' : '-' ?>
+            <td><?= $hour->thu ? 'Yes' : '-' ?>
+            <td><?= $hour->fri ? 'Yes' : '-' ?>
+            <td><?= $hour->sat ? 'Yes' : '-' ?>
+            <td><?= $hour->sun ? 'Yes' : '-' ?>
+        </tr>
+        <?php } ?>
+    </table>
+
+    <br/>
+</div>
+
+
+
+
+<div class="dialog" id="dialog_activity">
+<form action="javascript:void(0);">
+    <input type="hidden" name="id" value="" />
+    <input type="hidden" name="place_id" value="<?= $place->id ?>" />
+
+    Activity name:<br/>
+    <input type="text" name="name" placeholder="Activity name" maxlength="50" />
+    <br/>
+    <br/>
+
+    Time:<br/>
+    <input type="text" name="starttime" placeholder="Start" />
+    to
+    <input type="text" name="endtime" placeholder="Finish" />
+    <br/>
+    <br/>
+
+    <label><input type="checkbox" name="mon" /> Monday</label><br/>
+    <label><input type="checkbox" name="tue" /> Tuesday</label><br/>
+    <label><input type="checkbox" name="wed" /> Wednesday</label><br/>
+    <label><input type="checkbox" name="thu" /> Thursday</label><br/>
+    <label><input type="checkbox" name="fri" /> Friday</label><br/>
+    <label><input type="checkbox" name="sat" /> Saturday</label><br/>
+    <label><input type="checkbox" name="sun" /> Sunday</label><br/>
+</form>
+</div>
+
+
+
+
+<div class="dialog" id="dialog_explainnoedit">
+    <p>Why can't you edit the title and other information?</p>
+    <p>Because that's stored in the remote data source. Get Outside! loads from the remote source, so your changes here would be undone every time you refreshed from the source.</p>
+    <p>To edit this place's name and description, edit it at the source.</p>
+</div>
+
+
+
+
+<div class="dialog" id="dialog_fetching">
+    One moment please
+</div>
+
+<? $this->load->view('administration/footer.phtml') ?>

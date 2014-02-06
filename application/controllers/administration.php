@@ -550,5 +550,55 @@ public function place_category_delete() {
  * MANAGEMENT OF PLACES   (yeah, the actual points!)
  *******************************************************************************************************/
 
+public function place($id) {
+    $data = array();
+    $data['place'] = new Place();
+    $data['place']->where('id',$id)->get();
+    if (! $data['place']->id) return redirect(site_url('administration/place_sources#tab_places'));
+
+    // simply print out the Place as a form; saving etc. is done va AJAX
+    $this->load->view('administration/place.phtml',$data);
+}
+
+public function ajax_save_placeactivity() {
+    // accept a POST with the content of a PlaceActivity: perhaps brand new, perhaps pre-existing
+    // the difference is the 'id' datum, indicating a pre-existing PlaceActivity
+    $act = new PlaceActivity();
+    if (@$_POST['id']) {
+        // a pre-existing: fetch it, make sure it exists
+        // cross-check with the Place ID just as a double-check
+        $act->where('id',$_POST['id'])->where('place_id',@$_POST['place_id'])->get();
+        if (! $act->id) return print "Could not find that activity. How did this happen?";
+    } else {
+        // a new one: use the Place ID and make sure it really exists, assign the Place to the new PlaceActivity
+        $place = new Place();
+        $place->where('id',@$_POST['place_id'])->get();
+        if (! $place->id) return print "Could not find the place that you are editing. How did this happen?";
+        $act->place_id = $place->id;
+    }
+
+    // the submitted times from the picker are unsuitable for the database, e.g. 3:00pm
+    // convert to a real time, then into hh:mm format
+    $starttime = date('H:i', strtotime($_POST['starttime']) );
+    $endtime   = date('H:i', strtotime($_POST['endtime']) );
+
+    // however we got here, go ahead and save the rest of the attribs
+    // note that the weekdays may be missing entirely, being checkboxes
+    $act->name      = $_POST['name'];
+    $act->starttime = $starttime;
+    $act->endtime   = $endtime;
+    $act->mon       = @$_POST['mon'] ? 1 : 0;
+    $act->tue       = @$_POST['tue'] ? 1 : 0;
+    $act->wed       = @$_POST['wed'] ? 1 : 0;
+    $act->thu       = @$_POST['thu'] ? 1 : 0;
+    $act->fri       = @$_POST['fri'] ? 1 : 0;
+    $act->sat       = @$_POST['sat'] ? 1 : 0;
+    $act->sun       = @$_POST['sun'] ? 1 : 0;
+    $act->save();
+
+    // AJAX endpoint, just say OK and let the caller figure it out
+    print 'ok';
+}
+
 
 } // end of Controller
