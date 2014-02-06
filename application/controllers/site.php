@@ -69,6 +69,12 @@ public function map() {
     $dsx->where('enabled',1)->get();
     foreach ($dsx as $ds) $data['categories'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'checked'=>(boolean) (integer) $ds->on_by_default );
 
+    // do we have any EventLocations at all? in many cases this will be no, as most event datasources don't support location
+    // if we have none, then showing the Show Event Locations checkbox makes little sense
+    $data['has_event_locations'] = new EventLocation();
+    $data['has_event_locations'] = $data['has_event_locations']->count();
+
+    // ready!
     $this->load->view('site/map.phtml',$data);
 }
 
