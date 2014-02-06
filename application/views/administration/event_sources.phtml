@@ -34,7 +34,7 @@
             <th>Name</th>
             <th>Type</th>
             <th># Events</th>
-            <th>Status</th>
+            <th>Enabled?</th>
             <th>Last Fetch</th>
         </tr>
         </thead>
@@ -47,7 +47,7 @@
             </td>
             <td><?= $source->type ?></td>
             <td><?= $source->howManyEvents() ?></td>
-            <td><?= (integer) $source->enabled ? 'Enabled' : 'Disabled' ?></td>
+            <td><?= $source->enabled ? 'Enabled' : 'Disabled' ?></td>
             <td><span class="glyphicon glyphicon-refresh refresh" data-id="<?= $source->id ?>" title="Fetch now"></span> <?= $source->lastFetch() ?></td>
         </tr>
         <?php } ?>
