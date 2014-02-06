@@ -50,37 +50,38 @@ public function reloadContent() {
     if (! preg_match('/^\w+$/', $apikey)) throw new EventDataSourceErrorException('Active.com Event Search API v2 requires an API key.');
     if ($orgid and !preg_match('/^[\w\-]+$/', $orgid)) throw new EventDataSourceErrorException('The specified Organization ID is not valid.');
 
-    // make up the API call: events starting between today and 6 months into the future
-    // note that the &bbpx= param does not work (Nov 2013) and we use &lat_lon= and &radius= instead
-    $month = (integer) date('m');
-    $date  = (integer) date('d');
-    $year  = (integer) date('Y');
-    $now   = date('Y-m-d', mktime(0, 0, 0, $month, $date, $year) );
-    $then  = date('Y-m-d', mktime(0, 0, 0, $month+6, $date, $year) );
-
-    $params = array();
+    // make up the API call
+    // - filter by Org ID (all org events) or else by region (bounding box of the city, 40 miles radius)
+    // - the &bbox= param does not work (always empty resultset) so use &lat_lon= and &radius=    (too bad, would be great to use the selected area in the admin panel)
+    // - no need to filter by start_date and end_date as expired events won't be in the feed anyway
     $lat = 0.5 * ( $this->siteconfig->get('bbox_s') + $this->siteconfig->get('bbox_n') );
     $lon = 0.5 * ( $this->siteconfig->get('bbox_w') + $this->siteconfig->get('bbox_e') );
-    $params['lat_lon']      = sprintf("%.5f,%.5f", $lat, $lon );
-    $params['radius']       = 40;
-    $params['start_date']   = sprintf('%s..%s', $now, $then);
-    $params['end_date']     = sprintf('%s..%s', $now, $then); // specify both, or else it includes events 6 years in the future
-    $params['per_page']     = 100;
+
+    $params = array();
     $params['sort']         = 'date_asc';
     $params['category']     = 'event';
+    $params['lat_lon']      = sprintf("%.5f,%.5f", $lat, $lon );
+    $params['radius']       = 40;
+    //$params['bbox']         = sprintf("%f,%f;%f,%f", $this->siteconfig->get('bbox_s'), $this->siteconfig->get('bbox_w'), $this->siteconfig->get('bbox_n'), $this->siteconfig->get('bbox_e') );
     if ($orgid) $params['org_id'] = $orgid;
     $url = sprintf('http://api.amp.active.com/v2/search?api_key=%s&%s', $apikey, http_build_query($params) );
+    //throw new EventDataSourceErrorException($url);
 
     // make the request, get some JSON
     $content = @json_decode(@file_get_contents($url));
-    if (!$content or !$content->results) throw new EventDataSourceSuccessException("No results. Check that this API key is active for the Activity Search API v2");
+    if (!$content or !$content->results) throw new EventDataSourceErrorException("No results. Check that this API key is active for the Activity Search API v2");
 
-    // guess we're good! delete the existing ones...
-    foreach ($this->event as $old) $old->delete();
+    // guess we're good! delete the existing Events in this source...
+    // AND ALSO any EventLocations
+    foreach ($this->event as $old) {
+        foreach ($old->eventlocation as $l) $l->delete();
+        $old->delete();
+    }
 
     // ... then load the new ones
-    $success = 0;
-    $failed  = 0;
+    $success    = 0;
+    $failed     = 0;
+    $nolocation = 0;
     foreach ($content->results as $entry) {
         // find an URL or else give up
         $url = @$entry->assetLegacyData->seoUrl; if (! $url) $url = @$entry->registrationUrlAdr;
@@ -92,13 +93,30 @@ public function reloadContent() {
         $event->ends                = strtotime($entry->activityEndDate); // Unix timestamp
         $event->name                = substr($entry->assetName,0,50);
         $event->url                 = $url;
-        $event->description         = $entry->assetDescriptions[0]->description;
+        $event->description         = @$entry->assetDescriptions[0]->description;
 
         // name and URL are required
         if (!$url or !$event->name) { $failed++; continue; }
 
         $event->save();
         $success++;
+
+        // DONE with the Place itself
+        // now see if we should create an EventLocation too
+        // note: at this time 100% of all events tested have exactly 1 'place' element, but let's do error checking otherwise
+        $lat = $entry->place->geoPoint->lat;
+        $lon = $entry->place->geoPoint->lon;
+        if (! $lat or ! $lon) {
+            $nolocation++;
+            continue;
+        }
+
+        //error_log("Entry: %f x %f <br/>\n", $lat, $lon );
+        $loc = new EventLocation();
+        $loc->event_id      = $event->id;
+        $loc->latitude      = $lat;
+        $loc->longitude     = $lon;
+        $loc->save();
     }
 
     // update our last_fetch date
@@ -106,8 +124,11 @@ public function reloadContent() {
     $this->save();
 
     // guess we're done and happy; throw an error  (ha ha)
-    $message = "Successfully loaded $success events.";
-    if ($failed) $message .= " Failed to load $failed events due to missing date.";
+    $message = array();
+    $message[] = "Successfully loaded $success events.";
+    if ($failed)        $message[] = "$failed events skipped due to missing name or URL.";
+    if ($nolocation)    $message[] = "$nolocation events lacked a location.";
+    $message = implode("\n",$message);
     throw new EventDataSourceSuccessException($message);
 }
 
