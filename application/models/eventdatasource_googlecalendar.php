@@ -19,6 +19,11 @@ var $option_fields = array(
     'option9' => NULL,
 );
 
+// Google Calendar does have a Location field, but this isn't exposed via the API and is free-form text and not a location
+// locations such as "Meeting Room C" aren't useful to geocoding, leading to a very low success rate in real use cases
+var $supports_location = FALSE;
+
+
 public function __construct() {
     parent::__construct();
 

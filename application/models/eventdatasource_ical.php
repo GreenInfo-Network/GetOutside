@@ -19,6 +19,10 @@ var $option_fields = array(
     'option9' => NULL,
 );
 
+// hypothetically iCal has a Location field, but seeing it in the wild is quite rare
+// when it's present, it's free form text e.g. Meeting Room C, not very useful even for hypothetical geocoding
+var $supports_location = FALSE;
+
 
 public function __construct() {
     parent::__construct();

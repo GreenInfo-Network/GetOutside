@@ -19,6 +19,9 @@ var $option_fields = array(
     'option9' => NULL,
 );
 
+// hypothetically there's GeoRSS but that never really caught on, so we assume that events don't have a location
+var $supports_location = FALSE;
+
 
 public function __construct() {
     parent::__construct();

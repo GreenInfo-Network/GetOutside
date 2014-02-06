@@ -114,6 +114,12 @@ var $option_fields = array(
     'option9' => NULL,
 );
 
+// this flag indicates whether this data source driver supports EventLocations
+// that is, whether the Events that are loaded may also have location associated to them, forming EventLocations linked to the Events
+// this flag is intended as an advisory to possible callers, e.g. a hypothetical cronjob which iterates over location-aware EventDataSource instances
+// your driver may or may not use this flag for its own internal purposes
+var $supports_location = FALSE;
+
 
 /**********************************************************************************************
  * INSTANCE METHODS

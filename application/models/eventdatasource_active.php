@@ -19,6 +19,11 @@ var $option_fields = array(
     'option9' => NULL,
 );
 
+// one of very few event data source types, where location exists reliably and in computer-readable form
+// reloadContent() will repopulate EventLocations while it updates the Events
+var $supports_location = TRUE;
+
+
 public function __construct() {
     parent::__construct();
 
