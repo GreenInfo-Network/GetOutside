@@ -93,10 +93,10 @@ public function reloadContent() {
         $event->ends                = strtotime($entry->activityEndDate); // Unix timestamp
         $event->name                = substr($entry->assetName,0,50);
         $event->url                 = $url;
-        $event->description         = @$entry->assetDescriptions[0]->description;
+        $event->description         = (string) @$entry->assetDescriptions[0]->description;
 
-        // name and URL are required
-        if (!$url or !$event->name) { $failed++; continue; }
+        // name is required
+        if (!$event->name) { $failed++; continue; }
 
         $event->save();
         $success++;
@@ -104,8 +104,8 @@ public function reloadContent() {
         // DONE with the Place itself
         // now see if we should create an EventLocation too
         // note: at this time 100% of all events tested have exactly 1 'place' element, but let's do error checking otherwise
-        $lat = $entry->place->geoPoint->lat;
-        $lon = $entry->place->geoPoint->lon;
+        $lat = (float) $entry->place->geoPoint->lat;
+        $lon = (float) $entry->place->geoPoint->lon;
         if (! $lat or ! $lon) {
             $nolocation++;
             continue;
@@ -116,6 +116,8 @@ public function reloadContent() {
         $loc->event_id      = $event->id;
         $loc->latitude      = $lat;
         $loc->longitude     = $lon;
+        $loc->title         = (string) $entry->place->placeName;
+        $loc->subtitle      = sprintf("%s %s %s", $entry->place->addressLine1Txt, $entry->place->addressLine2Txt, $entry->place->cityName );
         $loc->save();
     }
 
@@ -126,7 +128,7 @@ public function reloadContent() {
     // guess we're done and happy; throw an error  (ha ha)
     $message = array();
     $message[] = "Successfully loaded $success events.";
-    if ($failed)        $message[] = "$failed events skipped due to missing name or URL.";
+    if ($failed)        $message[] = "$failed events skipped due to blank/missing name.";
     if ($nolocation)    $message[] = "$nolocation events lacked a location.";
     $message = implode("\n",$message);
     throw new EventDataSourceSuccessException($message);

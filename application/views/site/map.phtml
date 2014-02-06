@@ -35,19 +35,23 @@ var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
 
                 <h5>Zoom To Address</h5>
                 <div>
-                    <input type="text" id="geocode" style="width:80%" placeholder="Search for your address" /> <input type="button" id="geocode_go" value="Search" style="width:15%;" />
+                    <input type="text" id="geocode" style="width:75%" placeholder="Search for your address" /> <input type="button" id="geocode_go" value="Search" style="width:20%;" />
                     <br/>
+                </div>
+
+                <h5>Events</h5>
+                <div>
+                    <label><input type="checkbox" name="event_locations" checked /> Show event locations</label>
                 </div>
 
                 <h5>Filter by Categories</h5>
                 <div>
                     <div style="float:right; font-size:75%;">
                         <a href="javascript:void(0);" class="check_all">all</a>
-                        &nbsp;
+                        <br/>
                         <a href="javascript:void(0);" class="check_none">none</a>
                     </div>
 
-                    <p>Show only places containing <b>any of</b> these tags:</p>
                     <?php foreach ($categories as $catid=>$catinfo) { ?>
                     <label><input type="checkbox" name="categories[]" <?= $catinfo['checked'] ? 'checked' : '' ?> value="<?= $catid ?>" /> <?= htmlspecialchars($catinfo['name']) ?></label><br/>
                     <?php } ?>
@@ -59,15 +63,14 @@ var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
                     <input type="text" name="keywords" style="width:80%" placeholder="Enter keywords" /> <input type="button" class="search_submit" value="Search" />
                 </div>
 
-                <h5>Filter by Date &amp; Time</h5>
+                <h5>Filter by Date</h5>
                 <div>
-                    Show places with activities listed at this date &amp; time:<br/>
-                    <input type="text" class="timeinput" name="time" style="width:80px;" /> <input type="text" class="dateinput" name="date" style="width:100px;" /> <input type="button" class="search_submit" value="Search" />
-                    <div style="text-align:right;">
-                        <a href="javascript:void(0);" id="datetime_now">now</a>
-                        &bull;
-                        <a href="javascript:void(0);" id="datetime_clear">clear</a>
-                    </div>
+                    Show places with activities listed on this date:<br/>
+                    <input type="text" class="dateinput" name="date" style="width:100px;" /> <input type="button" class="search_submit" value="Search" />
+                    &nbsp;
+                    <a href="javascript:void(0);" id="datetime_now">today</a>
+                    &nbsp;
+                    <a href="javascript:void(0);" id="datetime_clear">clear</a>
                 </div>
 
             </form>

@@ -38,4 +38,4 @@ Places are locations, and Events are times, and the two do not meet.
 
 However, some Event data sources support location information (Active.com) creating the concept of EventLocations. This is not the same thing as Places, so don't even think about it.
 
-If your driver supports EventLocations, write that into the reloadContent() function. The suggested mechanism is described in the EventLocations document, and you may also want to refer to the Classes.txt as a refresher on the class hierarchy.
+If your driver supports EventLocations, write that into the reloadContent() function. The suggested mechanism is described in the EventLocations class itself, and you may also want to refer to the Classes.txt as a refresher on the class hierarchy.

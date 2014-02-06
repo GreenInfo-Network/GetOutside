@@ -178,6 +178,8 @@ public function index() {
             event_id INTEGER UNSIGNED NOT NULL,
             latitude FLOAT NOT NULL,
             longitude FLOAT NOT NULL,
+            title text NOT NULL DEFAULT '',
+            subtitle text NOT NULL DEFAULT '',
             PRIMARY KEY (id),
             KEY event_id_idx (event_id)
         )

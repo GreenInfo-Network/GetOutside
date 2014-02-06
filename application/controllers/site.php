@@ -111,7 +111,8 @@ public function ajax_map_points() {
     $places->distinct()->get();
     //$places->check_last_query();
 
-    // a simple JSON structure here; no specific standard here, just as compact and purpose-specific as we can make it
+    // a simple JSON structure here
+    // no specific standard here, just as compact and purpose-specific as we can make it
     $output = array();
     foreach ($places as $place) {
         if (! (float) $place->longitude or ! (float) $place->latitude) continue;
@@ -123,11 +124,38 @@ public function ajax_map_points() {
         $thisone['lat']     = (float) $place->latitude;
         $thisone['lng']     = (float) $place->longitude;
 
-        $thisone['categories'] = $place->listCategories(', ');
+        $thisone['category_names'] = $place->listCategoryNames();
 
         $output[] = $thisone;
     }
 
+    // whoa there! we're not done yet
+    // if they asked for EventLocations then append markers for the EventLocations,
+    // generating their descriptions and all from the parent event
+    if (@$_POST['event_locations']) {
+        $elcats = array('Event');
+
+        $els = new EventLocation();
+        $els->get();
+
+        foreach ($els as $el) {
+            $thisone = array();
+            $thisone['id']      = (integer) $el->id;
+            $thisone['name']    = $el->event->name;
+            $thisone['lat']     = (float) $el->latitude;
+            $thisone['lng']     = (float) $el->longitude;
+
+            $thisone['desc']    = $el->event->description;
+            if ($el->title)     $thisone['desc'] .= "<br/>\n" . $el->title;
+            if ($el->subtitle)  $thisone['desc'] .= "<br/>\n" . $el->subtitle;
+
+            $thisone['category_names'] = $elcats;
+
+            $output[] = $thisone;
+        }
+    }
+
+    // done!
     header('Content-type: application/json');
     print json_encode($output);
 }

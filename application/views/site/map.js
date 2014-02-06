@@ -63,22 +63,21 @@ $(document).ready(function () {
         $(this).parent().parent().find('input[type="checkbox"]').removeAttr('checked');
         submitFilters();
     });
-
-    // enable the time picker and date picker, and a Now button to set them both to Right Now, and a Clear button to reset them to blank (no time/date filtering)
-    $('input.timeinput').timepicker({
+    $('input[name="event_locations"]').change(function () {
+        submitFilters();
     });
+
+    // enable the date picker, and a Now button to set them both to Right Now, and a Clear button to reset them to blank (no time/date filtering)
     $('input.dateinput').datepicker({
         dateFormat:'yy-mm-dd'
     });
     $('#datetime_now').click(function () {
         var now = new Date();
-        $('#tools input[name="time"]').timepicker('setTime', now);
         $('#tools input[name="date"]').datepicker('setDate', now);
         submitFilters();
     });
     $('#datetime_clear').click(function () {
         $('#tools input[name="date"]').val('');
-        $('#tools input[name="time"]').val('');
         submitFilters();
     });
 
@@ -91,8 +90,6 @@ $(document).ready(function () {
 function submitFilters() {
     // quick sanity check: if a date or time are given, both must be given
     var has_date = $('#tools input[name="date"]').val();
-    var has_time = $('#tools input[name="time"]').val();
-    if ( (has_date && ! has_time) || (!has_date && has_time)) return alert("To filter by date and time, select both a date and a time.");
 
     // compile the URL and params
     var url = BASE_URL + 'site/ajax_map_points/';
@@ -127,11 +124,14 @@ function reloadMapPoints(points) {
         // generate a simple DIV icon, using the selected color
         var icon = new L.DivIcon({ className:'marker-icon', iconAnchor:L.point(10,10), iconSize:L.point(20,20) });
 
+        // hack: if the description has any hyperlinks, add a target to them so they open in a new window
+        points[i].desc = points[i].desc.replace(/<a /g, '<a target="_blank" ');
+
         // compose the HTML for the popup
         var html = '';
         html += '<h5>' + points[i].name + '</h5>';
         html += points[i].desc;
-        html += '<p>' + 'Categories: ' + points[i].categories + '</p>';
+        html += '<p>' + 'Categories: ' + points[i].category_names + '</p>';
 
         // assign the attributes into a marker, and bind it to a HTML popup with implicit click handler
         var marker = L.marker([points[i].lat,points[i].lng], { icon:icon, attributes:points[i], keyboard:false, title:points[i].name }).bindPopup(html);
@@ -162,7 +162,7 @@ function geocodeAndZoom(address) {
     if (! address) return;
     if (! BING_API_KEY) return alert("Address searches disabled.\nNo Bing Maps API key has been entered by the site admin.");
 
-    var url = 'http://dev.virtualearth.net/REST/v1/Locations/' + address + '?output=json&jsonp=handleGeocodeResult&key=' + BING_API_KEY;
+    var url = 'http://dev.virtualearth.net/REST/v1/Locations/' + encodeURIComponent(address) + '?output=json&jsonp=handleGeocodeResult&key=' + BING_API_KEY;
     $('<script></script>').prop('type','text/javascript').prop('src',url).appendTo( jQuery('head') );
 }
 
