@@ -3,8 +3,8 @@
 <script type="text/javascript" src="<?= site_url() ?>/application/views/administration/event_sources.js"></script>
 <style type="text/css">
 .swatch {
-    height:1em;
-    width:1em;
+    height:1.5em;
+    width:2.0em;
     display:inline-block;
 }
 .refresh {
@@ -42,7 +42,7 @@
         <?php foreach ($sources as $source) { ?>
         <tr>
             <td>
-                <div class="swatch" style="background-color:<?= htmlspecialchars($source->color) ?>;"></div>
+                <div class="swatch" title="Color sample" style="background-color:<?= htmlspecialchars($source->bgcolor) ?>; color:<?= htmlspecialchars($source->color) ?>;">&nbsp;Aa</div>
                 <a href="<?= site_url("administration/event_source/{$source->id}") ?>"><?= htmlspecialchars($source->name) ?></a>
             </td>
             <td><?= $source->type ?></td>

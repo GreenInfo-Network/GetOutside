@@ -31,9 +31,11 @@ div.swatch {
             <br/>
 
             <?php foreach ($sources as $sourceid=>$info) { ?>
-            <label><input type="checkbox" name="sources[]" <?= $info['checked'] ? 'checked' : '' ?> value="<?= $info['id'] ?>" /> <div class="swatch" style="background-color:<?= $info['color'] ?>;"></div> <?= htmlspecialchars($info['name']) ?></label>
+            <label><input type="checkbox" name="sources[]" <?= $info['checked'] ? 'checked' : '' ?> value="<?= $info['id'] ?>" /> <div class="swatch" style="background-color:<?= $info['bgcolor'] ?>;"></div> <?= htmlspecialchars($info['name']) ?></label>
             <br/>
             <?php } ?>
+
+            <label><input type="checkbox" name="sources[]" checked value="0" /> <div class="swatch" style="background-color:#FFFFFF; border:1px solid #000000;"></div> Non-Event Activities</label>
         </div>
     </div>
 </div>

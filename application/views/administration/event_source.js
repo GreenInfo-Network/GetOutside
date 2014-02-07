@@ -34,8 +34,19 @@ $(document).ready(function () {
     }).keyup(function () {
         $(this).ColorPickerSetColor(this.value);
     });
-    var already = $('input[name="color"]').val();
-    $('input[name="color"]').css({ 'background-color':already });
+    $('input[name="bgcolor"]').ColorPicker({
+        color: $('input[name="bgcolor"]').val(),
+        onSubmit: function(hsb, hex, rgb, el) {
+            $(el).val('#'+hex).css({ 'background-color':'#'+hex });
+            $(el).ColorPickerHide();
+        }
+    }).keyup(function () {
+        $(this).ColorPickerSetColor(this.value);
+    });
+    var txalready = $('input[name="color"]').val();
+    var bgalready = $('input[name="bgcolor"]').val();
+    $('input[name="color"]').css({ 'background-color':txalready });
+    $('input[name="bgcolor"]').css({ 'background-color':bgalready });
 });
 
 

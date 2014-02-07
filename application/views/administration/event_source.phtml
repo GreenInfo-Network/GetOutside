@@ -48,8 +48,18 @@ em {
             </td>
         </tr>
         <tr>
-            <td>Color</td>
-            <td><input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" /></td>
+            <td>Text Color</td>
+            <td>
+                <input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" />
+                When these events are displayed on the Calendar page, this color will be used for the event's text.
+            </td>
+        </tr>
+        <tr>
+            <td>Background Color</td>
+            <td>
+                <input type="text" name="bgcolor" value="<?= htmlspecialchars($source->bgcolor) ?>" size="7" maxlength="7" style="color:white;" />
+                When these events are displayed on the Calendar page, this color will be used for the event's background.
+            </td>
         </tr>
 
         <?php if ($source->option_fields['url']) { ?>

@@ -256,10 +256,12 @@ public function ajax_save_event_source() {
 
     // validation: color must be #XXXXXX
     if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['color'])) return print "Select a valid color.";
+    if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['bgcolor'])) return print "Select a valid color.";
 
     // save it
     $source->name          = $_POST['name'];
     $source->color         = $_POST['color'];
+    $source->bgcolor       = $_POST['bgcolor'];
     $source->url           = $_POST['url'];
     $source->option1       = $_POST['option1'];
     $source->option2       = $_POST['option2'];

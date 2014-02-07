@@ -189,30 +189,77 @@ public function calendar() {
     $data['sources'] = array();
     $dsx = new EventDataSource();
     $dsx->where('enabled',1)->get();
-    foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color, 'checked'=>(boolean) (integer) $ds->on_by_default );
+    foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color, 'bgcolor'=>$ds->bgcolor, 'checked'=>(boolean) (integer) $ds->on_by_default );
 
     $this->load->view('site/calendar.phtml',$data);
 }
 
 public function ajax_calendar_events($id=0) {
-    $events = new Event();
-    $events->where('eventdatasource_id',$id)->where('starts >=',$_GET['startdate'])->where('ends <',$_GET['enddate'])->get();
+    // make sure they're numbers
+    $_GET['startdate'] = (integer) $_GET['startdate'];
+    $_GET['enddate']   = (integer) $_GET['enddate'];
+    if (!$_GET['startdate'] or !$_GET['enddate']) return print "Invalid starttime and/or endtime";
 
-    // the output format here is specific to fullCalendar, the chosen client-side calendar renderer
-    $output = array();
-    foreach ($events as $event) {
-        $thisone = array();
-        $thisone['id']      = $event->id;
-        $thisone['title']   = $event->name;
-        $thisone['allDay']  = (boolean) $event->allday;
-        $thisone['start']   = $event->starts;
-        $thisone['end']     = $event->ends;
-        $thisone['url']     = $event->url;
-        $thisone['color']   = $event->eventdatasource->color;
+    // the big branch
+    // a non-zero ID# means that it's an event datasource, and the datasource acts as the "category" so we show all events in that datasource
+    // a zero ID# indicates PlaceActivity, which aren't Events at all but recurring open-hours or similar for Places
+    // NOTE: the output format here is specific to fullCalendar, the chosen client-side calendar renderer
+    if ($id) {
+        $events = new Event();
+        $events->where('eventdatasource_id',$id)->where('starts >=',$_GET['startdate'])->where('ends <',$_GET['enddate'])->get();
 
-        $output[] = $thisone;
+        $output = array();
+        foreach ($events as $event) {
+            $thisone = array();
+            $thisone['id']      = $event->id;
+            $thisone['title']   = $event->name;
+            $thisone['allDay']  = (boolean) $event->allday;
+            $thisone['start']   = $event->starts;
+            $thisone['end']     = $event->ends;
+            $thisone['url']     = $event->url;
+            $thisone['textColor']       = $event->eventdatasource->color;
+            $thisone['backgroundColor'] = $event->eventdatasource->bgcolor;
+
+            $output[] = $thisone;
+        }
+    } else {
+        // a $id of 0: PlaceActivity entries
+        // they have mon=1, tue=0, wed=1, etc. to indicate weekdays and we need these rendered into a set of distinct event items like the structure above
+        // e.g. activity occurs on 2014-04-23 and also on 2014-04-30 and on 2014-04-16, ...
+        // the startdate and enddate are already unix timestamps, so we can iterate 24 hours at a time and see what matches
+        $activities = new PlaceActivity();
+        $activities->get();
+        for ($time=$_GET['startdate']; $time<$_GET['enddate']; $time+=86400) {
+            $day    = strtolower( date('D',$time) );
+            $month  = date('n', $time);
+            $date   = date('j', $time);
+            $year   = date('Y', $time);
+
+            foreach ($activities as $act) {
+                if (! $act->{$day}) continue; // it's not on this weekday (mon, wed, tue, sun, ...)
+
+                // split the start time and end time of this activity, and turn it into a timestamp on the current date
+                list($shour,$sminute,$ssecond) = explode(':', $act->starttime );
+                list($ehour,$eminute,$esecond) = explode(':', $act->endtime );
+                $act_starttime = mktime($shour, $sminute, 0, $month, $date, $year);
+                $act_endtime   = mktime($ehour, $eminute, 0, $month, $date, $year);
+
+                $thisone = array();
+                $thisone['id']      = $act->id;
+                $thisone['title']   = sprintf("%s @ %s", $act->name, $act->place->name);
+                $thisone['allDay']  = FALSE;
+                $thisone['start']   = $act_starttime;
+                $thisone['end']     = $act_endtime;
+                $thisone['url']     = NULL;
+                $thisone['textColor']       = '#000000';
+                $thisone['backgroundColor'] = '#FFFFFF';
+
+                $output[] = $thisone;
+            }
+        }
     }
 
+    // ready!
     header('Content-type: application/json');
     print json_encode($output);
 }
