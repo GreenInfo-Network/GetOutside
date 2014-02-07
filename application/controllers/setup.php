@@ -225,6 +225,7 @@ public function index() {
     $siteconfig->set('bing_api_key', '');
     $siteconfig->set('company_url', '');
     $siteconfig->set('company_name', '');
+    $siteconfig->set('metric_units', 0);
 
     /////
     ///// initial admin password

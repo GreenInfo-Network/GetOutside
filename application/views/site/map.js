@@ -131,9 +131,13 @@ function reloadMapPoints(points) {
         // hack: if the description has any hyperlinks, add a target to them so they open in a new window
         points[i].desc = points[i].desc.replace(/<a /g, '<a target="_blank" ');
 
+        // if this point has an URL create a link,and include it into the title
+        var link = '';
+        if (points[i].url) link = ' &nbsp; ' + '(<a target="_blank" href="' + points[i].url + '">more info</a>)';
+
         // compose the HTML for the popup
         var html = '';
-        html += '<h5>' + points[i].name + '</h5>';
+        html += '<h5>' + points[i].name + link + '</h5>';
         html += points[i].desc;
         html += '<p>' + 'Categories: ' + points[i].category_names + '</p>';
 
@@ -166,6 +170,9 @@ function geocodeAndZoom(address) {
     if (! address) return;
     if (! BING_API_KEY) return alert("Address searches disabled.\nNo Bing Maps API key has been entered by the site admin.");
 
+    // correct the URL cuz we're using a naive REST/JSONP technique: remove any & characters cuz encodeURIComponent() doesn't solve & causing a Bad Request error
+    address = address.replace('&', 'and');
+
     var url = 'http://dev.virtualearth.net/REST/v1/Locations/' + encodeURIComponent(address) + '?output=json&jsonp=handleGeocodeResult&key=' + BING_API_KEY;
     $('<script></script>').prop('type','text/javascript').prop('src',url).appendTo( jQuery('head') );
 }
@@ -176,7 +183,7 @@ function handleGeocodeResult(results) {
 
     var result, w, s, e, n;
     try {
-        result = results.resourceSets[0].resources[0]
+        result = results.resourceSets[0].resources[0];
         w = result.bbox[1];
         s = result.bbox[0];
         e = result.bbox[3];

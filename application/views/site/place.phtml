@@ -1,0 +1,74 @@
+<? $this->load->view('site/header.phtml') ?>
+
+<!-- Leaflet map framework -->
+<link rel="stylesheet" href="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
+<!--[if lte IE 8]>
+<link rel="stylesheet" href="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
+<![endif]-->
+<script src="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
+
+
+<!-- other code specific to this page -->
+<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/site/place.css" />
+<script type="text/javascript" src="<?= site_url() ?>/application/views/site/place.js"></script>
+<script type="text/javascript">
+var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
+
+//gda ,make this a setting?
+var DISTANCE_UNITS = <?= json_encode($metric ? 'km' : 'mi') ?>;
+
+var LON = <?= (float) $place->longitude ?>;
+var LAT = <?= (float) $place->latitude ?>;
+</script>
+
+
+
+<div class="container" style="width:100%;">
+
+    <div style="float:right; margin-top:1em;">
+        <div id="map_canvas"></div>
+        <input type="text" id="geocode" style="width:80%" placeholder="Get directions from..." /><input type="button" id="geocode_go" value="&gt;&gt;" style="width:20%;" />
+        <div id="directions"></div>
+    </div>
+
+    <h3><?= htmlspecialchars($place->name) ?></h3>
+
+    <div class="place_description">
+        <?= $place->description ?>
+    </div>
+
+    <?php if ($has_activities) { ?>
+        <table id="activities" class="table-condensed table-bordered" style="width:100%;">
+            <tr>
+                <th>Activity</th>
+                <th>Time</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+                <th>Sun</th>
+            </tr>
+            <?php foreach ($place->placeactivity as $hour) { ?>
+            <tr data-activity-id="<?= $hour->id ?>">
+                <td><a href="javascript:void(0);"><?= htmlspecialchars($hour->name) ?></a></td>
+                <td><?= PlaceActivity::roundTime($hour->starttime) ?> to <?= PlaceActivity::roundTime($hour->endtime) ?></td>
+                <td><?= $hour->mon ? 'Yes' : '-' ?>
+                <td><?= $hour->tue ? 'Yes' : '-' ?>
+                <td><?= $hour->wed ? 'Yes' : '-' ?>
+                <td><?= $hour->thu ? 'Yes' : '-' ?>
+                <td><?= $hour->fri ? 'Yes' : '-' ?>
+                <td><?= $hour->sat ? 'Yes' : '-' ?>
+                <td><?= $hour->sun ? 'Yes' : '-' ?>
+            </tr>
+            <?php } ?>
+        </table>
+
+        <br/>
+    <?php } ?>
+</div>
+
+
+
+<? $this->load->view('site/footer.phtml') ?>

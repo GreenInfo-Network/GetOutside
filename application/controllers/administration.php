@@ -57,6 +57,7 @@ public function ajax_save_settings() {
     $this->siteconfig->set('bbox_e', $_POST['bbox_e']);
     $this->siteconfig->set('bbox_n', $_POST['bbox_n']);
     $this->siteconfig->set('bing_api_key', $_POST['bing_api_key']);
+    $this->siteconfig->set('metric_units', $_POST['metric_units']);
     $this->siteconfig->set('company_name', $_POST['company_name']);
     $this->siteconfig->set('company_url', $_POST['company_url']);
 

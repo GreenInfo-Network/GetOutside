@@ -44,3 +44,12 @@ div.navbar {
     float:right;
     margin:1em 1em 1em 0;
 }
+
+
+/* tables get a smaller font and crisper look-n-feel */
+table th {
+    font-size:8pt;
+}
+table td {
+    font-size:8pt;
+}

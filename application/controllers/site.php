@@ -56,6 +56,25 @@ public function about() {
 
 
 /***************************************************************************************
+ * PLACE INFO
+ ***************************************************************************************/
+
+public function place($id=0) {
+    $data = array();
+    $data['place'] = new Place();
+    $data['place']->where('id',$id)->get();
+    if (! $data['place']->id) show_404();
+
+    $data['has_activities'] = $data['place']->placeactivity->count();
+
+    $siteconfig = new SiteConfig();
+    $data['metric'] = (integer) $siteconfig->get('metric_units');
+
+    $this->load->view('site/place.phtml',$data);
+}
+
+
+/***************************************************************************************
  * MAP AND SUPPORTING AJAX ENDPOINTS
  ***************************************************************************************/
 
@@ -145,6 +164,7 @@ public function ajax_map_points() {
         $thisone['desc']    = $place->description;
         $thisone['lat']     = (float) $place->latitude;
         $thisone['lng']     = (float) $place->longitude;
+        $thisone['url']     = site_url("site/place/{$place->id}");
 
         $thisone['category_names'] = $place->listCategoryNames();
 
@@ -184,6 +204,7 @@ public function ajax_map_points() {
             $thisone['name']    = $el->event->name;
             $thisone['lat']     = (float) $el->latitude;
             $thisone['lng']     = (float) $el->longitude;
+            $thisone['url']     = $el->event->url;
 
             $thisone['desc']    = $el->event->description;
             if ($el->title)     $thisone['desc'] .= "<br/>\n" . $el->title;
@@ -280,7 +301,7 @@ public function ajax_calendar_events($id=0) {
                 $thisone['allDay']  = FALSE;
                 $thisone['start']   = $act_starttime;
                 $thisone['end']     = $act_endtime;
-                $thisone['url']     = NULL;
+                $thisone['url']     = site_url("site/place/{$act->place->id}");
                 $thisone['textColor']       = '#000000';
                 $thisone['backgroundColor'] = '#FFFFFF';
 

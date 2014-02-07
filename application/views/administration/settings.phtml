@@ -108,6 +108,10 @@ th {
                     <input type="text" id="geocode" size="58" placeholder="Search for your city or neighborhood" /> <input type="button" id="geocode_go" value="Search" />
                 </td>
             </tr>
+            <tr>
+                <td>Metric or Imperial? <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Report distances in metric (kilometers) or Imperial (miles) ?"></div></td>
+                <td><?= form_dropdown('metric_units', array('0'=>'Imperial (miles)', '1'=>'Metric (kilometers)'), $this->siteconfig->get('metric_units') ) ?></td>
+            </tr>
             </table>
         </div>
 

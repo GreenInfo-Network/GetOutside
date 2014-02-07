@@ -121,6 +121,8 @@
         <tr data-source-id="<?= $place->placedatasource->id ?>" data-category-ids="<?= $place->listCategoryIDs(',') ?>">
             <td>
                 <a href="<?= site_url("administration/place/{$place->id}") ?>"><?= htmlspecialchars($place->name) ?></a>
+                <br/>
+                <a target="_blank" href="<?= site_url("site/place/{$place->id}") ?>">(public view)</a>
             </td>
             <td>
                 <?= htmlspecialchars($place->placedatasource->name) ?>
