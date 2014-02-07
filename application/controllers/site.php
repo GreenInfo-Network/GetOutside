@@ -184,12 +184,17 @@ public function ajax_map_points() {
 public function calendar() {
     $data = array();
 
-    // assocarray of Event Data Sources: ID -> Name
+    // assocarray of Event Data Sources: ID -> Name\
     // used to generate the checkbox list, which is used to toggle the data source
     $data['sources'] = array();
     $dsx = new EventDataSource();
     $dsx->where('enabled',1)->get();
     foreach ($dsx as $ds) $data['sources'][ $ds->id ] = array('id'=>$ds->id, 'name'=>$ds->name, 'color'=>$ds->color, 'bgcolor'=>$ds->bgcolor, 'checked'=>(boolean) (integer) $ds->on_by_default );
+
+    // do we have any PlaceActivity entries at all? in many cases this will be no, as most folks won't enter open hours and recurring activities
+    // if we have none, then showing the Show Non-Event Activities checkbox makes little sense
+    $data['has_place_activities'] = new PlaceActivity();
+    $data['has_place_activities'] = $data['has_place_activities']->count();
 
     $this->load->view('site/calendar.phtml',$data);
 }
