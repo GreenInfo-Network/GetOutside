@@ -1,5 +1,9 @@
 /* general page elements. some override Twitter Bootstrap, and some are just utility functions such as .center and .bold */
 
+body {
+    margin:0 20px 0 20px; /* give the body some empty space to the sides, per modern vogue */
+}
+
 label {
     font-weight:normal;
     cursor:pointer;
