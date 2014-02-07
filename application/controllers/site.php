@@ -90,6 +90,18 @@ public function ajax_map_points() {
     // start with all Places
     $places = new Place();
 
+    // if they gave a Date for filtering, then filter by the Place having a related PlaceActivity where thisweekday=1
+    if (@$_POST['date']) {
+        $year     = (integer) substr($_POST['date'],0,5);
+        $month    = (integer) substr($_POST['date'],5,2);
+        $date     = (integer) substr($_POST['date'],8,2);
+        $unixtime = mktime(0, 0, 0, $month, $date, $year);
+        $weekday  = strtolower( date('D',$unixtime) ); // e.g. "sun" or "fri"
+
+        // get all Place IDs where the PlaceActivity entries have this weekday=1
+        $places->where_related('placeactivity', $weekday, 1);
+    }
+
     // category filter is pretty simple; note the handling of an empty array: if we leave it truly blank, it matches all Places with no categories at all
     if (! @$_POST['categories']) $_POST['categories'] = array(-1);
     $_POST['categories']  = array_map('intval', $_POST['categories']);
@@ -140,18 +152,31 @@ public function ajax_map_points() {
     }
 
     // whoa there! we're not done yet
-    // if they asked for EventLocations then append markers for the EventLocations,
-    // generating their descriptions and all from the parent event
+    // if they asked for EventLocations then append markers for the EventLocations, generating their descriptions and all from the parent event
+    // be sure to filter by $_POST['date'] if one was given, same as we did for PlaceActivity above
     if (@$_POST['event_locations']) {
+        // the categories to assign to the EventLocation points; just this one fixed set, defined here so we don't redefine the same thing repeatedly within the loop
         $elcats = array('Event');
+
+        // for date filtering: find the min & max time for the selected day; we compare this against the Events' start and end times which are also unix timestamps
+        if (@$_POST['date']) {
+            $today_start = mktime(0,   0,  0, $month, $date, $year);
+            $today_end   = mktime(23, 59, 59, $month, $date, $year);
+        } else {
+            $today_start = $today_end = NULL;
+        }
 
         $els = new EventLocation();
         $els->get();
-
         foreach ($els as $el) {
             // see whether this EventLocation fits the keyword filter: check the parent Event's title and description fields
             if (@$_POST['keywords']) {
                 if (! preg_match("/\b{$_POST['keywords']}\b/i", $el->event->name)  and ! preg_match("/{$_POST['keywords']}/i", strip_tags($el->event->description)) ) continue;
+            }
+
+            // see whether this EventLocation fits the date filter
+            if (@$_POST['date']) {
+                if ($el->event->starts > $unixtime or $el->event->ends < $unixtime) continue;
             }
 
             $thisone = array();
