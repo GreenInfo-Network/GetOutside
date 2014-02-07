@@ -17,6 +17,8 @@
 <script type="text/javascript">
 var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
 
+var DISTANCE_UNITS = <?= json_encode($metric ? 'km' : 'mi') ?>;
+
 var START_W = <?= $this->siteconfig->get('bbox_w') ?>;
 var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
 var START_E = <?= $this->siteconfig->get('bbox_e') ?>;
@@ -82,6 +84,24 @@ var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
     </div>
 </div>
 
+
+
+<div class="dialog" id="dialog_directions">
+<form action="javascript:void(0);">
+    <input type="hidden" name="lat" id="directions_lat" />
+    <input type="hidden" name="lon" id="directions_lon" />
+
+    To:<br/>
+    <span id="directions_destname"></span><br/>
+    <br/>
+
+    From:<br/>
+    <input type="text" namne="address" id="directions_address" style="width:3in;" placeholder="Starting address" /><br/>
+    <br/>
+
+    <div id="directions_results"></div>
+</form>
+</div>
 
 
 <div class="dialog" id="dialog_waiting">

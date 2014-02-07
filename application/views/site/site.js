@@ -18,3 +18,11 @@ $(document).ready(function () {
     // enable sorting on tables using tablesorter
     //$('table.sortable').tablesorter();
 });
+
+
+
+// a utility function, to escape " and & and others
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+

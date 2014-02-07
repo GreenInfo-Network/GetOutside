@@ -16,3 +16,17 @@
     margin-top:2px;
 }
 
+
+
+#directions_results table {
+    border-collapse:collapse;
+    width:4in;
+}
+#directions_results td {
+    border:1px solid #000000;
+    padding:0 0.25em 0 0.25em;
+}
+#directions_results td.rhs {
+    text-align:right;
+    white-space:nowrap;
+}

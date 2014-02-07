@@ -53,3 +53,11 @@ table th {
 table td {
     font-size:8pt;
 }
+
+
+
+/* jQuery UI has a default of 100 for this, which puts it behind Leaflet controls (attribution) */
+
+.ui-front {
+    z-index: 10000;
+}

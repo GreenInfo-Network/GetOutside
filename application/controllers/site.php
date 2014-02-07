@@ -65,8 +65,10 @@ public function place($id=0) {
     $data['place']->where('id',$id)->get();
     if (! $data['place']->id) show_404();
 
+    // do we have any PlaceActivities at all? if not, then no point in showing that useless checkbox
     $data['has_activities'] = $data['place']->placeactivity->count();
 
+    // directions UI: use metric or imperial?
     $siteconfig = new SiteConfig();
     $data['metric'] = (integer) $siteconfig->get('metric_units');
 
@@ -92,6 +94,10 @@ public function map() {
     // if we have none, then showing the Show Event Locations checkbox makes little sense
     $data['has_event_locations'] = new EventLocation();
     $data['has_event_locations'] = $data['has_event_locations']->count();
+
+    // directions UI: use metric or imperial?
+    $siteconfig = new SiteConfig();
+    $data['metric'] = (integer) $siteconfig->get('metric_units');
 
     // ready!
     $this->load->view('site/map.phtml',$data);

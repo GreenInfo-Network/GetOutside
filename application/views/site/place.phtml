@@ -14,7 +14,6 @@
 <script type="text/javascript">
 var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
 
-//gda ,make this a setting?
 var DISTANCE_UNITS = <?= json_encode($metric ? 'km' : 'mi') ?>;
 
 var LON = <?= (float) $place->longitude ?>;
