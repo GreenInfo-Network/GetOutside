@@ -34,6 +34,17 @@ An EventLocation is not a Place: it doesn't get categorized, it doesn't link to 
 Where do EventLocations come from? In the EventDataSource driver, the reloadContent() method clears out old events and loads new ones from the source. The reloadContent() method for each individual driver will have its own technique for populating the EventLocation instances. (see the WritingDrivers.txt document)
 
 
+=PlaceActivity
+
+Think of PlaceActivity as the inverse of EventLocation: the ability of Places (which don't have time info) to appear on the Calendar page.
+
+Places can have "open hours" and similar sorts of recurring activities defined in the admin panel, e.g. "Open Swim, Mon/Wed/Fri 2pm-4pm" and that's what these are.
+
+PlaceActivities sound similar to Events, but they're not: Events are ephemeral while PlaceActivity is persistently tied to a Place.
+
+How do Places get PlaceActivities? Manually via the admin panel: go into Places, then into an individual Place. A wish-list item would be loading "open hours" from the Place Data Source but this may not be realistic.
+
+
 =User
 
 This represents a user account on the system, able to log in to the website.
