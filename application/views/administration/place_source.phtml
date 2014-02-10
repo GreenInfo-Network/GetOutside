@@ -40,6 +40,14 @@ em {
             <td>Name</td>
             <td><input type="text" name="name" value="<?= htmlspecialchars($source->name) ?>" size="50" maxlength="50" /></td>
         </tr>
+        <tr>
+            <td>Enabled?</td>
+            <td>
+                <?= form_dropdown('enabled', array('1'=>'Enabled', '0'=>'Disabled'),$source->enabled) ?>
+                <br/>
+                If disabled, this data source will not be reloaded when you use Reload All. This is useful if the data source is down for maintenance or is a work in progress.
+            </td>
+        </tr>
 
         <?php if ($source->option_fields['url']) { ?>
         <tr>

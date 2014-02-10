@@ -430,6 +430,7 @@ public function ajax_save_place_source() {
     // so save it now and then report the errors below
     $source->name          = trim(strip_tags(@$_POST['name']));
     $source->url           = @$_POST['url'];
+    $source->enabled       = $_POST['enabled'];
     $source->option1       = trim(@$_POST['option1']);
     $source->option2       = trim(@$_POST['option2']);
     $source->option3       = trim(@$_POST['option3']);

@@ -28,7 +28,7 @@
             Any <i>Enabled</i> sources will be listed on the front-facing Calendar page, and can be toggled off and on to show or hide these events.
         </p>
 
-        <table class="table table-condensed table-bordered sortable">
+        <table id="sources" class="table table-condensed table-bordered sortable">
         <thead>
         <tr>
             <th>Name</th>
@@ -40,7 +40,7 @@
         </thead>
         <tbody>
         <?php foreach ($sources as $source) { ?>
-        <tr>
+        <tr data-source-id="<?= $source->id ?>" data-source-name="<?= htmlspecialchars($source->name) ?>" data-source-enabled="<?= (integer) $source->enabled ?>">
             <td>
                 <div class="swatch" title="Color sample" style="background-color:<?= htmlspecialchars($source->bgcolor) ?>; color:<?= htmlspecialchars($source->color) ?>;">&nbsp;Aa</div>
                 <a href="<?= site_url("administration/event_source/{$source->id}") ?>"><?= htmlspecialchars($source->name) ?></a>
@@ -48,11 +48,15 @@
             <td><?= $source->type ?></td>
             <td><?= $source->howManyEvents() ?></td>
             <td><?= $source->enabled ? 'Enabled' : 'Disabled' ?></td>
-            <td><span class="glyphicon glyphicon-refresh refresh" data-id="<?= $source->id ?>" title="Fetch now"></span> <?= $source->lastFetch() ?></td>
+            <td><span class="glyphicon glyphicon-refresh refresh" title="Fetch now"></span> <?= $source->lastFetch() ?></td>
         </tr>
         <?php } ?>
         </tbody>
         </table>
+
+        <div class="btn-group btn-group-rightfloater">
+            <button type="button" class="btn ui-state-focus" id="button_reload_sources"><span class="glyphicon glyphicon-repeat"></span> Reload All</button>
+        </div>
 
     </div>
 </div>
