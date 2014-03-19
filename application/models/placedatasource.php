@@ -44,7 +44,6 @@ class PlaceDataSource extends DataMapper {
  */
 public static $SOURCE_TYPES = array(
     'Google Spreadsheet',
-    'Shapefile',
     'ArcGIS REST API',
     'CartoDB',
     'OGC WFS',
