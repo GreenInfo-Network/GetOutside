@@ -103,12 +103,20 @@ function initMap() {
     MAP.on('locationerror', function (error) { onLocationError(error); });
     MAP.locate({ enableHighAccuracy:true, watch:true });
 
-    // add some Controls
+    // add some Controls, including our custom ones which are simply buttons; we use a Control so Leaflet will position and style them
     L.control.scale({ metric:false }).addTo(MAP);
+    new L.controlCustomButtonPanel().addTo(MAP);
 
     // now add the empty MARKERS LayerGroup
     // this will be loaded with markers when a search is performed or when they pick Browse The Map
     MARKERS = L.layerGroup([]).addTo(MAP);
+
+    // now the Map Settings panel
+    // this is relatively simple, in that there's no tile caching, seeding, database download, ...
+    $('#panel-map-settings input[type="radio"][name="basemap"]').change(function () {
+        var which = $('#panel-map-settings input[type="radio"][name="basemap"]:checked').prop('value');
+        selectBasemap(which);
+    });
 }
 
 
@@ -132,6 +140,21 @@ function onLocationFound(event) {
     }
 }
 
+function autoCenterToggle() {
+    AUTO_RECENTER ? autoCenterOff() : autoCenterOn();
+}
+function autoCenterOn() {
+    AUTO_RECENTER = true;
+    $('#map_canvas div.leaflet-custombutton-gps').addClass('active');
+
+    // and now that we want auto-centering, do an auto-center now
+    zoomToCurrentLocation();
+}
+function autoCenterOff() {
+    AUTO_RECENTER = false;
+    $('#map_canvas div.leaflet-custombutton-gps').removeClass('active');
+}
+
 function zoomToCurrentLocation() {
     var latlng = LOCATION.getLatLng();
     var buffer = 0.1; // about 5-6 miles, a reasonable distance
@@ -148,7 +171,7 @@ function zoomToCurrentMaxExtent() {
 }
 
 function onLocationError(error) {
-    
+    //gda show warnings on map and search panel?
 }
 
 function performBrowseMap() {
@@ -166,4 +189,5 @@ function performBrowseMap() {
 }
 
 function performSearch() {
+    //gda to be determined; discuss w JS
 }

@@ -16,6 +16,9 @@
     <![endif]-->
     <script src="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
 
+    <script src="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.js"></script>
+    <link rel="stylesheet" href="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.css" />
+
     <script src="<?=site_url()  ?>/application/views/common/leaflet.markercluster/leaflet.markercluster.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
@@ -83,6 +86,18 @@
 <div data-role="page" id="page-map">
     <div role="main">
         <div id="map_canvas"></div>
+
+        <div data-role="panel" id="panel-map-settings" data-position="right" data-display="overlay">
+            <h2 style="margin:0;">
+                <a href="#page-map" data-rel="close" data-role="button" data-icon="delete" data-iconpos="notext" data-inline="true" data-mini="true"></a> Map Settings
+            </h2>
+
+            <div data-role="controlgroup" data-type="horizontal" data-mini="true">
+                <label><input type="radio" name="basemap" value="terrain" checked /> Terrain</label>
+                <label><input type="radio" name="basemap" value="photo" /> Satellite</label>
+                <label><input type="radio" name="basemap" value="topo" /> Topo</label>
+            </div>
+        </div>
     </div>
 </div>
 

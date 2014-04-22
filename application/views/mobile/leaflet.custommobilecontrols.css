@@ -1,0 +1,44 @@
+.leaflet-custombuttons {
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.65);
+}
+
+.leaflet-custombuttons div {
+    width:26px;
+    height:26px;
+
+    background-color:white;
+    color:black;
+
+    border-bottom:1px solid #CCCCCC;
+
+    cursor:pointer;
+}
+
+.leaflet-custombuttons div:first-child {
+    border-top-right-radius:4px;
+    border-top-left-radius:4px;
+}
+
+.leaflet-custombuttons div:last-child {
+    border-bottom-right-radius:4px;
+    border-bottom-left-radius:4px;
+
+    border-bottom:0 none transparent;
+}
+
+.leaflet-custombutton-search {
+    background-image:url(images/custombutton-search.png);
+}
+.leaflet-custombutton-list {
+    background-image:url(images/custombutton-list.png);
+}
+.leaflet-custombutton-gps {
+    background-image:url(images/custombutton-gps.png);
+}
+.leaflet-custombutton-gps.active {
+    background-image:url(images/custombutton-gps2.png);
+    background-color:#FF0000;
+}
+.leaflet-custombutton-settings {
+    background-image:url(images/custombutton-settings.png);
+}

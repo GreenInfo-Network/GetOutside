@@ -22,3 +22,9 @@
 .right  { text-align:right  !important; }
 .left   { text-align:left   !important; }
 
+hr {
+    height:0.5em;
+    background-color:#EDEDED;
+    margin:2em 0 2em 0;
+    border:0 none transparent;
+}
