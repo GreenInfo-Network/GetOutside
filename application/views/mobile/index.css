@@ -1,0 +1,24 @@
+/*** CUSTOM data-icon for a GPS icon ***/
+
+.ui-icon-gps:after {
+    background-image: url("images/gps.svg");
+}
+.ui-nosvg .ui-icon-gps:after {
+    background-image: url("images/gps.png");
+}
+
+.ui-icon-map:after {
+    background-image: url("images/map.svg");
+}
+.ui-nosvg .ui-icon-map:after {
+    background-image: url("images/map.png");
+}
+
+
+
+/*** GENERAL PAGE ELEMENTS ***/
+
+.center { text-align:center !important; }
+.right  { text-align:right  !important; }
+.left   { text-align:left   !important; }
+

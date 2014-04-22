@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?= $this->siteconfig->get('title') ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- jQuery and jQuery Mobile -->
+    <script type="text/javascript" src="<?= site_url() ?>/application/views/common/jquery-1.10.2.min.js"></script>
+    <link rel="stylesheet" href="<?= site_url() ?>/application/views/mobile/jquerymobile-1.4.2/jquery.mobile-1.4.2.css" />
+    <script src="<?= site_url() ?>/application/views/mobile/jquerymobile-1.4.2/jquery.mobile-1.4.2.min.js"></script>
+
+    <!-- Leaflet map framework -->
+    <link rel="stylesheet" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
+    <![endif]-->
+    <script src="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
+
+    <script src="<?=site_url()  ?>/application/views/common/leaflet.markercluster/leaflet.markercluster.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
+
+    <script type="text/javascript">
+    var BASE_URL = <?= json_encode(site_url()) ?>;
+
+    var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
+
+    var DISTANCE_UNITS = <?= json_encode($metric ? 'km' : 'mi') ?>;
+
+    var START_W = <?= $this->siteconfig->get('bbox_w') ?>;
+    var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
+    var START_E = <?= $this->siteconfig->get('bbox_e') ?>;
+    var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
+    </script>
+
+    <!-- sitewide styling overriding the selected theme and providing common code & style to the front-facing site -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/mobile/index.css" />
+    <script type="text/javascript" src="<?= site_url() ?>/application/views/mobile/index.js"></script>
+</head>
+<body>
+
+
+<div data-role="page" id="page-search">
+    <div role="main">
+
+        <div class="center">
+            <img src="<?= site_url() ?>/application/views/mobile/mobile-logo.png" />
+        </div>
+
+        <h3 class="center">Find Parks and Recreation Near:</h3>
+        <select name="location">
+            <option value="gps">My current location</option>
+            <option value="address">Address</option>
+        </select>
+        <input type="text" name="address" placeholder="enter address" class="center" />
+
+        <?= form_dropdown('type', $place_categories) ?>
+
+        <button name="search-go" data-icon="search" data-iconpos="right">Search</button>
+
+        <hr/>
+
+        <h3 class="center">OR:</h3>
+        <button name="search-browse-map" data-icon="map" data-iconpos="right">Browse the Map</button>
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-search-results">
+    <div data-role="header">
+        <a href="#page-map" data-icon="search" data-theme="b">Search</a>
+        <h1>Results</h1>
+        <a href="#page-map" data-icon="map">Map</a>
+    </div>
+
+    <div role="main">
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-map">
+    <div role="main">
+        <div id="map_canvas"></div>
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-map-settings">
+    <div data-role="header">
+        <a href="#page-map" data-icon="back">Back</a>
+        <h1>Results</h1>
+    </div>
+
+    <div role="main">
+    </div>
+</div>
+
+
+
+</body>
+</html>
