@@ -66,6 +66,12 @@ function initSearchForms() {
     $('#page-search button[name="search-go"]').tap(function () {
         performSearch();
     });
+
+    // jQuery Mobile bug workaround: when changing pages, tabs won't keep their previous selected state
+    // so when we go to Search Results, switch to Places so we're switched to SOMETHING
+    $(document).on('pageshow', '#page-search-results', function(){
+        $(this).find('div[data-role="navbar"] li a').first().click();
+    });
 }
 
 function initMap() {
@@ -189,5 +195,78 @@ function performBrowseMap() {
 }
 
 function performSearch() {
-    //gda to be determined; discuss w JS
+//gda
+    var params = $('#page-search form').serialize();
+
+    $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
+    $.post(BASE_URL + 'mobile/fetchdata', params, function (reply) {
+        $.mobile.loading('hide');
+
+        // assign the results into the listing components (listviews, map) ...
+        $('#page-search-results-places-list').data('rawresults', reply.places);
+        $('#map_canavs').data('rawresults', reply.places);
+        $('#page-search-results-events-list').data('rawresults', reply.events);
+
+        // .. then have them re-render
+        renderEventsList();
+        renderPlacesMap();
+        renderPlacesList();
+    }, 'json');
 }
+
+function renderPlacesMap() {
+    var items = $('#page-search-results-places-list').data('rawresults');
+    MARKERS.clearLayers();
+
+    for (var i=0, l=items.length; i<l; i++) {
+        var lat  = items[i].lat;
+        var lng  = items[i].lng;
+        var name = items[i].name;
+
+        var html  = '<h2>' + items[i].name + '</h2>';
+            html += items[i].desc;
+        if (items[i].url) {
+            html += '<p><a target="_blank" href="'+items[i].url+'">More Info</a></p>';
+        }
+
+        L.marker([lat,lng], { title:name }).bindPopup(html).addTo(MARKERS);
+    }
+}
+
+function renderPlacesList() {
+    var target = $('#page-search-results-places-list').empty();
+    var items  = target.data('rawresults');
+
+    for (var i=0, l=items.length; i<l; i++) {
+        var item = items[i];
+        var li   = $('<li></li>').data('rawresult',item).appendTo(target);
+
+        var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
+        var categories = item.category_names.join(", ");
+        $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
+        $('<div></div>').addClass('ui-li-desc').text(categories).appendTo(label);
+        $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
+    }
+
+    target.listview('refresh');
+}
+
+function renderEventsList() {
+    var target = $('#page-search-results-events-list').empty();
+    var items  = target.data('rawresults');
+
+    for (var i=0, l=items.length; i<l; i++) {
+        var item = items[i];
+        var li   = $('<li></li>').data('rawresult',item).appendTo(target);
+
+        var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
+        var link  = $('<a></a>').text('More Info').prop('target','_blank').prop('href',item.url);
+        $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
+        $('<div></div>').addClass('ui-li-desc').append(link).appendTo(label);
+
+//gda ddd date and time
+    }
+
+    target.listview('refresh');
+}
+

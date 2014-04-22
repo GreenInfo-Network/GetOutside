@@ -28,3 +28,17 @@ hr {
     margin:2em 0 2em 0;
     border:0 none transparent;
 }
+
+a {
+    text-decoration:none;
+}
+
+
+/*** JQUERY FIXES ***/
+
+.ui-listview > .ui-li-static, .ui-listview > .ui-li-divider, .ui-listview > li > a.ui-btn {
+    white-space:normal;
+}
+.ui-li-heading {
+    font-weight:bold;
+}
