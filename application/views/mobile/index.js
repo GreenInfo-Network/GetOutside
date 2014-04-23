@@ -84,6 +84,10 @@ function initSearchForms() {
     $(document).on('pageshow', '#page-search-results', function(){
         $(this).find('div[data-role="navbar"] li a').first().click();
     });
+
+    // trigger a rendering of Nothing Found at this time, as if a search had been performed
+    // this populates the Results panel, which someone could find via the Map panel having not done a search
+    performSearchHandleResults({ places:[], events:[] });
 }
 
 function initMap() {
@@ -239,19 +243,7 @@ function performSearchReally() {
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
     $.post(BASE_URL + 'mobile/fetchdata', params, function (reply) {
         $.mobile.loading('hide');
-
-        // assign the results into the listing components (listviews, map) ...
-        $('#page-search-results-places-list').data('rawresults', reply.places);
-        $('#map_canavs').data('rawresults', reply.places);
-        $('#page-search-results-events-list').data('rawresults', reply.events);
-
-        // .. then have them re-render
-        renderEventsList();
-        renderPlacesMap();
-        renderPlacesList();
-
-        // ... then show the results
-        $.mobile.changePage('#page-search-results');
+        performSearchHandleResults(reply);
     }, 'json');
 }
 
@@ -287,6 +279,23 @@ function performSearchAfterGeocode(address) {
     });
 }
 
+function performSearchHandleResults(reply) {
+    // assign the results into the listing components (listviews, map) ...
+    $('#page-search-results-places-list').data('rawresults', reply.places);
+    $('#map_canavs').data('rawresults', reply.places);
+    $('#page-search-results-events-list').data('rawresults', reply.events);
+
+    // .. then have them re-render
+    // the listing renderers check for 0 length and create a dummy "Nothing Found" item in the lists
+    // tip: show and hide don't work with JQM tab content; it makes the element actually visible despite the tab selection
+    renderEventsList();
+    renderPlacesMap();
+    renderPlacesList();
+
+    // ... then show the results
+    $.mobile.changePage('#page-search-results');
+}
+
 function renderPlacesMap() {
     var items = $('#page-search-results-places-list').data('rawresults');
     MARKERS.clearLayers();
@@ -310,6 +319,13 @@ function renderPlacesList() {
     var $target = $('#page-search-results-places-list').empty();
     var items   = $target.data('rawresults');
 
+    // bail condition: 0 items means we need to display only 1 item: Nothing Found
+    if (! items.length) {
+        $('<li></li>').html('No places matched your filters.<br/>Use the Find button below, to search for places and events.').appendTo($target);
+        $target.listview('refresh');
+        return;
+    }
+
     for (var i=0, l=items.length; i<l; i++) {
         var item = items[i];
         var li   = $('<li></li>').data('rawresult',item).appendTo($target);
@@ -327,6 +343,13 @@ function renderPlacesList() {
 function renderEventsList() {
     var $target = $('#page-search-results-events-list').empty();
     var items   = $target.data('rawresults');
+
+    // bail condition: 0 items means we need to display only 1 item: Nothing Found
+    if (! items.length) {
+        $('<li></li>').html('No events matched your filters.<br/>Use the Find button below, to search for places and events.').appendTo($target);
+        $target.listview('refresh');
+        return;
+    }
 
     for (var i=0, l=items.length; i<l; i++) {
         var item = items[i];
