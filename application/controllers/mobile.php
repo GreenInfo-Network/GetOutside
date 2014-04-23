@@ -87,7 +87,7 @@ public function fetchdata() {
 
         // guess it's a hit!
         $thisone = array();
-        $thisone['id']      = (integer) $place->id;
+        $thisone['id']      = 'place-' . $place->id;
         $thisone['name']    = $place->name;
         $thisone['desc']    = $place->description;
         $thisone['lat']     = (float) $place->latitude;
@@ -116,7 +116,7 @@ public function fetchdata() {
 
         // guess it's a hit!
         $thisone = array();
-        $thisone['id']       = (integer) $event->id;
+        $thisone['id']       = 'eventlocation-' . $event->id;
         $thisone['name']     = $event->event->name;
         $thisone['url']      = $event->event->url;
         $thisone['desc']     = $event->event->description;
@@ -145,6 +145,7 @@ public function fetchdata() {
 
         // guess it's a hit!
         $thisone = array();
+        $thisone['id']       = 'event-' . $event->id;
         $thisone['name']     = $event->name;
         $thisone['url']      = $event->url;
         $thisone['subtitle'] = '';
@@ -216,6 +217,7 @@ public function fetchdata() {
         $activities->where($weekday,1)->get();
         foreach ($activities as $activity) {
             $thisone = array();
+            $thisone['id']          = 'placeactivity-' . $activity->id;
             $thisone['name']        = $activity->name;
             $thisone['subtitle']    = $activity->place->name;
             $thisone['lat']         = (float) $activity->place->latitude;

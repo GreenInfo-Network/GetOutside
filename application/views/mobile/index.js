@@ -221,6 +221,16 @@ function performBrowseMap() {
     });
 }
 
+function getMarkerById(id) {
+    // convenience function: given an ID from the fetchdata output, find the corresponding Marker within the MARKERS layergroup
+    // if it doesn't exist, null is returned
+    var lx = MARKERS.getLayers();
+    for (var i=0, l=lx.length; i<l; i++) {
+        if (id == lx[i].options.attributes.id) return lx[i];
+    }
+    return null;
+}
+
 function performSearch() {
     // validation and checking: if they picked an address search, they need to have given an address
     // further, we can't really search with an address, but need to geocode first
@@ -323,7 +333,7 @@ function renderPlacesMap() {
             html += '<p><a target="_blank" href="'+items[i].url+'">More Info</a></p>';
         }
 
-        L.marker([lat,lng], { title:name }).bindPopup(html).addTo(MARKERS);
+        L.marker([lat,lng], { title:name, attributes:items[i] }).bindPopup(html).addTo(MARKERS);
     }
 }
 
@@ -336,10 +346,10 @@ function renderEventsMap() {
         var name = items[i].name;
         if (! lat || ! lng) continue; // only PlaceActivity items would have lat/lng and thus location
 
-        var html  = '<h2>' + items[i].name + '</h2>';
-            html += items[i].subtitle;
+        var html  = '<h2>' + items[i].subtitle + '</h2>';
+            html += items[i].name;
 
-        L.marker([lat,lng], { title:name }).bindPopup(html).addTo(MARKERS);
+        L.marker([lat,lng], { title:name, attributes:items[i] }).bindPopup(html).addTo(MARKERS);
     }
 }
 
@@ -367,8 +377,12 @@ function renderPlacesList() {
         // tap/click handler -- zoom to this location on the map
         li.tap(function () {
             var latlng = L.latLng([ $(this).data('rawresult').lat, $(this).data('rawresult').lng ]);
+            var markid = $(this).data('rawresult').id;
             switchToMap(function () {
+return console.log('id = ' + markid);
                 zoomToPoint(latlng);
+                var marker = getMarkerById(markid);
+                if (marker) marker.openPopup();
             });
         });
     }
@@ -406,9 +420,12 @@ function renderEventsList() {
             });
         } else if (item.lat && item.lng) {
             li.tap(function () {
+                var markid = $(this).data('rawresult').id;
                 var latlng = L.latLng([ $(this).data('rawresult').lat, $(this).data('rawresult').lng ]);
                 switchToMap(function () {
                     zoomToPoint(latlng);
+                    var marker = getMarkerById(markid);
+                    if (marker) marker.openPopup();
                 });
             });
         }
