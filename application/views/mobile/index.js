@@ -68,6 +68,7 @@ function initSearchForms() {
     });
 
     // DOM handler: when the Address Type changed to address, show the address box; when it's not address, hide the box
+    // then specifically force it to GPS option (Firefox caches controls selections) to hide the address box
     $('#page-search select[name="location"]').change(function () {
         switch ( $(this).val() ) {
             case 'address':
@@ -77,7 +78,7 @@ function initSearchForms() {
                 $('#page-search input[name="address"]').hide();
                 break;
         }
-    });
+    }).val('gps').trigger('change');
 
     // jQuery Mobile bug workaround: when changing pages, tabs won't keep their previous selected state
     // so when we go to Search Results, switch to Places so we're switched to SOMETHING
