@@ -218,8 +218,8 @@ public function fetchdata() {
             $thisone = array();
             $thisone['name']        = $activity->name;
             $thisone['subtitle']    = $activity->place->name;
-            $thisone['lat']         = $activity->place->latitude;
-            $thisone['lng']         = $activity->place->longitude;
+            $thisone['lat']         = (float) $activity->place->latitude;
+            $thisone['lng']         = (float) $activity->place->longitude;
 
             // make up the start time and end time, from the xx:xx:xx format to H:Mam format
             $starth    = substr($activity->starttime,0,2);
