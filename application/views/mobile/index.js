@@ -357,11 +357,17 @@ function renderEventsList() {
         var li   = $('<li></li>').data('rawresult',item).appendTo($target);
 
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
-        var link  = $('<a></a>').text('More Info').prop('$target','_blank').prop('href',item.url);
+        if (item.url) {
+            var link = $('<a></a>').text('More Info').prop('target','_blank').prop('href',item.url);
+        } else if (item.subtitle) {
+            var link = item.subtitle;
+        } else {
+            var link = "";
+        }
         $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
         $('<div></div>').addClass('ui-li-desc').append(link).appendTo(label);
 
-//gda ddd date and time
+        $('<span></span>').addClass('ui-li-count').text(item.datetime).appendTo(label);
     }
 
     $target.listview('refresh');

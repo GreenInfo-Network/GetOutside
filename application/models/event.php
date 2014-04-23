@@ -2,7 +2,7 @@
 class Event extends DataMapper {
 
 var $table            = 'events';
-var $default_order_by = array('starts','name');
+var $default_order_by = array('ends','name');
 var $has_one          = array(
                             'eventdatasource',
                             'eventdatasource_googlecalendar' => array(
