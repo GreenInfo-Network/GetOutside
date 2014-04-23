@@ -67,6 +67,18 @@ function initSearchForms() {
         performSearch();
     });
 
+    // DOM handler: when the Address Type changed to address, show the address box; when it's not address, hide the box
+    $('#page-search select[name="location"]').change(function () {
+        switch ( $(this).val() ) {
+            case 'address':
+                $('#page-search input[name="address"]').show();
+                break;
+            case 'gps':
+                $('#page-search input[name="address"]').hide();
+                break;
+        }
+    });
+
     // jQuery Mobile bug workaround: when changing pages, tabs won't keep their previous selected state
     // so when we go to Search Results, switch to Places so we're switched to SOMETHING
     $(document).on('pageshow', '#page-search-results', function(){
@@ -195,9 +207,35 @@ function performBrowseMap() {
 }
 
 function performSearch() {
-//gda
-    var params = $('#page-search form').serialize();
+    // validation and checking: if they picked an address search, they need to have given an address
+    // further, we can't really search with an address, but need to geocode first
+    var $form = $('#page-search form');
 
+    switch ( $form.find('select[name="location"]').val() ) {
+        case 'gps':
+            // Near My search: fill in the lat & lng from their last known LOCATION
+            // then go ahead and perform a search
+            var latlng = LOCATION.getLatLng();
+            $form.find('input[name="lat"]').val( latlng.lat );
+            $form.find('input[name="lng"]').val( latlng.lng );
+            performSearchReally();
+            break;
+        case 'address':
+            // Address search: do an async geocoder call
+            // have it fill in the lat & lng from whatever it finds, then it will perform the search
+            if (! BING_API_KEY) return alert("Address searches disabled.\nNo Bing Maps API key has been entered by the site admin.");
+            var address = $form.find('input[name="address"]').val();
+            if (! address) return alert('Enter an address.');
+            performSearchAfterGeocode(address);
+            break;
+        default:
+            break;
+    }
+}
+
+function performSearchReally() {
+    // compose params, send it off
+    var params = $('#page-search form').serialize();
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
     $.post(BASE_URL + 'mobile/fetchdata', params, function (reply) {
         $.mobile.loading('hide');
@@ -211,7 +249,42 @@ function performSearch() {
         renderEventsList();
         renderPlacesMap();
         renderPlacesList();
+
+        // ... then show the results
+        $.mobile.changePage('#page-search-results');
     }, 'json');
+}
+
+function performSearchAfterGeocode(address) {
+    var handleReply = function (result) {
+        if (! result || ! result.resourceSets.length) return alert("Could not find that address.");
+        if (result.authenticationResultCode != 'ValidCredentials') return alert("The Bing Maps API key appears to be invalid.");
+
+        try {
+            var $form = $('#page-search form');
+            var best  = result.resourceSets[0].resources[0].geocodePoints[0].coordinates;
+            $form.find('input[name="lat"]').val( best[0] );
+            $form.find('input[name="lng"]').val( best[1] );
+            performSearchReally();
+        } catch (e) {
+            return alert('Could not process the geocoder reply.');
+        }
+    };
+
+    var url           = 'http://dev.virtualearth.net/REST/v1/Locations';
+    var params        = {};
+    params.query      = address;
+    params.key        = BING_API_KEY;
+    params.output     = 'json';
+    params.maxResults = 1;
+    $.ajax({
+        url: url,
+        'data': params,
+        dataType: 'jsonp',
+        jsonp: 'jsonp',
+        success: handleReply,
+        crossDomain: true
+    });
 }
 
 function renderPlacesMap() {
@@ -234,12 +307,12 @@ function renderPlacesMap() {
 }
 
 function renderPlacesList() {
-    var target = $('#page-search-results-places-list').empty();
-    var items  = target.data('rawresults');
+    var $target = $('#page-search-results-places-list').empty();
+    var items   = $target.data('rawresults');
 
     for (var i=0, l=items.length; i<l; i++) {
         var item = items[i];
-        var li   = $('<li></li>').data('rawresult',item).appendTo(target);
+        var li   = $('<li></li>').data('rawresult',item).appendTo($target);
 
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
         var categories = item.category_names.join(", ");
@@ -248,25 +321,25 @@ function renderPlacesList() {
         $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
     }
 
-    target.listview('refresh');
+    $target.listview('refresh');
 }
 
 function renderEventsList() {
-    var target = $('#page-search-results-events-list').empty();
-    var items  = target.data('rawresults');
+    var $target = $('#page-search-results-events-list').empty();
+    var items   = $target.data('rawresults');
 
     for (var i=0, l=items.length; i<l; i++) {
         var item = items[i];
-        var li   = $('<li></li>').data('rawresult',item).appendTo(target);
+        var li   = $('<li></li>').data('rawresult',item).appendTo($target);
 
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
-        var link  = $('<a></a>').text('More Info').prop('target','_blank').prop('href',item.url);
+        var link  = $('<a></a>').text('More Info').prop('$target','_blank').prop('href',item.url);
         $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
         $('<div></div>').addClass('ui-li-desc').append(link).appendTo(label);
 
 //gda ddd date and time
     }
 
-    target.listview('refresh');
+    $target.listview('refresh');
 }
 

@@ -1154,7 +1154,7 @@ html body .ui-group-theme-b a:hover {
 html .ui-bar-b a:active,
 html .ui-body-b a:active,
 html body .ui-group-theme-b a:active {
-	color: #0088bb /*{b-link-active}*/;
+	color: #0083cc /*{b-link-active}*/;
 }
 /* Button up */
 .ui-page-theme-b .ui-btn,
@@ -1168,7 +1168,7 @@ html .ui-bar-b .ui-btn:visited,
 html .ui-body-b .ui-btn:visited,
 html body .ui-group-theme-b .ui-btn:visited,
 html head + body .ui-btn.ui-btn-b:visited {
-	background-color: 			#333 /*{b-bup-background-color}*/;
+	background-color: 			#0083cc /*{b-bup-background-color}*/;
 	border-color:	 		#1f1f1f /*{b-bup-border}*/;
 	color: 					#fff /*{b-bup-color}*/;
 	text-shadow: 0 /*{b-bup-shadow-x}*/ 1px /*{b-bup-shadow-y}*/ 0 /*{b-bup-shadow-radius}*/ #111 /*{b-bup-shadow-color}*/;
@@ -1179,7 +1179,7 @@ html .ui-bar-b .ui-btn:hover,
 html .ui-body-b .ui-btn:hover,
 html body .ui-group-theme-b .ui-btn:hover,
 html head + body .ui-btn.ui-btn-b:hover {
-	background-color: 			#373737 /*{b-bhover-background-color}*/;
+	background-color: 			#0083cc /*{b-bhover-background-color}*/;
 	border-color:	 		#1f1f1f /*{b-bhover-border}*/;
 	color: 					#fff /*{b-bhover-color}*/;
 	text-shadow: 0 /*{b-bhover-shadow-x}*/ 1px /*{b-bhover-shadow-y}*/ 0 /*{b-bhover-shadow-radius}*/ #111 /*{b-bhover-shadow-color}*/;
@@ -1190,7 +1190,7 @@ html .ui-bar-b .ui-btn:active,
 html .ui-body-b .ui-btn:active,
 html body .ui-group-theme-b .ui-btn:active,
 html head + body .ui-btn.ui-btn-b:active {
-	background-color: 			#404040 /*{b-bdown-background-color}*/;
+	background-color: 			#0063ac /*{b-bdown-background-color}*/;
 	border-color:	 		#1f1f1f /*{b-bdown-border}*/;
 	color: 					#fff /*{b-bdown-color}*/;
 	text-shadow: 0 /*{b-bdown-shadow-x}*/ 1px /*{b-bdown-shadow-y}*/ 0 /*{b-bdown-shadow-radius}*/ #111 /*{b-bdown-shadow-color}*/;

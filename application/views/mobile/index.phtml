@@ -55,10 +55,12 @@
             <option value="address">Address</option>
         </select>
         <input type="text" name="address" placeholder="enter address" class="center" />
+        <input type="hidden" name="lat" />
+        <input type="hidden" name="lng" />
 
         <?= form_dropdown('type', $place_categories) ?>
 
-        <button name="search-go" data-icon="search" data-iconpos="right">Search</button>
+        <button name="search-go" data-icon="search" data-iconpos="right" data-theme="b">Search</button>
 
         <hr/>
 
@@ -90,7 +92,7 @@
     <div data-role="footer" data-position="fixed">
         <div data-role="navbar" data-iconpos="right">
             <ul>
-                <li><a href="#page-search" data-icon="search">Find</a></li>
+                <li><a href="#page-search" data-icon="search" data-theme="b">Find</a></li>
                 <li><a href="#page-map" data-icon="map">Map</a></li>
             </ul>
         </div>
