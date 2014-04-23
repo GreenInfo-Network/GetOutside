@@ -15,6 +15,68 @@ var AUTO_RECENTER = true;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+///// JAVASCRIPT EXTENSIONS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// IE8 lacks the indexOf to find where/whether an item appears in an array
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function(elt /*, from*/) {
+    var len = this.length >>> 0;
+
+    var from = Number(arguments[1]) || 0;
+    from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+    if (from < 0) from += len;
+
+    for (; from < len; from++) {
+        if (from in this && this[from] === elt) return from;
+    }
+    return -1;
+  };
+}
+
+
+// "hello world".capfirst() = "Hello world"
+String.prototype.capfirst = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+///// LEAFLET EXTENSIONS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// extend Leaflet: add to LatLng the ability to calculate the bearing to another LatLng
+L.LatLng.prototype.bearingTo = function(other) {
+    var d2r  = L.LatLng.DEG_TO_RAD;
+    var r2d  = L.LatLng.RAD_TO_DEG;
+    var lat1 = this.lat * d2r;
+    var lat2 = other.lat * d2r;
+    var dLon = (other.lng-this.lng) * d2r;
+    var y    = Math.sin(dLon) * Math.cos(lat2);
+    var x    = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+    var brng = Math.atan2(y, x);
+    brng = parseInt( brng * r2d );
+    brng = (brng + 360) % 360;
+    return brng;
+};
+
+L.LatLng.prototype.bearingWordTo = function(other) {
+    var bearing = this.bearingTo(other);
+    var bearingword = '';
+    if      (bearing >=  22 && bearing <=  67) bearingword = 'NE';
+    else if (bearing >=  67 && bearing <= 112) bearingword =  'E';
+    else if (bearing >= 112 && bearing <= 157) bearingword = 'SE';
+    else if (bearing >= 157 && bearing <= 202) bearingword =  'S';
+    else if (bearing >= 202 && bearing <= 247) bearingword = 'SW';
+    else if (bearing >= 247 && bearing <= 292) bearingword =  'W';
+    else if (bearing >= 292 && bearing <= 337) bearingword = 'NW';
+    else if (bearing >= 337 || bearing <=  22) bearingword =  'N';
+    return bearingword;
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// PAGE RESIZING
 ///// this is not at all as automated as some folks would have you believe  ;)
 ///// changing to #page-map has race conditions, iPads lie about their width & height, ...
@@ -161,6 +223,9 @@ function onLocationFound(event) {
         MAP.panTo(event.latlng);
         if (MAP.getZoom() < 14) MAP.setZoom(14);
     }
+
+    // update distance and bearing listings for Places and Events
+    updateEventsAndPlacesDistanceReadouts();
 }
 
 function autoCenterToggle() {
@@ -317,6 +382,9 @@ function performSearchHandleResults(reply) {
 
     // ... then show the results
     $.mobile.changePage('#page-search-results');
+
+    // epimetheus: same as onLocationFound() does, update distance and bearing listings for Places and Events
+    updateEventsAndPlacesDistanceReadouts();
 }
 
 function renderPlacesMap() {
@@ -407,7 +475,11 @@ function renderEventsList() {
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
         $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
         $('<div></div>').addClass('ui-li-desc').html(item.subtitle ? item.subtitle : '&nbsp;').appendTo(label);
-        $('<span></span>').addClass('ui-li-count').text(item.datetime).appendTo(label);
+        $('<div></div>').addClass('ui-li-desc').text(item.datetime).appendTo(label);
+        if (item.lat && item.lng) {
+            // the distance & bearing aren't loaded yet; see onLocationFound() but we know that this item should have one
+            $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label);
+        }
 
         // now the tap/click handler: if there's an URL then visit it
         // otherwise see if we can zoom on the map
@@ -434,3 +506,71 @@ function renderEventsList() {
     $target.listview('refresh');
 }
 
+function updateEventsAndPlacesDistanceReadouts() {
+    // prep
+    // figure up the origin for the distance & bearing; whatever was our last search
+    // if they somehow got here and never did a search of any sort, just bail; should never happen
+    var origin = L.latLng([ $('#page-search input[name="lat"]').val() , $('#page-search input[name="lng"]').val() ]);
+    if (! origin) return;
+
+    // part 1
+    // Events list gets distance and bearing... for anything which in fact has a lat & lon
+    var $target   = $('#page-search-results-events-list');
+    var $children = $target.children('li');
+    $children.each(function () {
+        // no lat & lon? then the distance is "No location" and we skip it
+        var raw = $(this).data('rawresult');
+        if (!raw) return; // e.g. page startup when nothing has been found, only LI is "Nothing to show"
+        if (!raw.lat || !raw.lng) return; // no location? move on
+
+        // construct a L.LatLng and use our handy functions for distance and bearing, relative to our last search location
+        var latlng    = L.latLng([ raw.lat,raw.lng ]);
+        var meters    = origin.distanceTo(latlng);
+        var direction = origin.bearingWordTo(latlng);
+        var readout;
+        switch (DISTANCE_UNITS) {
+            case 'mi':
+                readout = (meters / 1609).toFixed(1) + ' ' + 'mi' + ' ' + direction;
+                break;
+            case 'km':
+                readout = (meters / 1000).toFixed(1) + ' ' + 'km' + ' ' + direction;
+                break;
+        }
+
+        // load the text field
+        $(this).find('span.ui-li-count').text(readout);
+
+        // unlike Places we don't sort by distance cuz they're sorted by ending time
+        // so we're done here
+    });
+
+    // part 2
+    // Places list gets distance and bearing, but then gets sorted by distance
+    var $target   = $('#page-search-results-places-list');
+    var $children = $target.children('li');
+    $children.each(function () {
+        var raw = $(this).data('rawresult');
+        if (! raw) return; // e.g. page startup when nothing has been found, only LI is "Nothing to show"
+
+        // construct a L.LatLng and use our handy functions for distance and bearing, relative to our last search location
+        var latlng    = L.latLng([ raw.lat,raw.lng ]);
+        var meters    = origin.distanceTo(latlng);
+        var direction = origin.bearingWordTo(latlng);
+        var readout;
+        switch (DISTANCE_UNITS) {
+            case 'mi':
+                readout = (meters / 1609).toFixed(1) + ' ' + 'mi' + ' ' + direction;
+                break;
+            case 'km':
+                readout = (meters / 1000).toFixed(1) + ' ' + 'km' + ' ' + direction;
+                break;
+        }
+
+        // load the text field and also save the meters to a data attribute, for distance sorting in a moment
+        $(this).data('distance_meters',meters);
+        $(this).find('span.ui-li-count').text(readout);
+    });
+
+    // sort the listview by distance
+    $children.tsort({data:'distance_meters'});
+}
