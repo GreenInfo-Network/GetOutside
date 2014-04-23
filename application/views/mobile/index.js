@@ -189,6 +189,16 @@ function zoomToCurrentLocation() {
     MAP.fitBounds([[n,e],[s,w]]);
 }
 
+function zoomToPoint(latlng) {
+    var buffer = 0.025; // about 1-2 miles, a reasonable distance
+
+    var w = latlng.lng - buffer;
+    var s = latlng.lat - buffer;
+    var e = latlng.lng + buffer;
+    var n = latlng.lat + buffer;
+    MAP.fitBounds([[n,e],[s,w]]);
+}
+
 function zoomToCurrentMaxExtent() {
     MAP.fitBounds(MAX_EXTENT);
 }
@@ -353,6 +363,14 @@ function renderPlacesList() {
         $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
         $('<div></div>').addClass('ui-li-desc').text(categories).appendTo(label);
         $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
+
+        // tap/click handler -- zoom to this location on the map
+        li.tap(function () {
+            var latlng = L.latLng([ $(this).data('rawresult').lat, $(this).data('rawresult').lng ]);
+            switchToMap(function () {
+                zoomToPoint(latlng);
+            });
+        });
     }
 
     $target.listview('refresh');
@@ -374,17 +392,27 @@ function renderEventsList() {
         var li   = $('<li></li>').data('rawresult',item).appendTo($target);
 
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
-        if (item.url) {
-            var link = $('<a></a>').text('More Info').prop('target','_blank').prop('href',item.url);
-        } else if (item.subtitle) {
-            var link = item.subtitle;
-        } else {
-            var link = "";
-        }
         $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
-        $('<div></div>').addClass('ui-li-desc').append(link).appendTo(label);
-
+        $('<div></div>').addClass('ui-li-desc').html(item.subtitle ? item.subtitle : '&nbsp;').appendTo(label);
         $('<span></span>').addClass('ui-li-count').text(item.datetime).appendTo(label);
+
+        // now the tap/click handler: if there's an URL then visit it
+        // otherwise see if we can zoom on the map
+        if (item.url) {
+            li.tap(function () {
+                var url = $(this).data('rawresult').url;
+                if (! url) return;
+                window.open(url);
+            });
+        } else if (item.lat && item.lng) {
+            li.tap(function () {
+                var latlng = L.latLng([ $(this).data('rawresult').lat, $(this).data('rawresult').lng ]);
+                switchToMap(function () {
+                    zoomToPoint(latlng);
+                });
+            });
+        }
+
     }
 
     $target.listview('refresh');
