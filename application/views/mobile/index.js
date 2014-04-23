@@ -289,7 +289,9 @@ function performSearchHandleResults(reply) {
     // .. then have them re-render
     // the listing renderers check for 0 length and create a dummy "Nothing Found" item in the lists
     // tip: show and hide don't work with JQM tab content; it makes the element actually visible despite the tab selection
+    MARKERS.clearLayers();
     renderEventsList();
+    renderEventsMap();
     renderPlacesMap();
     renderPlacesList();
 
@@ -299,7 +301,6 @@ function performSearchHandleResults(reply) {
 
 function renderPlacesMap() {
     var items = $('#page-search-results-places-list').data('rawresults');
-    MARKERS.clearLayers();
 
     for (var i=0, l=items.length; i<l; i++) {
         var lat  = items[i].lat;
@@ -311,6 +312,22 @@ function renderPlacesMap() {
         if (items[i].url) {
             html += '<p><a target="_blank" href="'+items[i].url+'">More Info</a></p>';
         }
+
+        L.marker([lat,lng], { title:name }).bindPopup(html).addTo(MARKERS);
+    }
+}
+
+function renderEventsMap() {
+    var items = $('#page-search-results-events-list').data('rawresults');
+
+    for (var i=0, l=items.length; i<l; i++) {
+        var lat  = items[i].lat;
+        var lng  = items[i].lng;
+        var name = items[i].name;
+        if (! lat || ! lng) continue; // only PlaceActivity items would have lat/lng and thus location
+
+        var html  = '<h2>' + items[i].name + '</h2>';
+            html += items[i].subtitle;
 
         L.marker([lat,lng], { title:name }).bindPopup(html).addTo(MARKERS);
     }
