@@ -379,7 +379,6 @@ function renderPlacesList() {
             var latlng = L.latLng([ $(this).data('rawresult').lat, $(this).data('rawresult').lng ]);
             var markid = $(this).data('rawresult').id;
             switchToMap(function () {
-return console.log('id = ' + markid);
                 zoomToPoint(latlng);
                 var marker = getMarkerById(markid);
                 if (marker) marker.openPopup();
