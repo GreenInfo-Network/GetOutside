@@ -43,7 +43,7 @@ public function index() {
 // lat          float, required, the latitude on which to center the search
 // lng          float, required, the latitude on which to center the search
 // eventdays    integer, optional, optional, for events look this many days into the future. must be one of the specific entries below
-// categoryies  multiple integers, optional, for places this checks that the place has this CategoryID# assigned, for events this is a keyword filter for the event name & description
+// categories   multiple integers, optional, for places this checks that the place has this CategoryID# assigned, for events this is a keyword filter for the event name & description
 // gender       multiple integers, optional, for events check that this Gender is listed as an intended audience
 // agegroup     multiple integers, optional, for events check that this Age Group is listed as an intended audience
 // weekdays     multiple integers, optional, for events check that the event would fall upon this weekday (1=Monday, 7=Sunday)
@@ -75,7 +75,11 @@ public function fetchdata() {
 
     // PHASE 1
     // Places, with their attendant PlaceActivities (if any)
+    // the categories filter is applied here in the ORM query
     $places = new Place();
+    if (is_array(@$_POST['categories'])) {
+        $places->where_in_related('placecategory', 'id', $_POST['categories']);
+    }
     $places->get();
     foreach ($places as $place) {
         // invalid coordinates, skip it
@@ -84,9 +88,6 @@ public function fetchdata() {
         // distance filter
         $distance_squared = ( ($_POST['lng']-$place->longitude) * ($_POST['lng']-$place->longitude) ) + ( ($_POST['lat']-$place->latitude) * ($_POST['lat']-$place->latitude) );
         if ($distance_squared > $max_distance_squared) continue;
-
-//gda
-        // keyword filter, implicit by the selected categories being among this Place's multiple Categories
 
         // guess it's a hit!
         $thisone = array();
@@ -141,14 +142,20 @@ public function fetchdata() {
 
     // PHASE 2
     // Events, with their attendant EventLocations (if any)
+    // the categories filter is applied here in the ORM query, but first we must resolve the list of Category-IDs onto a list of words (the cats' names)
     $events = new Event();
+    if (is_array(@$_POST['categories'])) {
+        $cats = new PlaceCategory();
+        $cats->where_in('id',$_POST['categories'])->get();
+        foreach ($cats as $cat) {
+            $events->or_like('name', $cat->name);
+            $events->or_like('description', $cat->name);
+        }
+    }
     $events->get();
     foreach ($events as $event) {
         // the time filter: if it doesn't start this week, or ended last week, it's outta here
         if ($event->starts > $filter_time_end or $event->ends < $filter_time_start) continue;
-
-//gda
-        // keyword filter
 
         // guess it's a hit!
         $thisone = array();
