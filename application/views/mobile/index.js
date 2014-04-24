@@ -279,7 +279,7 @@ function zoomToPoint(latlng) {
     MAP.fitBounds([[n,e],[s,w]]);
 }
 
-function zoomToCurrentMaxExtent() {
+function zoomToMaxExtent() {
     MAP.fitBounds(MAX_EXTENT);
 }
 
@@ -304,7 +304,7 @@ function performBrowseMap() {
         if (has) {
             zoomToCurrentLocation();
         } else {
-            zoomToCurrentMaxExtent();
+            zoomToMaxExtent();
         }
     });
 }
