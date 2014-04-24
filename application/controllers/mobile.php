@@ -46,7 +46,7 @@ public function index() {
 // categories   multiple integers, optional, for places this checks that the place has this CategoryID# assigned, for events this is a keyword filter for the event name & description
 // gender       multiple integers, optional, for events check that this Gender is listed as an intended audience
 // agegroup     multiple integers, optional, for events check that this Age Group is listed as an intended audience
-// weekdays     multiple integers, optional, for events check that the event would fall upon this weekday (1=Monday, 7=Sunday)
+// weekdays     multiple strings, optional, for events check that the event would fall upon this weekday: sun mon tue wed thu fri sat
 public function fetchdata() {
     // validation can be somewhat terse; there's no way these params would be omitted by the app using this endpoint
     $_POST['lat'] = (float) @$_POST['lat']; if (! $_POST['lat']) return print "Missing param: lat";
@@ -145,12 +145,18 @@ public function fetchdata() {
     // the categories filter is applied here in the ORM query, but first we must resolve the list of Category-IDs onto a list of words (the cats' names)
     $events = new Event();
     if (is_array(@$_POST['categories'])) {
+        $events->or_group_start();
+
         $cats = new PlaceCategory();
         $cats->where_in('id',$_POST['categories'])->get();
-        foreach ($cats as $cat) {
-            $events->or_like('name', $cat->name);
-            $events->or_like('description', $cat->name);
-        }
+        foreach ($cats as $cat) $events->like('name', $cat->name)->or_like('description', $cat->name);
+
+        $events->group_end();
+    }
+    if (is_array(@$_POST['weekdays'])) {
+        $events->or_group_start();
+        foreach ($_POST['weekdays'] as $wday) $events->where($wday,1);
+        $events->group_end();
     }
     $events->get();
     foreach ($events as $event) {
