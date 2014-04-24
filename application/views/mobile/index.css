@@ -46,6 +46,11 @@ a {
     top:1.5em;
 }
 
+.ui-btn.ui-corner-all {
+    border-radius:20px;
+    padding-bottom: 0.5em;
+}
+
 #page-search-results-events-list a { /* JQM fix for this listview, since we want them to have icons, icons mean links, links mean larger, bold text, ... */
     font-weight:normal !important;
     font-size:10pt !important;

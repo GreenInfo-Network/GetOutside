@@ -148,6 +148,27 @@ function initSearchForms() {
         $(this).find('div[data-role="navbar"] li a').first().click();
     });
 
+    // Search Settings has this weekdays selector, as well as an option for Today vs Upcoming Week
+    // spec is for these to be checkboxes,though they act kinda like radioboxes (kinda)
+    // and THIS is why something elegant like Angular just doesn't cut it; we end up doing intricate DOM manipulation anyway...
+    var weekdaypickers = $('#page-search-settings input[name="weekday"]');
+    var howmanydaypickers = $('#page-search-settings input[name="eventdays"]');
+    weekdaypickers.change(function () {
+        if ( $(this).is(':checked') ) {
+            howmanydaypickers.removeAttr('checked').checkboxradio('refresh');
+        }
+    });
+    howmanydaypickers.change(function () {
+        if ( $(this).is(':checked') ) {
+            weekdaypickers.removeAttr('checked').checkboxradio('refresh');
+            howmanydaypickers.not( $(this) ).removeAttr('checked').checkboxradio('refresh');
+        }
+    });
+
+    // and since Firefox loves to cache controls (checkboxes)
+    // explicitly uncheck all checkboxes in the search setttings
+    $('#page-search-settings input[type="checkbox"]').removeAttr('checked').checkboxradio('refresh');
+
     // trigger a rendering of Nothing Found at this time, as if a search had been performed
     // this populates the Results panel, which someone could find via the Map panel having not done a search
     performSearchHandleResults({ places:[], events:[] });
@@ -324,8 +345,20 @@ function performSearch() {
 }
 
 function performSearchReally() {
-    // compose params, send it off
-    var params = $('#page-search form').serialize();
+    // compose params, including both the form itself (simple address) and the Settings (checkboxes from a different page)
+    // this is why we can't use serialize()
+    var params = {};
+    params.lat          = $('#page-search input[name="lat"]').val();
+    params.lng          = $('#page-search input[name="lng"]').val();
+    params.eventdays    = $('#page-search-settings input[name="eventdays"]:checked').val();
+    params.weekdays     = [];
+    params.gender       = [];
+    params.agegroup     = [];
+    $('#page-search-settings input[name="weekdays"]:checked').each(function () { params.weekdays.push($(this).prop('value')); });
+    $('#page-search-settings input[name="gender"]:checked').each(function () { params.gender.push($(this).prop('value')); });
+    $('#page-search-settings input[name="agegroup"]:checked').each(function () { params.agegroup.push($(this).prop('value')); });
+
+    // .. and send off
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
     $.post(BASE_URL + 'mobile/fetchdata', params, function (reply) {
         $.mobile.loading('hide');

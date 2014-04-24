@@ -26,7 +26,6 @@ public function index() {
     // the list of Categories for finding Places
     // in the mockups these are erroneously called Activities but in fact they're arbitrary many-to-many "tags" on Places
     $data['place_categories'] = array();
-    $data['place_categories'][''] = "Select an activity (optional)";
     $dsx = new PlaceCategory();
     $dsx->where('enabled',1)->get();
     foreach ($dsx as $ds) $data['place_categories'][ $ds->id ] = $ds->name;
@@ -41,11 +40,13 @@ public function index() {
 
 
 // this AJAX endpoint is used for searching, it is THE search endpoint. Params include:
-// lat      float, required, the latitude on which to center the search
-// lng      float, required, the latitude on which to center the search
-// 
-// 
-// 
+// lat          float, required, the latitude on which to center the search
+// lng          float, required, the latitude on which to center the search
+// eventdays    integer, optional, optional, gda
+// gender       multiple integers, optional, gda
+// agegroup     multiple integers, optional, gda
+// category     multiple integers, optional, gda
+// weekdays     multiple integers, optional, gda
 public function fetchdata() {
     // validation can be somewhat terse; there's no way these params would be omitted by the app using this endpoint
     $_POST['lat'] = (float) @$_POST['lat']; if (! $_POST['lat']) return print "Missing param: lat";
@@ -53,12 +54,13 @@ public function fetchdata() {
 
     // PREP WORK
     // for event date filtering, today and the next 7 days
-//gda this may be 1 or 7, or 30 but with weekday filters (implemented below)
+    $howmanydays = 30; // default to a month if they didn't say
+    if (in_array(@$_POST['eventdays'],array('6','0'))) $howmanydays = (integer) $_POST['eventdays'];
     $year  = date('Y');
     $month = date('m');
     $day   = date('d');
     $filter_time_start = mktime(0,   0,  0, $month, $day, $year);
-    $filter_time_end   = mktime(23, 59, 59, $month, $day + 7, $year);
+    $filter_time_end   = mktime(23, 59, 59, $month, $day + $howmanydays, $year);
 
     // how far can a thing be, to fit the location filter?
     // a crude approximation presuming 1 degree = 60 miles, so 0.16=10 miles

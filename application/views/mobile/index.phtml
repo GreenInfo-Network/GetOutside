@@ -59,7 +59,7 @@
         <input type="hidden" name="lat" />
         <input type="hidden" name="lng" />
 
-        <?= form_dropdown('type', $place_categories) ?>
+        <a data-role="button" href="#page-search-settings">Find an activity</a>
 
         <button name="search-go" data-icon="search" data-iconpos="right" data-theme="b">Search</button>
 
@@ -68,6 +68,57 @@
         <h3 class="center">OR:</h3>
         <button name="search-browse-map" data-icon="map" data-iconpos="right">Browse the Map</button>
     </form>
+</div>
+
+
+<div data-role="page" id="page-search-settings">
+    <div data-role="header" data-position="inline">
+        <a href="#page-search" data-role="button" data-icon="arrow-l">Apply</a>
+        <h2>Search Options</h2>
+    </div>
+
+    <div data-role="collapsible-set" data-theme="a" data-content-theme="b">
+        <div data-role="collapsible">
+            <h2>Activities &amp; Amenities</h2>
+            <div data-role="controlgroup" data-mini="true">
+                <?php foreach ($place_categories as $catid=>$catname) { ?>
+                <label><input type="checkbox" name="category" value="<?= $catid ?>" /> <?= $catname ?></label>
+                <?php } ?>
+            </div>
+        </div>
+        <div data-role="collapsible">
+            <h2>Age</h2>
+            <div data-role="controlgroup" data-mini="true">
+                <label><input type="checkbox" name="agegroup" value="1" /> Infant &amp; Toddler (age 0-2)</label>
+                <label><input type="checkbox" name="agegroup" value="2" /> Pre-School (age 3-4)</label>
+                <label><input type="checkbox" name="agegroup" value="3" /> Youth / Teen (age 6-18)</label>
+                <label><input type="checkbox" name="agegroup" value="4" /> Adult (age 18-54)</label>
+                <label><input type="checkbox" name="agegroup" value="5" /> Senior (55 &amp; up)</label>
+                <label><input type="checkbox" name="agegroup" value="0" /> All Ages</label>
+            </div>
+        </div>
+        <div data-role="collapsible">
+            <h2>Gender</h2>
+            <div data-role="controlgroup" data-mini="true">
+                <label><input type="checkbox" name="gender" value="1" /> Male</label>
+                <label><input type="checkbox" name="gender" value="2" /> Female</label>
+            </div>
+        </div>
+        <div data-role="collapsible">
+            <h2>When</h2>
+            <div data-role="controlgroup" data-mini="true">
+                <label><input type="checkbox" name="eventdays" value="0" /> Today</label>
+                <label><input type="checkbox" name="eventdays" value="6" /> This Week</label>
+                <label><input type="checkbox" name="weekdays" value="1" /> On Mondays</label>
+                <label><input type="checkbox" name="weekdays" value="2" /> On Tuesdays</label>
+                <label><input type="checkbox" name="weekdays" value="3" /> On Wednesdays</label>
+                <label><input type="checkbox" name="weekdays" value="4" /> On Thursdays</label>
+                <label><input type="checkbox" name="weekdays" value="5" /> On Fridays</label>
+                <label><input type="checkbox" name="weekdays" value="6" /> On Saturdays</label>
+                <label><input type="checkbox" name="weekdays" value="7" /> On Sundays</label>
+            </div>
+        </div>
+    </div>
 </div>
 
 
