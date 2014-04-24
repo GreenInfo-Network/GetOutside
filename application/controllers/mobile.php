@@ -53,6 +53,7 @@ public function fetchdata() {
 
     // PREP WORK
     // for event date filtering, today and the next 7 days
+//gda this may be 1 or 7, or 30 but with weekday filters (implemented below)
     $year  = date('Y');
     $month = date('m');
     $day   = date('d');
@@ -70,8 +71,8 @@ public function fetchdata() {
         'events' => array(),
     );
 
-    // PHASE 1a
-    // Places
+    // PHASE 1
+    // Places, with their attendant PlaceActivities (if any)
     $places = new Place();
     $places->get();
     foreach ($places as $place) {
@@ -83,7 +84,7 @@ public function fetchdata() {
         if ($distance_squared > $max_distance_squared) continue;
 
 //gda
-        // keyword filter
+        // keyword filter, implicit by the selected categories being among this Place's multiple Categories
 
         // guess it's a hit!
         $thisone = array();
@@ -94,46 +95,47 @@ public function fetchdata() {
         $thisone['lng']     = (float) $place->longitude;
         $thisone['url']     = site_url("site/place/{$place->id}");
 
-        $thisone['category_names'] = $place->listCategoryNames();
+        // does this Place have any PlaceActivity items associated to it?
+        if ($place->placeactivity->count()) {
+            $thisone['activities'] = array();
+            foreach ($place->placeactivity as $activity) {
+                $thisact = array();
+                $thisact['name'] = $activity->name;
 
+                // what days does this activity happen: string list:   Mon, Wed, Fri
+                $thisact['days'] = array();
+                if ( (integer) $activity->mon ) $thisact['days'][] = 'Mon';
+                if ( (integer) $activity->tue ) $thisact['days'][] = 'Tue';
+                if ( (integer) $activity->wed ) $thisact['days'][] = 'Wed';
+                if ( (integer) $activity->thu ) $thisact['days'][] = 'Thu';
+                if ( (integer) $activity->fri ) $thisact['days'][] = 'Fri';
+                if ( (integer) $activity->sat ) $thisact['days'][] = 'Sat';
+                if ( (integer) $activity->sun ) $thisact['days'][] = 'Sun';
+                $thisact['days'] = implode(", ", $thisact['days'] );
+
+                // make up the start time and end time, converting from the hh:mm:ss format to H:Mam format
+                // trick: the timestamp we generate below, is effectively hh:mm minutes after Jan 1 1970, but we only care about the hours/min/ampm
+//gda this is giving wrong answers, e.g. free lunch is not at 1am
+                $starth    = substr($activity->starttime,0,2);
+                $startm    = substr($activity->starttime,3,2);
+                $endh      = substr($activity->endtime,0,2);
+                $endm      = substr($activity->endtime,3,2);
+                $starttime = 3600*$starth + 60*$startm;
+                $endtime   = 3600*$endh   + 60*$endm;
+                $thisact['start'] = date('g:ia', $starttime );
+                $thisact['end']   = date('g:ia', $endtime   );
+
+                // done, add activity to the list
+                $thisone['activities'][] = $thisact;
+            }
+        }
+
+        // done!
         $output['places'][] = $thisone;
     }
 
-    // PHASE 1b
-    // now Events which have a location; emulate the same structure as Places as merge it right in
-    $events = new EventLocation();
-    $events->get();
-    foreach ($events as $event) {
-        // the time filter: if it doesn't start this week, or ended last week, it's outta here
-        if ($event->event->starts > $filter_time_end or $event->event->ends < $filter_time_start) continue;
-
-        // distance filter
-        $distance_squared = ( ($_POST['lng']-$event->longitude) * ($_POST['lng']-$event->longitude) ) + ( ($_POST['lat']-$event->latitude) * ($_POST['lat']-$event->latitude) );
-        if ($distance_squared > $max_distance_squared) continue;
-
-//gda
-        // keyword filter
-
-        // guess it's a hit!
-        $thisone = array();
-        $thisone['id']       = 'eventlocation-' . $event->id;
-        $thisone['name']     = $event->event->name;
-        $thisone['url']      = $event->event->url;
-        $thisone['desc']     = $event->event->description;
-        $thisone['title']    = $event->title;
-        $thisone['subtitle'] = $event->subtitle;
-        $thisone['lat']      = (float) $event->latitude;
-        $thisone['lng']      = (float) $event->longitude;
-
-        $thisone['category_names'] = array('Event');
-
-        $output['places'][] = $thisone;
-    }
-
-    // PHASE 2a
-    // Events fitting the "next X days" filter defined above
-    // these have no location, but do accept the submitted Categories (erroneously called Activities & Amenities) as a keyword filter
-    $output['events'] = array();
+    // PHASE 2
+    // Events, with their attendant EventLocations (if any)
     $events = new Event();
     $events->get();
     foreach ($events as $event) {
@@ -148,7 +150,6 @@ public function fetchdata() {
         $thisone['id']       = 'event-' . $event->id;
         $thisone['name']     = $event->name;
         $thisone['url']      = $event->url;
-        $thisone['subtitle'] = '';
 
         // fix some damaged URLs; we should add missing http at the driver layer, but...
         if ($thisone['url'] and substr($thisone['url'],0,4) != 'http') $thisone['url'] = 'http://' . $thisone['url'];
@@ -193,59 +194,24 @@ public function fetchdata() {
             }
         }
 
-        // epimetheus: the ending unix timestamp, used for sorting after we have collected all events
-        $thisone['endtime'] = $event->ends;
+        // any EventLocations?
+        if ($event->eventlocation->count()) {
+            $thisone['locations'] = array();
+            foreach ($event->eventlocation as $loc) {
+                $thisloc = array();
+                $thisloc['id']        = 'eventlocation-' . $loc->id;
+                $thisloc['title']     = $loc->title;
+                $thisloc['subtitle']  = $loc->subtitle;
+                $thisloc['lat']       = (float) $loc->latitude;
+                $thisloc['lng']       = (float) $loc->longitude;
 
-        // ready!
+                $thisone['locations'][] = $thisloc;
+            }
+        }
+
+        // done, stick this Event onto the list
         $output['events'][] = $thisone;
     }
-
-    // PHASE 2b
-    // Place Activities, which are "open hours" for a given Place
-    // this means that they clearly have a location, though calculating the dates on which they would happen is interesting cuz they're weekday recurrences
-    // strategy: iterate over the next 7 days, do a PlaceActivity query for activities which have that weekday, add to the list
-    $activities = new PlaceActivity();
-    $year   = date('Y');
-    $month  = date('m');
-    $day    = date('d');
-
-    for($i=0; $i<7; $i++) {
-        $then    = mktime(0, 0, 0, $month, $day+$i, $year);
-        $weekday = strtolower(date('D',$then));
-        $date    = date('D M j', $then);
-
-        $activities->where($weekday,1)->get();
-        foreach ($activities as $activity) {
-            $thisone = array();
-            $thisone['id']          = 'placeactivity-' . $activity->id;
-            $thisone['name']        = $activity->name;
-            $thisone['subtitle']    = $activity->place->name;
-            $thisone['lat']         = (float) $activity->place->latitude;
-            $thisone['lng']         = (float) $activity->place->longitude;
-
-            // make up the start time and end time, from the xx:xx:xx format to H:Mam format
-            $starth    = substr($activity->starttime,0,2);
-            $startm    = substr($activity->starttime,3,2);
-            $endh      = substr($activity->endtime,0,2);
-            $endm      = substr($activity->endtime,3,2);
-            $starttime = $then + 3600*$starth + 60*$startm;
-            $endtime   = $then + 3600*$endh   + 60*$endm;
-            $start     = date('g:ia', $starttime );
-            $end       = date('g:ia', $endtime   );
-            $thisone['datetime'] = sprintf("%s %s - %s", $i ? $date : 'Today', $start, $end );
-
-            // epimetheus: the ending unix timestamp, used for sorting after we have collected all events
-            $thisone['endtime'] = $endtime;
-
-            // ready!
-            $output['events'][] = $thisone;
-        }
-    }
-
-    // CLEANUP PHASE
-    // sort the Events by their ending date cuz they come from 2 separate lists
-    // turns out that removing this unwanted field before sending to the browser, is slightly more intensive than just letting it download, so leave it
-    usort($output['events'],create_function('$p,$q','return $p["endtime"] < $q["endtime"] ? -1 : 1;'));
 
     // done!
     header('Content-type: application/json');

@@ -395,7 +395,7 @@ function renderPlacesMap() {
         var lng  = items[i].lng;
         var name = items[i].name;
 
-        var html  = '<h2>' + items[i].name + '</h2>';
+        var html  = '<h3>' + items[i].name + '</h3>';
             html += items[i].desc;
         if (items[i].url) {
             html += '<p><a target="_blank" href="'+items[i].url+'">More Info</a></p>';
@@ -406,18 +406,26 @@ function renderPlacesMap() {
 }
 
 function renderEventsMap() {
-    var items = $('#page-search-results-events-list').data('rawresults');
+    var events = $('#page-search-results-events-list').data('rawresults');
 
-    for (var i=0, l=items.length; i<l; i++) {
-        var lat  = items[i].lat;
-        var lng  = items[i].lng;
-        var name = items[i].name;
-        if (! lat || ! lng) continue; // only PlaceActivity items would have lat/lng and thus location
+    for (var ei=0, el=events.length; ei<el; ei++) {
+        if (! events[ei].locations) continue;
 
-        var html  = '<h2>' + items[i].subtitle + '</h2>';
-            html += items[i].name;
+        for (var li=0, ll=events[ei].locations.length; li<ll; li++) {
+            var loc     = events[ei].locations[li];
+            var lat     = loc.lat;
+            var lng     = loc.lng;
+            var place   = loc.title;
+            var address = loc.subtitle;
+            var evname  = events[ei].name;
 
-        L.marker([lat,lng], { title:name, attributes:items[i] }).bindPopup(html).addTo(MARKERS);
+            var html  = '<h3>' + evname + '</h3>';
+                html += place;
+                html += '<br/>';
+                html += address;
+
+            L.marker([lat,lng], { title:name, attributes:loc }).bindPopup(html).addTo(MARKERS);
+        }
     }
 }
 
@@ -436,13 +444,30 @@ function renderPlacesList() {
         var item = items[i];
         var li   = $('<li></li>').data('rawresult',item).appendTo($target);
 
-        var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
-        var categories = item.category_names.join(", ");
-        $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
-        $('<div></div>').addClass('ui-li-desc').text(categories).appendTo(label);
-        $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
+        // if this Place has activities, create a inset listview
+        if (item.activities) {
+            var label = $('<h2></h2>').text(item.name).appendTo(li);
+            $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
 
-        // tap/click handler -- zoom to this location on the map
+            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(li);
+            for (var ai=0, al=item.activities.length; ai<al; ai++) {
+                var actname  = item.activities[ai].name;
+                var actstart = item.activities[ai].start;
+                var actend   = item.activities[ai].end;
+                var actdays  = item.activities[ai].days;
+
+                var line1 = $('<div></div>').addClass('ui-btn-text').text(actname);
+                var line2 = $('<div></div>').addClass('ui-btn-text').text(actstart + ' - ' + actend);
+                var line3 = $('<div></div>').addClass('ui-btn-text').text(actdays);
+                $('<li></li>').append(line1).append(line2).append(line3).appendTo(sublist);
+            }
+        } else {
+            var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
+            $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
+            $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
+        }
+
+        // click handler: zoom to this marker on the map
         li.tap(function () {
             var latlng = L.latLng([ $(this).data('rawresult').lat, $(this).data('rawresult').lng ]);
             var markid = $(this).data('rawresult').id;
@@ -455,6 +480,7 @@ function renderPlacesList() {
     }
 
     $target.listview('refresh');
+    $target.find('ul').listview();
 }
 
 function renderEventsList() {
@@ -474,36 +500,44 @@ function renderEventsList() {
 
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
         $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
-        $('<div></div>').addClass('ui-li-desc').html(item.subtitle ? item.subtitle : '&nbsp;').appendTo(label);
         $('<div></div>').addClass('ui-li-desc').text(item.datetime).appendTo(label);
-        if (item.lat && item.lng) {
-            // the distance & bearing aren't loaded yet; see onLocationFound() but we know that this item should have one
-            $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label);
-        }
 
-        // now the tap/click handler: if there's an URL then visit it
-        // otherwise see if we can zoom on the map
         if (item.url) {
-            li.tap(function () {
-                var url = $(this).data('rawresult').url;
-                if (! url) return;
-                window.open(url);
-            });
-        } else if (item.lat && item.lng) {
-            li.tap(function () {
-                var markid = $(this).data('rawresult').id;
-                var latlng = L.latLng([ $(this).data('rawresult').lat, $(this).data('rawresult').lng ]);
-                switchToMap(function () {
-                    zoomToPoint(latlng);
-                    var marker = getMarkerById(markid);
-                    if (marker) marker.openPopup();
-                });
-            });
+            var link = $('<a></a>').prop('target','_blank').prop('href',item.url).html('More Info');
+            $('<div></div>').addClass('ui-li-desc').append(link).appendTo(label);
         }
 
+        // if this Event has locations, create a inset listview
+        // each entry showing the location by name; clicking it goes to the map
+        if (item.locations) {
+            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(li);
+            for (var ai=0, al=item.locations.length; ai<al; ai++) {
+                var markerid    = item.locations[ai].id;
+                var loctitle    = item.locations[ai].title;
+                var locsubtitle = item.locations[ai].subtitle;
+                var loclat      = item.locations[ai].lat;
+                var loclng      = item.locations[ai].lng;
+
+                var link     = $('<a></a>').addClass('maplink').prop('href','javascript:void(0);').html(loctitle + '<br/>' + locsubtitle).data('markerid',markerid).data('lat',loclat).data('lng',loclng);
+                var dislabel = $('<span></span>').addClass('ui-li-count').css({ 'top':'50%' }).text(' ').appendTo(label); // ignores CSS in files, must add it here
+                $('<li></li>').attr('data-icon','map').attr('data-iconpos','left').append(link).append(dislabel).appendTo(sublist);
+
+                link.tap(function () {
+                    var markid = $(this).data('markerid');
+                    var latlng = L.latLng([ $(this).data('lat'), $(this).data('lng') ]);
+                    switchToMap(function () {
+                        zoomToPoint(latlng);
+                        var marker = getMarkerById(markid);
+                        if (marker) marker.openPopup();
+                    });
+                });
+            }
+        }
     }
 
     $target.listview('refresh');
+    $target.find('ul').listview();
+    $target.find('a.maplink').removeClass('ui-btn-icon-right').addClass('ui-btn-icon-left'); // hack: JQM forces the icons to right, ignoring my data-iconpos
 }
 
 function updateEventsAndPlacesDistanceReadouts() {

@@ -42,3 +42,11 @@ a {
 .ui-li-heading {
     font-weight:bold;
 }
+.ui-li-count {
+    top:1.5em;
+}
+
+#page-search-results-events-list a { /* JQM fix for this listview, since we want them to have icons, icons mean links, links mean larger, bold text, ... */
+    font-weight:normal !important;
+    font-size:10pt !important;
+}
