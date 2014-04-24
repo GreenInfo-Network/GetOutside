@@ -51,11 +51,11 @@ public function fetchdata() {
     // validation can be somewhat terse; there's no way these params would be omitted by the app using this endpoint
     $_POST['lat'] = (float) @$_POST['lat']; if (! $_POST['lat']) return print "Missing param: lat";
     $_POST['lng'] = (float) @$_POST['lng']; if (! $_POST['lng']) return print "Missing param: lng";
+    if (! in_array(@$_POST['eventdays'],array('30','6','0'))) return print "Missing or invalid value for param: eventdays";
 
     // PREP WORK
     // for event date filtering, today and the next 7 days
-    $howmanydays = 30; // default to a month if they didn't say
-    if (in_array(@$_POST['eventdays'],array('6','0'))) $howmanydays = (integer) $_POST['eventdays'];
+    $howmanydays = (integer) $_POST['eventdays'];
     $year  = date('Y');
     $month = date('m');
     $day   = date('d');
@@ -157,6 +157,12 @@ public function fetchdata() {
         $events->or_group_start();
         foreach ($_POST['weekdays'] as $wday) $events->where($wday,1);
         $events->group_end();
+    }
+    if (is_array(@$_POST['agegroup'])) {
+        $events->where_in('audience_age',$_POST['agegroup']);
+    }
+    if (is_array(@$_POST['gender'])) {
+        $events->where_in('audience_gender',$_POST['gender']);
     }
     $events->get();
     foreach ($events as $event) {
