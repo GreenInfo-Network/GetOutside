@@ -46,7 +46,7 @@ a {
     top:1.5em;
 }
 
-.ui-btn.ui-corner-all {
+div.ui-header .ui-btn.ui-corner-all {
     border-radius:20px;
     padding-bottom: 0.5em;
 }
