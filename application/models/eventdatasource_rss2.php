@@ -89,7 +89,7 @@ public function reloadContent() {
         $event->eventdatasource_id  = $this->id;
         $event->remoteid            = $guid;
         $event->url                 = (string) $entry->link;
-        $event->name                = substr($name, 0, 50);
+        $event->name                = substr($name, 0, 100);
         $event->description         = (string) $entry->content;
         $event->allday              = 1; // RSS 2 lacks times, all we get is a pub date, so assume it's All Day
 

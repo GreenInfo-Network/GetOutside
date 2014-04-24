@@ -91,7 +91,7 @@ public function reloadContent() {
         $event->remoteid            = $entry->assetGuid;
         $event->starts              = strtotime($entry->activityStartDate); // Unix timestamp
         $event->ends                = strtotime($entry->activityEndDate); // Unix timestamp
-        $event->name                = substr($entry->assetName,0,50);
+        $event->name                = substr($entry->assetName,0,100);
         $event->url                 = $url;
         $event->description         = (string) @$entry->assetDescriptions[0]->description;
 

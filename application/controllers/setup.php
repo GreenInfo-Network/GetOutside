@@ -64,7 +64,7 @@ public function index() {
             id INTEGER AUTO_INCREMENT NOT NULL,
             eventdatasource_id INTEGER UNSIGNED NOT NULL,
             remoteid varchar(100),
-            name varchar(50) NOT NULL,
+            name varchar(100) NOT NULL,
             address varchar(100) NOT NULL DEFAULT '',
             description text NOT NULL DEFAULT '',
             allday BOOLEAN NOT NULL DEFAULT false,

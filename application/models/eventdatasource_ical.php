@@ -64,7 +64,7 @@ public function reloadContent() {
     $failed  = 0;
     foreach ($ical->events() as $entry) {
         $uid    = @$entry['UID'];
-        $name   = substr(@$entry['SUMMARY'], 0, 50);
+        $name   = substr(@$entry['SUMMARY'], 0, 100);
         $start  = @$entry['DTSTART'];
         $end    = @$entry['DTEND']; if (! $end) $end = $start;
 

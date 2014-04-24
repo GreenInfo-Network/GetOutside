@@ -80,7 +80,7 @@ public function reloadContent() {
         $event = new Event();
         $event->eventdatasource_id  = $this->id;
         $event->remoteid            = substr( (string) $entry->id, 0, 250);
-        $event->name                = substr( (string) $entry->title, 0, 50);
+        $event->name                = substr( (string) $entry->title, 0, 100);
         $event->description         = (string) $entry->content;
     
         // find the last link that's a HTML link, that's our event's more info page (well, Google's rendition of it)
