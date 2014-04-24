@@ -144,24 +144,66 @@ function initSearchForms() {
 
     // Search Settings has this weekdays selector, as well as an option for Today vs Upcoming Week
     // spec is for these to be checkboxes,though they act kinda like radioboxes (kinda)
+// in no case may none of them be checked; if that happens select the One Week option
     // and THIS is why something elegant like Angular just doesn't cut it; we end up doing intricate DOM manipulation anyway...
-    var weekdaypickers = $('#page-search-settings input[name="weekday"]');
+    var weekdaypickers    = $('#page-search-settings input[name="weekday"]');
     var howmanydaypickers = $('#page-search-settings input[name="eventdays"]');
     weekdaypickers.change(function () {
         if ( $(this).is(':checked') ) {
             howmanydaypickers.removeAttr('checked').checkboxradio('refresh');
+        } else {
+            // none checked at all from the two lists? check a default
+            if (! $('#page-search-settings input[name="weekday"]:checked').length && ! $('#page-search-settings input[name="eventdays"]:checked').length) {
+                $('#page-search-settings input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
+            }
         }
     });
     howmanydaypickers.change(function () {
         if ( $(this).is(':checked') ) {
             weekdaypickers.removeAttr('checked').checkboxradio('refresh');
             howmanydaypickers.not( $(this) ).removeAttr('checked').checkboxradio('refresh');
+        } else {
+            // none checked at all from the two lists? check a default
+            if (! $('#page-search-settings input[name="weekday"]:checked').length && ! $('#page-search-settings input[name="eventdays"]:checked').length) {
+                $('#page-search-settings input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
+            }
+        }
+    });
+
+    // Search Settings has an Age selector, which allows multiple selections UNLESS they pick All Ages (0) in which case it must unselect the others
+    // and in no case must none of them be checked; if none are checked check the one by default
+    $('#page-search-settings input[name="agegroup"][value="0"]').change(function () {
+        if ( $(this).is(':checked')) {
+            $('#page-search-settings input[name="agegroup"]').not($(this)).removeAttr('checked').checkboxradio('refresh');
+        }
+    });
+    $('#page-search-settings input[name="agegroup"][value!="0"]').change(function () {
+        if ( $(this).is(':checked')) {
+            $('#page-search-settings input[name="agegroup"][value="0"]').removeAttr('checked').checkboxradio('refresh');
+        }
+    });
+    $('#page-search-settings input[name="agegroup"]').change(function () {
+        if (! $('#page-search-settings input[name="agegroup"]:checked').length) {
+            $('#page-search-settings input[name="agegroup"][value="0"]').prop('checked',true).checkboxradio('refresh');
+        }
+    });
+
+    // Search Settings has an Gender selector, which allows only one selection like a radiobox, but spec is that it must be checkboxes...
+    // never allow none of them to be checked; if that happens, select the default (0)
+    $('#page-search-settings input[name="gender"]').change(function () {
+        $('#page-search-settings input[name="gender"]').not($(this)).removeAttr('checked').checkboxradio('refresh');
+
+        if (! $(this).is(':checked') && ! $('#page-search-settings input[name="gender"]:checked').length ) {
+            $('#page-search-settings input[name="gender"][value="0"]').prop('checked',true).checkboxradio('refresh');
         }
     });
 
     // and since Firefox loves to cache controls (checkboxes)
-    // explicitly uncheck all checkboxes in the search setttings
+    // explicitly uncheck all checkboxes in the search setttings,, then set these defaults
     $('#page-search-settings input[type="checkbox"]').removeAttr('checked').checkboxradio('refresh');
+    $('#page-search-settings input[name="agegroup"][value="0"]').prop('checked',true).checkboxradio('refresh');
+    $('#page-search-settings input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
+    $('#page-search-settings input[name="gender"][value="0"]').prop('checked',true).checkboxradio('refresh');
 
     // trigger a rendering of Nothing Found at this time, as if a search had been performed
     // this populates the Results panel, which someone could find via the Map panel having not done a search
