@@ -142,12 +142,6 @@ function initSearchForms() {
         }
     }).val('gps').trigger('change');
 
-    // jQuery Mobile bug workaround: when changing pages, tabs won't keep their previous selected state
-    // so when we go to Search Results, switch to Places so we're switched to SOMETHING
-    $(document).on('pageshow', '#page-search-results', function(){
-        $(this).find('div[data-role="navbar"] li a').first().click();
-    });
-
     // Search Settings has this weekdays selector, as well as an option for Today vs Upcoming Week
     // spec is for these to be checkboxes,though they act kinda like radioboxes (kinda)
     // and THIS is why something elegant like Angular just doesn't cut it; we end up doing intricate DOM manipulation anyway...
@@ -364,7 +358,7 @@ function performSearchReally() {
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
     $.post(BASE_URL + 'mobile/fetchdata', params, function (reply) {
         $.mobile.loading('hide');
-        $.mobile.changePage('#page-search-results');
+        $.mobile.changePage('#page-search-results-places');
         performSearchHandleResults(reply);
     }, 'json');
 }

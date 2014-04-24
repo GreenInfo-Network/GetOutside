@@ -34,6 +34,41 @@ a {
 }
 
 
+
+/*** NAVBARS on the search results page, custom grid stuff here ***/
+
+.search-results-navbar {
+    
+}
+.search-results-navbar div {
+    background-color:black;
+
+    height:2.5em;
+
+    text-align:center;
+    vertical-align:middle;
+
+    border-right:1px solid white;
+}
+.search-results-navbar div:last-child {
+    border-right:0 none transparent;
+}
+.search-results-navbar a {
+    color:white !important;
+    text-shadow:none;
+
+    display:inline-block;
+}
+.search-results-navbar div:first-child {
+    line-height:2.5em;
+}
+
+.search-results-navbar div.active {
+    background-color: #0083CC;
+}
+.search-results-navbar div.active a {
+}
+
 /*** JQUERY FIXES ***/
 
 .ui-listview > .ui-li-static, .ui-listview > .ui-li-divider, .ui-listview > li > a.ui-btn {
