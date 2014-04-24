@@ -580,18 +580,15 @@ function updateEventsAndPlacesDistanceReadouts() {
 
     // part 1
     // Events list gets distance and bearing... for anything which in fact has a lat & lon
+    // unlike the Places, a small minority of Event entries will have Places, so it's more efficient to iterate over the distance readout elements and then find the containing listview LIs for the event and location
     var $target   = $('#page-search-results-events-list');
-    var $children = $target.children('li');
-    $children.each(function () {
-        // no lat & lon? then the distance is "No location" and we skip it
-        var raw = $(this).data('rawresult');
-        if (!raw) return; // e.g. page startup when nothing has been found, only LI is "Nothing to show"
-        if (!raw.lat || !raw.lng) return; // no location? move on
-
+    var $readouts = $target.find('span.ui-li-count');
+    $readouts.each(function () {
         // construct a L.LatLng and use our handy functions for distance and bearing, relative to our last search location
-        var latlng    = L.latLng([ raw.lat,raw.lng ]);
-        var meters    = origin.distanceTo(latlng);
-        var direction = origin.bearingWordTo(latlng);
+        var eventlocation = $(this).siblings('a');
+        var latlng       =  L.latLng([ eventlocation.data('lat'),eventlocation.data('lng') ]);
+        var meters        = origin.distanceTo(latlng);
+        var direction     = origin.bearingWordTo(latlng);
         var readout;
         switch (DISTANCE_UNITS) {
             case 'mi':
@@ -603,7 +600,7 @@ function updateEventsAndPlacesDistanceReadouts() {
         }
 
         // load the text field
-        $(this).find('span.ui-li-count').text(readout);
+        $(this).text(readout);
 
         // unlike Places we don't sort by distance cuz they're sorted by ending time
         // so we're done here
@@ -615,7 +612,7 @@ function updateEventsAndPlacesDistanceReadouts() {
     var $children = $target.children('li');
     $children.each(function () {
         var raw = $(this).data('rawresult');
-        if (! raw) return; // e.g. page startup when nothing has been found, only LI is "Nothing to show"
+        if (! raw) return; // e.g. page startup when nothing has been found, the only LI is "Nothing to show" and that won't have a location readout
 
         // construct a L.LatLng and use our handy functions for distance and bearing, relative to our last search location
         var latlng    = L.latLng([ raw.lat,raw.lng ]);
