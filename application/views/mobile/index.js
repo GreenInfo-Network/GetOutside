@@ -329,6 +329,7 @@ function performSearchReally() {
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
     $.post(BASE_URL + 'mobile/fetchdata', params, function (reply) {
         $.mobile.loading('hide');
+        $.mobile.changePage('#page-search-results');
         performSearchHandleResults(reply);
     }, 'json');
 }
@@ -379,9 +380,6 @@ function performSearchHandleResults(reply) {
     renderEventsMap();
     renderPlacesMap();
     renderPlacesList();
-
-    // ... then show the results
-    $.mobile.changePage('#page-search-results');
 
     // epimetheus: same as onLocationFound() does, update distance and bearing listings for Places and Events
     updateEventsAndPlacesDistanceReadouts();
