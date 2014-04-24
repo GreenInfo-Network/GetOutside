@@ -42,11 +42,11 @@ public function index() {
 // this AJAX endpoint is used for searching, it is THE search endpoint. Params include:
 // lat          float, required, the latitude on which to center the search
 // lng          float, required, the latitude on which to center the search
-// eventdays    integer, optional, optional, gda
-// gender       multiple integers, optional, gda
-// agegroup     multiple integers, optional, gda
-// category     multiple integers, optional, gda
-// weekdays     multiple integers, optional, gda
+// eventdays    integer, optional, optional, for events look this many days into the future. must be one of the specific entries below
+// categoryies  multiple integers, optional, for places this checks that the place has this CategoryID# assigned, for events this is a keyword filter for the event name & description
+// gender       multiple integers, optional, for events check that this Gender is listed as an intended audience
+// agegroup     multiple integers, optional, for events check that this Age Group is listed as an intended audience
+// weekdays     multiple integers, optional, for events check that the event would fall upon this weekday (1=Monday, 7=Sunday)
 public function fetchdata() {
     // validation can be somewhat terse; there's no way these params would be omitted by the app using this endpoint
     $_POST['lat'] = (float) @$_POST['lat']; if (! $_POST['lat']) return print "Missing param: lat";
