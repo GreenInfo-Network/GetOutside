@@ -288,7 +288,15 @@ function onLocationError(error) {
 }
 
 function performBrowseMap() {
-    // gda: fetch All markers, I guess?
+    // clear reset all search options, set to GPS mode, and submit the search
+    // with the option to (after results had) proceed to the Map panel instead of the Results panel
+    $('#page-search-settings input[type="checkbox"]').removeAttr('checked').checkboxradio('refresh');
+
+    var latlng = LOCATION.getLatLng();
+    $('#page-search select[name="location"]').val('gps');
+    $('#page-search input[name="lat"]').val(latlng.lat);
+    $('#page-search input[name="lng"]').val(latlng.lng);
+    performSearchReally({ 'afterpage':'#page-map' });
 
     // now switch to the map and zoom to either the whole area (if we have no LOCATION known) or else to our own area (if we do have LOCATION)
     switchToMap(function () {
@@ -338,7 +346,11 @@ function performSearch() {
     }
 }
 
-function performSearchReally() {
+function performSearchReally(options) {
+    // options? surprise! Browse Map should perform a search but should then go to Map instead of Results
+    //      afterpage       jQuery UI selector for a page element, will go to that page after search is done
+    if (typeof options == 'undefined') options = { 'afterpage':'#page-search-results-places' };
+
     // compose params, including both the form itself (simple address) and the Settings (checkboxes from a different page)
     // this is why we can't use serialize()
     var params = {};
@@ -358,7 +370,7 @@ function performSearchReally() {
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
     $.post(BASE_URL + 'mobile/fetchdata', params, function (reply) {
         $.mobile.loading('hide');
-        $.mobile.changePage('#page-search-results-places');
+        $.mobile.changePage(options.afterpage);
         performSearchHandleResults(reply);
     }, 'json');
 }
