@@ -435,7 +435,7 @@ function renderPlacesList() {
 
     // bail condition: 0 items means we need to display only 1 item: Nothing Found
     if (! items.length) {
-        $('<li></li>').html('No places matched your filters.<br/>Use the Find button below, to search for places and events.').appendTo($target);
+        $('<li></li>').html('No places matched your search.<br/>Use the Find button below, to search for places and events.').appendTo($target);
         $target.listview('refresh');
         return;
     }
@@ -489,7 +489,7 @@ function renderEventsList() {
 
     // bail condition: 0 items means we need to display only 1 item: Nothing Found
     if (! items.length) {
-        $('<li></li>').html('No events matched your filters.<br/>Use the Find button below, to search for places and events.').appendTo($target);
+        $('<li></li>').html('No events matched your search.<br/>Use the Find button below, to search for places and events.').appendTo($target);
         $target.listview('refresh');
         return;
     }
