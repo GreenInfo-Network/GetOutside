@@ -102,7 +102,7 @@ function resizeMap() {
 function switchToMap(callback) {
     $.mobile.changePage('#page-map');
     if (callback) setTimeout(callback,500);
-    setTimeout(resizeMap,600);
+    setTimeout(resizeMap,750);
 }
 
 
@@ -303,10 +303,11 @@ function performBrowseMap() {
     $('#page-search select[name="location"]').val('gps');
     $('#page-search input[name="lat"]').val(latlng.lat);
     $('#page-search input[name="lng"]').val(latlng.lng);
-    performSearchReally({ 'afterpage':'#page-map' });
 
     // now switch to the map and zoom to either the whole area (if we have no LOCATION known) or else to our own area (if we do have LOCATION)
     switchToMap(function () {
+        performSearchReally({ 'afterpage':'#page-map' });
+
         var has = LOCATION.getLatLng().lat;
         if (has) {
             zoomToCurrentLocation();
