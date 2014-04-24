@@ -241,6 +241,14 @@ function onLocationFound(event) {
 
     // update distance and bearing listings for Places and Events
     updateEventsAndPlacesDistanceReadouts();
+
+    // on the Map and Search pages, there are notifications that they're outside the supported area
+    // show/hide these, depending on whether they're in the supported area
+    if (MAX_EXTENT.contains(event.latlng) ) {
+        $('.outside_area').hide();
+    } else {
+        $('.outside_area').show();
+    }
 }
 
 function autoCenterToggle() {

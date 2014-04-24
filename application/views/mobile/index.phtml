@@ -50,6 +50,12 @@
             <img src="<?= site_url() ?>/application/views/mobile/mobile-logo.png" />
         </div>
 
+        <div class="outside_area" id="search-outsidearea">
+            You seem to be outside the supported area.
+            <br/>
+            Using <i>My current location</i> may result in no matches.
+        </div>
+
         <h3 class="center">Find Parks and Recreation Near:</h3>
         <select name="location">
             <option value="gps">My current location</option>
@@ -165,7 +171,13 @@
 
 <div data-role="page" id="page-map">
     <div>
-        <div id="map_canvas"></div>
+        <div id="map_canvas">
+            <div class="outside_area" id="map-outsidearea">
+                You seem to be outside
+                <br/>
+                of the supported area.
+            </div>
+        </div>
 
         <div data-role="panel" id="panel-map-settings" data-position="right" data-display="overlay">
             <h2 style="margin:0;">
