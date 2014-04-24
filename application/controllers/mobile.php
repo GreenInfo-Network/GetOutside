@@ -119,13 +119,12 @@ public function fetchdata() {
 
                 // make up the start time and end time, converting from the hh:mm:ss format to H:Mam format
                 // trick: the timestamp we generate below, is effectively hh:mm minutes after Jan 1 1970, but we only care about the hours/min/ampm
-//gda this is giving wrong answers, e.g. free lunch is not at 1am
                 $starth    = substr($activity->starttime,0,2);
                 $startm    = substr($activity->starttime,3,2);
                 $endh      = substr($activity->endtime,0,2);
                 $endm      = substr($activity->endtime,3,2);
-                $starttime = 3600*$starth + 60*$startm;
-                $endtime   = 3600*$endh   + 60*$endm;
+                $starttime = $filter_time_start + 3600*$starth + 60*$startm;
+                $endtime   = $filter_time_start + 3600*$endh   + 60*$endm;
                 $thisact['start'] = date('g:ia', $starttime );
                 $thisact['end']   = date('g:ia', $endtime   );
 
