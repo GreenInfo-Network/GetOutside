@@ -119,8 +119,20 @@ public function reloadContent() {
             $event->allday = 1;
             $event->ends  -= 1;
         }
-        $event->save();
 
+        // now, figure out what weekdays intersect this event's duration; sat  sun  mon  ...
+        // these are used to quickly search for "events on a Saturday"
+        $event->mon = $event->tue = $event->wed = $event->thu = $event->fri = $event->sat = $event->sun = 0;
+        for ($thistime=$event->starts; $thistime<$event->ends; $thistime+=86400) {
+            $wday = strtolower(date('D',$thistime));
+            $event->{$wday} = 1;
+
+            // tip: if all 7 days are a Yes by now, just skip the rest
+            if ($event->mon and $event->tue and $event->wed and $event->thu and $event->fri and $event->sat and $event->sun) break;
+        }
+
+        // ready!
+        $event->save();
         $howmany++;
     }
 

@@ -97,10 +97,17 @@ public function reloadContent() {
         }
 
         // the publish/update time given is (presumably) the starting time and there is no concept of an ending time
-        // we just punt, call it one minute in length and let it go
+        // we just punt, call it one hour in length and let it go
         $event->starts = strtotime($when); // Unix timestamp
-        $event->ends   = $event->starts + 60;
+        $event->ends   = $event->starts + 3600;
 
+        // now, figure out what weekdays intersect this event's duration; sat  sun  mon  ...
+        // these are used to quickly search for "events on a Saturday"
+        // in this case we don't have an end time, we presume it's one hour on one day, so we figure up the DoW from that one day
+        $wday = strtolower(date('D',$event->starts));
+        $event->{$wday} = 1;
+
+        // ready!
         $event->save();
         $success++;
     }

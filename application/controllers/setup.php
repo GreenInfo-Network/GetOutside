@@ -71,6 +71,13 @@ public function index() {
             starts INTEGER UNSIGNED NOT NULL,
             ends INTEGER UNSIGNED NOT NULL,
             url VARCHAR(500),
+            mon BOOLEAN NOT NULL DEFAULT false,
+            tue BOOLEAN NOT NULL DEFAULT false,
+            wed BOOLEAN NOT NULL DEFAULT false,
+            thu BOOLEAN NOT NULL DEFAULT false,
+            fri BOOLEAN NOT NULL DEFAULT false,
+            sat BOOLEAN NOT NULL DEFAULT false,
+            sun BOOLEAN NOT NULL DEFAULT false,
             PRIMARY KEY (id),
             KEY datasource_id_idx (eventdatasource_id)
         )

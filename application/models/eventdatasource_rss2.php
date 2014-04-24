@@ -105,6 +105,13 @@ public function reloadContent() {
         $event->starts = mktime( 0,  0,  0, $month, $day, $year); // Unix timestamp
         $event->ends   = mktime(23, 59, 59, $month, $day, $year); // Unix timestamp
 
+        // now, figure out what weekdays intersect this event's duration; sat  sun  mon  ...
+        // these are used to quickly search for "events on a Saturday"
+        // in this case it's an all-day event on one specific day, so we figure up the DoW from that one day
+        $wday = strtolower(date('D',$event->starts));
+        $event->{$wday} = 1;
+
+        // ready!
         $event->save();
         $success++;
     }
