@@ -200,7 +200,7 @@ function initMap() {
     // set up the event handler when our location is detected, and start continuous tracking
     // loose binding with an anonymous function, for easier debugging (can replace the function in the console)
     MAP.on('locationfound', function (event) { onLocationFound(event); });
-    MAP.on('locationerror', function (error) { onLocationError(error); });
+    //MAP.on('locationerror', function (error) { onLocationError(error); });
     MAP.locate({ enableHighAccuracy:true, watch:true });
 
     // add some Controls, including our custom ones which are simply buttons; we use a Control so Leaflet will position and style them
@@ -284,7 +284,6 @@ function zoomToMaxExtent() {
 }
 
 function onLocationError(error) {
-    //gda show warnings on map and search panel?
 }
 
 function performBrowseMap() {
