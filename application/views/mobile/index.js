@@ -351,9 +351,11 @@ function performSearchReally() {
     params.lat          = $('#page-search input[name="lat"]').val();
     params.lng          = $('#page-search input[name="lng"]').val();
     params.eventdays    = $('#page-search-settings input[name="eventdays"]:checked').val();
+    params.categories   = [];
     params.weekdays     = [];
     params.gender       = [];
     params.agegroup     = [];
+    $('#page-search-settings input[name="categories"]:checked').each(function () { params.categories.push($(this).prop('value')); });
     $('#page-search-settings input[name="weekdays"]:checked').each(function () { params.weekdays.push($(this).prop('value')); });
     $('#page-search-settings input[name="gender"]:checked').each(function () { params.gender.push($(this).prop('value')); });
     $('#page-search-settings input[name="agegroup"]:checked').each(function () { params.agegroup.push($(this).prop('value')); });
