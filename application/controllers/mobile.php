@@ -103,6 +103,7 @@ public function fetchdata() {
                 $thisact['name'] = $activity->name;
 
                 // what days does this activity happen: string list:   Mon, Wed, Fri
+                // usually a list, but then some tricks at the end to make Weekdays or Daily if it fits some known lists
                 $thisact['days'] = array();
                 if ( (integer) $activity->mon ) $thisact['days'][] = 'Mon';
                 if ( (integer) $activity->tue ) $thisact['days'][] = 'Tue';
@@ -112,6 +113,9 @@ public function fetchdata() {
                 if ( (integer) $activity->sat ) $thisact['days'][] = 'Sat';
                 if ( (integer) $activity->sun ) $thisact['days'][] = 'Sun';
                 $thisact['days'] = implode(", ", $thisact['days'] );
+                if ($thisact['days'] == 'Sat, Sun')                             $thisact['days'] = 'Weekends';
+                if ($thisact['days'] == 'Mon, Tue, Wed, Thu, Fri')              $thisact['days'] = 'Weekdays';
+                if ($thisact['days'] == 'Mon, Tue, Wed, Thu, Fri, Sat, Sun')    $thisact['days'] = 'Daily';
 
                 // make up the start time and end time, converting from the hh:mm:ss format to H:Mam format
                 // trick: the timestamp we generate below, is effectively hh:mm minutes after Jan 1 1970, but we only care about the hours/min/ampm
