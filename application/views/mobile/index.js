@@ -276,6 +276,17 @@ function onLocationFound(event) {
     LOCATION.setLatLng(event.latlng);
     ACCURACY.setLatLng(event.latlng).setRadius(event.accuracy);
 
+    // on the Map and Search pages, there are notifications that they're outside the supported area; show/hide these, depending on whether they're in the supported area
+    // also if they're outside, turn off auto-centering and zoom to the max extent
+    if (MAX_EXTENT.contains(event.latlng) ) {
+        $('.outside_area').hide();
+    } else {
+        $('.outside_area').show();
+        MAP.fitBounds(MAX_EXTENT);
+        autoCenterOff();
+    }
+
+    // then re-center onto the new location, if we have auto-centering enabled
     if (AUTO_RECENTER) {
         MAP.panTo(event.latlng);
         if (MAP.getZoom() < 14) MAP.setZoom(14);
@@ -283,14 +294,6 @@ function onLocationFound(event) {
 
     // update distance and bearing listings for Places and Events
     updateEventsAndPlacesDistanceReadouts();
-
-    // on the Map and Search pages, there are notifications that they're outside the supported area
-    // show/hide these, depending on whether they're in the supported area
-    if (MAX_EXTENT.contains(event.latlng) ) {
-        $('.outside_area').hide();
-    } else {
-        $('.outside_area').show();
-    }
 }
 
 function autoCenterToggle() {
