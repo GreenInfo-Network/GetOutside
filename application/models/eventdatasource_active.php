@@ -109,6 +109,21 @@ public function reloadContent() {
             if ($event->mon and $event->tue and $event->wed and $event->thu and $event->fri and $event->sat and $event->sun) break;
         }
 
+        // Gender requirements?   Active.com API has regReqGenderCd which may be M F or blank
+        // blank in all cases I've ever seen to date, so this is based on asking tech support...
+        // see mobile/index.phtml for the official list of coded values AND BE AWARE THAT MySQL forces these to be STRINGS AND NOT NUMBERS
+        switch ($entry->regReqGenderCd) {
+            case 'M':
+                $event->audience_gender = '1';
+                break;
+            case 'F':
+                $event->audience_gender = '2';
+                break;
+            default:
+                $event->audience_gender = '0';
+                break;
+        }
+
         // ready!
         $event->save();
         $success++;
