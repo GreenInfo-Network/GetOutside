@@ -144,7 +144,7 @@ function initSearchForms() {
 
     // Search Settings has this weekdays selector, as well as an option for Today vs Upcoming Week
     // spec is for these to be checkboxes,though they act kinda like radioboxes (kinda)
-// in no case may none of them be checked; if that happens select the One Week option
+    // in no case may none of them be checked; if that happens select the One Week option
     // and THIS is why something elegant like Angular just doesn't cut it; we end up doing intricate DOM manipulation anyway...
     var weekdaypickers    = $('#page-search-settings input[name="weekday"]');
     var howmanydaypickers = $('#page-search-settings input[name="eventdays"]');
@@ -200,10 +200,7 @@ function initSearchForms() {
 
     // and since Firefox loves to cache controls (checkboxes)
     // explicitly uncheck all checkboxes in the search setttings,, then set these defaults
-    $('#page-search-settings input[type="checkbox"]').removeAttr('checked').checkboxradio('refresh');
-    $('#page-search-settings input[name="agegroup"][value="0"]').prop('checked',true).checkboxradio('refresh');
-    $('#page-search-settings input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
-    $('#page-search-settings input[name="gender"][value="0"]').prop('checked',true).checkboxradio('refresh');
+    setSearchFiltersToDefault();
 
     // trigger a rendering of Nothing Found at this time, as if a search had been performed
     // this populates the Results panel, which someone could find via the Map panel having not done a search
@@ -269,6 +266,13 @@ function initMap() {
 function selectBasemap(which) {
     for (var i in BASEMAPS) MAP.removeLayer(BASEMAPS[i]);
     BASEMAPS[which].addTo(MAP).bringToBack();
+}
+
+function setSearchFiltersToDefault() {
+    $('#page-search-settings input[type="checkbox"]').removeAttr('checked').checkboxradio('refresh');
+    $('#page-search-settings input[name="agegroup"][value="0"]').prop('checked',true).checkboxradio('refresh');
+    $('#page-search-settings input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
+    $('#page-search-settings input[name="gender"][value="0"]').prop('checked',true).checkboxradio('refresh');
 }
 
 function onLocationFound(event) {
@@ -340,9 +344,9 @@ function onLocationError(error) {
 }
 
 function performBrowseMap() {
-    // clear reset all search options, set to GPS mode, and submit the search
+    // reset all search options, set to GPS mode, and submit the search
     // with the option to (after results had) proceed to the Map panel instead of the Results panel
-    $('#page-search-settings input[type="checkbox"]').removeAttr('checked').checkboxradio('refresh');
+    setSearchFiltersToDefault();
 
     var latlng = LOCATION.getLatLng();
     $('#page-search select[name="location"]').val('gps');
