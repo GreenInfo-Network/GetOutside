@@ -256,6 +256,24 @@ function initMap() {
         var which = $('#panel-map-settings input[type="radio"][name="basemap"]:checked').prop('value');
         selectBasemap(which);
     });
+
+    // gda
+    // on the Results pages, the Map buttons; these should go to the map but also center on the best location
+    // that being either LOCATION or else the search coordinates
+    // this is a hack to get around problems of Leaflet in a DIV that's hidden at the moment; fitBounds() et al don't work well when the DIV isn't visible, so the map is likely zoomed to the whole world
+    $('div.page-results a[href="#page-map"]').click(function (event) {
+        // prevent the click from happening, intercept it with our own way to change to the map page
+        event.preventDefault();
+        switchToMap(function () {
+            if (AUTO_RECENTER) {
+                zoomToPoint( LOCATION.getLatLng() );
+            } else {
+                var lat = $('#page-search input[name="lat"]').val();
+                var lng = $('#page-search input[name="lng"]').val();
+                zoomToPoint(L.latLng([lat,lng]));
+            }
+        });
+    });
 }
 
 
@@ -349,7 +367,7 @@ function performBrowseMap() {
     setSearchFiltersToDefault();
 
     var latlng = LOCATION.getLatLng();
-    $('#page-search select[name="location"]').val('gps');
+    $('#page-search select[name="location"]').val('gps').selectmenu('refresh').trigger('change');
     $('#page-search input[name="lat"]').val(latlng.lat);
     $('#page-search input[name="lng"]').val(latlng.lng);
 
@@ -380,7 +398,6 @@ function performSearch() {
     // validation and checking: if they picked an address search, they need to have given an address
     // further, we can't really search with an address, but need to geocode first
     var $form = $('#page-search form');
-
     switch ( $form.find('select[name="location"]').val() ) {
         case 'gps':
             // Near My search: fill in the lat & lng from their last known LOCATION
