@@ -124,6 +124,25 @@ public function reloadContent() {
                 break;
         }
 
+        // Age requirements?  Active.com has integer fields (well, integer strings) regReqMinAge and regReqMaxAge
+        // and we should massage this to find the best match 0-5: 1=Infants, 2=Preschool, 3=Youth/Teens, 4=Adults, 5=Senior, 0=All Ages
+        // these aren't really seen in the data feed so far, and are based on asking Active.com's tech support
+        // see mobile/index.phtml for the official list of coded values AND BE AWARE THAT MySQL forces these to be STRINGS AND NOT NUMBERS
+        $event->audience_age = '0'; // start with All Ages by default
+        $entry->regReqMinAge = (integer) $entry->regReqMinAge;
+        $entry->regReqMaxAge = (integer) $entry->regReqMaxAge;
+        if ($entry->regReqMinAge >= 40) {
+            $event->audience_age = '5';
+        } else if ($entry->regReqMinAge >= 18) {
+            $event->audience_age = '4';
+        } else if ($entry->regReqMaxAge <= 25) {
+            $event->audience_age = '3';
+        } else if ($entry->regReqMaxAge <= 5) {
+            $event->audience_age = '2';
+        } else if ($entry->regReqMaxAge <= 3) {
+            $event->audience_age = '1';
+        }
+
         // ready!
         $event->save();
         $success++;
