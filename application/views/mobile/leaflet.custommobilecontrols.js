@@ -30,7 +30,7 @@ L.controlCustomButtonPanel = L.Control.extend({
         }, this);
 
         // sub-control 3
-        var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-gps active', container);
+        var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-gps', container);
         L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)
             .on(subcontainer, 'click', function (event) {
             // toggle the Auto-Center behavior from whatever it currently is

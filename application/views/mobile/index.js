@@ -11,7 +11,7 @@ var LOCATION;       // L.Marker indicating their current location
 var ACCURACY;       // L.Circle showing the accuracy of their location
 
 // should we auto-recenter the map when location is found?
-var AUTO_RECENTER = true;
+var AUTO_RECENTER = false;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
