@@ -76,7 +76,7 @@ public function reloadContent() {
     // return will be XML, and hooray for SimpleXML
     $params = array(
         'SERVICE'   => 'WFS',
-        'VERSION'   => '1.1.1',
+        'VERSION'   => '1.1.0',
         'REQUEST'   => 'GetFeature',
         'OUTPUTFORMAT'   => 'GML2',
         'TYPENAME'  => $layer,
@@ -84,28 +84,18 @@ public function reloadContent() {
     $url = sprintf("%s?%s&%s", $url, http_build_query($params), $moreparams );
     //throw new PlaceDataSourceErrorException($url);
 
-    // parse the layer name to strip off the namespace, e.g. mywebsvc:parks has "mywebsvc"
-    // we'll need this to parse attributes within the features, e.g. <mywebsvc:parkname> becomes <parkname>
-    // this is because it's a giant pain in the neck, to parse around attributes when you don't even know what they're named  :)
-    $prefix   = strpos($layer,':');
-    $sublayer = $layer;
-    if ($prefix!==FALSE) {
-        list($prefix,$sublayer) = explode(':',$layer,2);
-    }
-
-    // fetch the XML, then strip out those annoying namespaces
+    // despite hours of StackOverflow and reading PHP bug reports, the XML parser just isn't coping with real-world GML output and namespaces
+    // so we strip 'em out and treat it like normal XML
     $xml = @file_get_contents($url);
-    $xml = str_replace('xmlns=', 'ns=', $xml);
-    if ($prefix) {
-        $xml = str_replace("<$prefix:" , '<' , $xml);
-        $xml = str_replace("</$prefix:", '</', $xml);
-    }
-    $xml = str_replace('<gml:' , '<' , $xml);
+    $xml = str_replace('<gml:', '<', $xml);
     $xml = str_replace('</gml:', '</', $xml);
+    $xml = str_replace('<wfs:', '<', $xml);
+    $xml = str_replace('</wfs:', '</', $xml);
+    $xml = str_replace('<ms:', '<', $xml);
+    $xml = str_replace('</ms:', '</', $xml);
     $xml = @simplexml_load_string($xml);
 
-    // did we get any features?
-    // great, we're ready to rock!
+    // did we get any features? great, we're ready to rock! no, then we're ready to bail!
     $features = @$xml->featureMember;
     if (! sizeof($features) ) throw new PlaceDataSourceErrorException('Got back no features.');
 
@@ -126,17 +116,16 @@ public function reloadContent() {
         // fetch these first; the coming attribute thrashing effectively destroys the ability to do xpath on the element; don't know why...
         $point_coords = $feature->xpath('.//Point/coordinates');
         $poly_coords  = $feature->xpath('.//LinearRing/coordinates');
-        //error_log( sprintf("%d poly and %d points<br/>\n", sizeof($poly_coords), sizeof($point_coords) ) );
 
         // each xml member has one child, a <tag> named the same as the layer name  (why, OGC, why?)
         // fetch the attributes of the record, trim off the @attributes and any other complex attributes
-        $realfeat = $feature->{$sublayer};
+        $realfeat = $feature->{$layer};
         $attributes = get_object_vars($realfeat);
         unset($attributes['@attributes']);
         foreach (array_keys($attributes) as $k) {
             if (gettype($attributes[$k]) == 'object') unset($attributes[$k]);
         }
-        //error-log( print_r($attributes,TRUE) );
+        //error_log( print_r($attributes,TRUE) );
 
         // for the unique ID, aka remoteid use the FID, if this WFS supplies one as an attribute
         // otherwise try to use "id" and "gid" elements; if we still can't find it, use the name as a last ditch (and likely not unique)
@@ -171,8 +160,8 @@ public function reloadContent() {
             $warn_badcoords++;
             continue;
         }
-        $lon = $lonlat[0];
-        $lat = $lonlat[1];
+        $lat = $lonlat[0];
+        $lon = $lonlat[1];
         if (!$lon or !$lat or $lat>90 or $lat<-90 or $lon<-180 or $lon>180) {
             $warn_badcoords++;
             continue;
@@ -295,6 +284,7 @@ function extractGeometryFromPoint($point) {
 
     // take only first 2 elements, in case there's a 3rd element for Z
     // and force them to be numeric
+    // tip: WFS 1.1.0 is lat,lon and not lon,lat
     $coords = array( (float) $coords[0] , (float) $coords[1] );
 
     // that was it! let the caller decide whether the coordinate is valid in whatever SRS
