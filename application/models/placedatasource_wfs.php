@@ -256,7 +256,7 @@ public function listFields() {
     // return will be XML, and hooray for SimpleXML
     $params = array(
         'SERVICE'   => 'WFS',
-        'VERSION'   => '1.1.1',
+        'VERSION'   => '1.1.0',
         'REQUEST'   => 'DescribeFeatureType',
         'TYPENAME'  => $layer,
     );
