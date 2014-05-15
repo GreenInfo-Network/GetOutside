@@ -258,7 +258,7 @@ public function listFields() {
     // go over the xsd:element tags and that's our field list
     // if it's not there, then we must have gotten non-XML, an error, or something other than good
     $elements = @$xml->xpath('//xsd:element');
-    if (! $elements) throw new PlaceDataSourceErrorException('Did not get a field list back for this data source. Check the layer name and WFS service URL.');
+    if (! $elements) throw new PlaceDataSourceErrorException("Did not get a field list back for this data source. Check the layer name and WFS service URL. $url");
 
     $fields = array();
     foreach ($elements as $element) {
