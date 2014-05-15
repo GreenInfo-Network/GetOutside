@@ -286,8 +286,11 @@ public function event_source_delete() {
     // if they're not POSTing a confirmation, bail
     if (! @$_POST['ok']) return $this->load->view('administration/event_source_delete.phtml', $data);
 
-    // delete it, send the user home
+    // delete it, then clean up orphans; see clearOrphanedRecords() for explanation
     $data['source']->delete();
+    EventDataSource::clearOrphanedRecords();
+
+    // send the user home
     redirect(site_url('administration/event_sources'));
 }
 
@@ -481,8 +484,11 @@ public function place_source_delete() {
     // if they're not POSTing a confirmation, bail
     if (! @$_POST['ok']) return $this->load->view('administration/place_source_delete.phtml', $data);
 
-    // delete it, send the user home
+    // delete it, then clean up orphans; see clearOrphanedRecords() for explanation
     $data['source']->delete();
+    PlaceDataSource::clearOrphanedRecords();
+
+    // send the user home
     redirect(site_url('administration/place_sources#tab_sources'));
 }
 

@@ -107,6 +107,22 @@ var $option_fields = array(
 
 
 /**********************************************************************************************
+ * CLEANUP
+ * we can't presume that MySQL supports FK constraints and cascade deletes (they may be using MyISAM)
+ * so when we delete this data source, DataMapper simply sets the places' eventdatasource_id to 0... which doesn't really get rid of them
+ * so when we delete a data source,it's wise to call this function to then clean up the newly-orphaned records
+ **********************************************************************************************/
+
+public static function clearOrphanedRecords() {
+    $ci = get_instance();
+    $ci->db->query('DELETE FROM places WHERE placedatasource_id=0');
+    $ci->db->query('DELETE FROM placeactivities WHERE place_id NOT IN (SELECT id FROM places)');
+    $ci->db->query('DELETE FROM placecategories_places WHERE place_id NOT IN (SELECT id FROM places)');
+}
+
+
+
+/**********************************************************************************************
  * INSTANCE METHODS
  **********************************************************************************************/
 
