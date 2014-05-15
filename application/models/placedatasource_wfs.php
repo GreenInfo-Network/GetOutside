@@ -112,6 +112,7 @@ public function reloadContent() {
     $warn_badcoords  = 0;
     $warn_nounique   = 0;
 
+    $id = 1000;
     foreach ($features as $feature) {
         // fetch these first; the coming attribute thrashing effectively destroys the ability to do xpath on the element; don't know why...
         $point_coords = $feature->xpath('.//Point/coordinates');
@@ -133,13 +134,13 @@ public function reloadContent() {
         if (! $remoteid) $remoteid = @$attributes['gid'];
         if (! $remoteid) $remoteid = @$attributes['id'];
         if (! $remoteid) {
+            $remoteid = 'noid-' . $id++;
             $warn_nounique++;
-            continue;
         }
 
         // the simple attributes: name and description
-        $name     = $attributes[$namefield];
-        $desc     = $descfield ? $attributes[$descfield] : '';
+        $name     = @$attributes[$namefield];
+        $desc     = $descfield ? @$attributes[$descfield] : '';
         if (! $name) { $name= ''; $warn_noname++; }
         if (! $desc) { $desc= ''; }
 
@@ -215,7 +216,7 @@ public function reloadContent() {
     $message[] = "$records_new new locations added to database.";
     $message[] = "$records_updated locations updated.";
     if ($deletions)         $message[] = "$deletions outdated locations deleted.";
-    if ($warn_nounique)     $message[] = "$warn_nounique places skipped due to no unique field (tried fid, gid, and id).";
+    if ($warn_nounique)     $message[] = "$warn_nounique places had no unique ID field (tried fid, gid, and id) so random IDs were assigned.";
     if ($warn_noname)       $message[] = "$warn_noname places had a blank name.";
     if ($warn_badcoords)    $message[] = "$warn_badcoords skipped due to invalid location.";;
     $message = implode("\n",$message);
