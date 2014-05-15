@@ -112,7 +112,6 @@ public function reloadContent() {
     $warn_badcoords  = 0;
     $warn_nounique   = 0;
 
-    $id = 1000;
     foreach ($features as $feature) {
         // fetch these first; the coming attribute thrashing effectively destroys the ability to do xpath on the element; don't know why...
         $point_coords = $feature->xpath('.//Point/coordinates');
@@ -134,7 +133,7 @@ public function reloadContent() {
         if (! $remoteid) $remoteid = @$attributes['gid'];
         if (! $remoteid) $remoteid = @$attributes['id'];
         if (! $remoteid) {
-            $remoteid = 'noid-' . $id++;
+            $remoteid = sha1(mt_rand() . microtime());
             $warn_nounique++;
         }
 
