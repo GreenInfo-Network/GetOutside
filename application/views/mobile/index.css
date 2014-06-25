@@ -101,7 +101,6 @@ a {
 #map_infopanel {
     position:absolute; bottom:0; left:0;
     width:100%;
-    min-height:1in;
     max-height:50%;
 
     display:none; /* becomes visible via the clickMarker_ family of functions */
@@ -110,6 +109,8 @@ a {
     opacity:0.90;
 
     z-index:2000;
+
+    padding-bottom:1.5em;
 }
 
 #map_infopanel > div {

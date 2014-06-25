@@ -117,6 +117,7 @@ $(document).ready(function () {
 
     // now various sub-initializations
     initMap();
+    initMapInfoPanel();
     initSearchForms();
 });
 
@@ -270,6 +271,16 @@ function initMap() {
                 zoomToPoint(L.latLng([lat,lng]));
             }
         });
+    });
+}
+
+function initMapInfoPanel() {
+    // the slide-in panel over the map, showing info about whatever was clicked
+    // see also the clickMarker_ family of functions
+
+    // the A directly under the info panel, closes the panel
+    $('#map_infopanel > a').click(function () {
+        $('#map_infopanel').hide();
     });
 }
 
@@ -702,7 +713,7 @@ function clickMarker_EventLocation(marker) {
     // expand the info panel, then show only this one subpanel for the marker type
     var panel = $('#map_infopanel').show();
     var subpanel = panel.children('div[data-type="eventlocation"]').show();
-    subpanel.siblings().hide();
+    subpanel.siblings('div').hide();
 
     // go over attributes, load them into the tagged field (if one exists)
     // note the switch for the tag type: A tags assign an URL, everything else gets text filled in, ... thus we have self-expanding code simply by adding fields whose data-field=FIELDNAME
@@ -739,7 +750,7 @@ function clickMarker_Place(marker) {
     // expand the info panel, then show only this one subpanel for the marker type
     var panel = $('#map_infopanel').show();
     var subpanel = panel.children('div[data-type="place"]').show();
-    subpanel.siblings().hide();
+    subpanel.siblings('div').hide();
 
     // go over attributes, load them into the tagged field (if one exists)
     // note the switch for the tag type: A tags assign an URL, everything else gets text filled in, ... thus we have self-expanding code simply by adding fields whose data-field=FIELDNAME
