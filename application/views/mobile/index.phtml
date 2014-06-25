@@ -35,6 +35,8 @@
     var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
     var START_E = <?= $this->siteconfig->get('bbox_e') ?>;
     var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
+    var START_X = <?= ( $this->siteconfig->get('bbox_w') + $this->siteconfig->get('bbox_e') ) /2 ?>;
+    var START_Y = <?= ( $this->siteconfig->get('bbox_s') + $this->siteconfig->get('bbox_n') ) /2 ?>;
     </script>
 
     <!-- sitewide styling overriding the selected theme and providing common code & style to the front-facing site -->
@@ -67,7 +69,7 @@
         <input type="hidden" name="lat" />
         <input type="hidden" name="lng" />
 
-        <a data-role="button" href="#page-search-settings">Find an activity</a>
+        <a data-role="button" href="#page-search-settings" data-icon="carat-d" data-iconpos="right">Find an activity (optional)</a>
 
         <button name="search-go" data-icon="search" data-iconpos="right" data-theme="b">Search</button>
 
