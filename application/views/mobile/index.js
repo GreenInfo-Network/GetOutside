@@ -372,7 +372,7 @@ function performBrowseMap() {
     // zooming in on your own location, is against the spirit of Browse Map... and has some awful timing issues
     // if they have AUTO_RECENTER enabled, they'll zoom on their own location in a moment anyway when a locationfound event happens
     switchToMap(function () {
-        performSearchReally();
+        performSearchReally({ 'afterpage':'#page-map' });
         zoomToPoint(L.latLng([START_Y,START_X]));
     });
 }
@@ -496,19 +496,11 @@ function performSearchHandleResults(reply) {
 function renderPlacesMap() {
     var items = $('#page-search-results-places-list').data('rawresults');
 
+return;//gda
     for (var i=0, l=items.length; i<l; i++) {
-        var lat  = items[i].lat;
-        var lng  = items[i].lng;
-        var name = items[i].name;
-
-        var html  = '<h3>' + items[i].name + '</h3>';
-            html += items[i].desc;
-        if (items[i].url) {
-            html += '<p><a target="_blank" href="'+items[i].url+'">More Info</a></p>';
-        }
-
-//gda not a popup anymore
-        L.marker([lat,lng], { title:name, attributes:items[i] }).bindPopup(html).addTo(MARKERS);
+        L.marker([items[i].lat,items[i].lng], { title:items[i].name, attributes:items[i] }).addTo(MARKERS).on('click',function () {
+          clickMarker_Place(this);
+        });
     }
 }
 
@@ -516,23 +508,13 @@ function renderEventsMap() {
     var events = $('#page-search-results-events-list').data('rawresults');
 
     for (var ei=0, el=events.length; ei<el; ei++) {
-        if (! events[ei].locations) continue;
+        if (! events[ei].locations) continue; // an event with no Locations, doesn't need to be on the map
 
         for (var li=0, ll=events[ei].locations.length; li<ll; li++) {
-            var loc     = events[ei].locations[li];
-            var lat     = loc.lat;
-            var lng     = loc.lng;
-            var place   = loc.title;
-            var address = loc.subtitle;
-            var evname  = events[ei].name;
-
-            var html  = '<h3>' + evname + '</h3>';
-                html += place;
-                html += '<br/>';
-                html += address;
-
-//gda not a popup anymore
-            L.marker([lat,lng], { title:name, attributes:loc }).bindPopup(html).addTo(MARKERS);
+            var loc = events[ei].locations[li];
+            L.marker([loc.lat,loc.lng], { title:events[ei].name, attributes:{ event:events[ei], location:loc } }).addTo(MARKERS).on('click',function () {
+              clickMarker_EventLocation(this);
+            });
         }
     }
 }
@@ -712,4 +694,88 @@ function updateEventsAndPlacesDistanceReadouts() {
 
     // sort the listview by distance
     $children.tsort({data:'distance_meters'});
+}
+
+function clickMarker_EventLocation(marker) {
+    // start by highlighting, why not?
+    highlightMarker(marker);
+
+    // expand the info panel, then show only this one subpanel for the marker type
+    var panel = $('#map_infopanel').show();
+    var subpanel = panel.children('div[data-type="eventlocation"]').show();
+    subpanel.siblings().hide();
+
+    // go over attributes, load them into the tagged field (if one exists)
+    // note the switch for the tag type: A tags assign an URL, everything else gets text filled in, ... thus we have self-expanding code simply by adding fields whose data-field=FIELDNAME
+    // this is done for both the location and the event, so we can have info about both:  event.name   location.name   location.desc   and so on
+    var components = ['event','location'];
+    for (var i=0, l=components.length; i<l; i++) {
+        var component = components[i];
+
+        for (var field in marker.options.attributes[component]) {
+            var target = subpanel.find('[data-field="'+component+'.'+field+'"]');
+            var value  = marker.options.attributes[component][field];
+
+            switch ( target.prop("tagName") ) {
+                case 'A':
+                    // A anchor: insert the URL as the HREF, and if that's blank then hide this link
+                    if (value) {
+                        target.prop('href',value).show();
+                    } else {
+                        target.prop('href','about:blank').hide();
+                    }
+                    break;
+                default:
+                    target.html(value);
+                    break;
+            }
+        }
+    }
+}
+
+function clickMarker_Place(marker) {
+    // start by highlighting, why not?
+    highlightMarker(marker);
+
+    // expand the info panel, then show only this one subpanel for the marker type
+    var panel = $('#map_infopanel').show();
+    var subpanel = panel.children('div[data-type="place"]').show();
+    subpanel.siblings().hide();
+
+    // go over attributes, load them into the tagged field (if one exists)
+    // note the switch for the tag type: A tags assign an URL, everything else gets text filled in, ... thus we have self-expanding code simply by adding fields whose data-field=FIELDNAME
+    for (var field in marker.options.attributes) {
+        var target = subpanel.find('[data-field="'+field+'"]');
+        var value  = marker.options.attributes[field];
+        switch ( target.prop("tagName") ) {
+            case 'A':
+                // A anchor: insert the URL as the HREF, and if that's blank then hide this link
+                if (value) {
+                    target.prop('href',value).show();
+                } else {
+                    target.prop('href','about:blank').hide();
+                }
+                break;
+            default:
+                target.html(value);
+                break;
+        }
+    }
+}
+
+function highlightMarker(marker) {
+    // remove the highlight CSS class from all marker images
+    $('#map_canvas img.leaflet-marker-icon').removeClass('leaflet-marker-highlight');
+
+    // add the highlight CSS class to this marker image
+    // WARNING: _icon is not a Leaflet API, so this may break in the future
+    $(marker._icon).addClass('leaflet-marker-highlight');
+
+    // afterthought: now re-stack the markers so this one gets a very high zIndex and displays above other markers
+    // a lot more involved than just highlighting, and more time-consuming
+    var ms = MARKERS.getLayers();
+    for (var i=0, l=ms.length; i<l; i++) {
+        ms[i].setZIndexOffset(0);
+    }
+    marker.setZIndexOffset(10000);
 }

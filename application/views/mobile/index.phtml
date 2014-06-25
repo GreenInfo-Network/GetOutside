@@ -183,6 +183,23 @@
                 <br/>
                 of the supported area.
             </div>
+            <div id="map_infopanel">
+                <div data-type="place">
+                    <h3 data-field="name"></h3>
+                    <p data-field="desc"></p>
+                    <a data-field="url" target="_blank" href="about:blank">More Info</a>
+                </div>
+                <div data-type="eventlocation">
+                    <h3 data-field="event.name"></h3>
+                    <p data-field="event.datetime"></p>
+                    <p>
+                        <span data-field="location.title"></span>
+                        <br/>
+                        <span data-field="location.subtitle"></span>
+                    </p>
+                    <a data-field="event.url" target="_blank" href="about:blank">More Info</a>
+                </div>
+            </div>
         </div>
 
         <div data-role="panel" id="panel-map-settings" data-position="right" data-display="overlay">

@@ -37,6 +37,7 @@ a {
 /*** OUTSIDE AREA if the user is outside the supported area, these elements are visible ***/
 
 .outside_area {
+    display:none !important; /*gda disabled for testing??? */
 }
 
 #search-outsidearea {
@@ -94,6 +95,33 @@ a {
     background-color: #0083CC;
 }
 .search-results-navbar div.active a {
+}
+
+/*** INFO PANEL on the bottom of the #map_canvas ***/
+#map_infopanel {
+    position:absolute; bottom:0; left:0;
+    width:100%;
+    min-height:1in;
+    max-height:50%;
+
+    display:none; /* becomes visible via the clickMarker_ family of functions */
+
+    background-color:white;
+    opacity:0.90;
+
+    z-index:2000;
+}
+
+#map_infopanel > div {
+    text-align:center;
+}
+
+/*** GLOWING MARKERS ***/
+img.leaflet-marker-icon.leaflet-marker-highlight {
+    box-shadow: 0 0 8px 6px #ff8000 !important;
+    background-color: #ff8000 !important;
+    -webkit-box-shadow: 0 0 8px 6px #ff8000 !important;
+    border-radius:10px;
 }
 
 /*** JQUERY FIXES ***/
