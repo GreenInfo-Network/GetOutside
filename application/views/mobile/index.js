@@ -229,9 +229,7 @@ function initMap() {
     // define the marker and circle for our location and accuracy
     var icon = L.icon({
         iconUrl: BASE_URL + 'application/views/mobile/images/marker-gps.png',
-        iconSize:     [25, 41], // size of the icon
-        iconAnchor:   [13, 41], // point of the icon which will correspond to marker's location
-        popupAnchor:  [13,  1] // point from which the popup should open relative to the iconAnchor
+        iconSize: [25, 41]
     });
     LOCATION  = L.marker([0,0], { clickable:false, draggable:false, icon:icon }).addTo(MAP);
     ACCURACY  = L.circle([0,0], 1000, { clickable:false }).addTo(MAP);
@@ -257,7 +255,6 @@ function initMap() {
         selectBasemap(which);
     });
 
-    // gda
     // on the Results pages, the Map buttons; these should go to the map but also center on the best location
     // that being either LOCATION or else the search coordinates
     // this is a hack to get around problems of Leaflet in a DIV that's hidden at the moment; fitBounds() et al don't work well when the DIV isn't visible, so the map is likely zoomed to the whole world
@@ -295,17 +292,19 @@ function setSearchFiltersToDefault() {
 
 function onLocationFound(event) {
     // first and easiest: update the location and accuracy markers
+    var first_time = ! LOCATION.getLatLng().lat;
     LOCATION.setLatLng(event.latlng);
     ACCURACY.setLatLng(event.latlng).setRadius(event.accuracy);
 
     // on the Map and Search pages, there are notifications that they're outside the supported area; show/hide these, depending on whether they're in the supported area
-    // also if they're outside, turn off auto-centering and zoom to the max extent
+    // also if they're outside, turn off auto-centering and zoom to the max extent BUT ONLY IF this is our first time finding the location
+    // otherwise we get an annoying behavior that we have zoomed in and are looking at some other area... then it changes zoom again every few seconds!
     if (MAX_EXTENT.contains(event.latlng) ) {
         $('.outside_area').hide();
     } else {
         $('.outside_area').show();
-        MAP.fitBounds(MAX_EXTENT);
         autoCenterOff();
+        if (first_time) MAP.fitBounds(MAX_EXTENT);
     }
 
     // then re-center onto the new location, if we have auto-centering enabled
@@ -362,25 +361,19 @@ function onLocationError(error) {
 }
 
 function performBrowseMap() {
-    // reset all search options, set to GPS mode, and submit the search
+    // reset all search options, set to GPS mode and submit the START_X and START_Y coords which are the center of the supported area, then submit that search
     // with the option to (after results had) proceed to the Map panel instead of the Results panel
     setSearchFiltersToDefault();
-
-    var latlng = LOCATION.getLatLng();
     $('#page-search select[name="location"]').val('gps').selectmenu('refresh').trigger('change');
-    $('#page-search input[name="lat"]').val(latlng.lat);
-    $('#page-search input[name="lng"]').val(latlng.lng);
+    $('#page-search input[name="lat"]').val(START_Y);
+    $('#page-search input[name="lng"]').val(START_X);
 
-    // now switch to the map and zoom to either the whole area (if we have no LOCATION known) or else to our own area (if we do have LOCATION)
+    // now switch to the map and zoom to the supported area
+    // zooming in on your own location, is against the spirit of Browse Map... and has some awful timing issues
+    // if they have AUTO_RECENTER enabled, they'll zoom on their own location in a moment anyway when a locationfound event happens
     switchToMap(function () {
-        performSearchReally({ 'afterpage':'#page-map' });
-
-        var has = LOCATION.getLatLng().lat;
-        if (has) {
-            zoomToCurrentLocation();
-        } else {
-            zoomToMaxExtent();
-        }
+        performSearchReally();
+        zoomToPoint(L.latLng([START_Y,START_X]));
     });
 }
 
@@ -514,6 +507,7 @@ function renderPlacesMap() {
             html += '<p><a target="_blank" href="'+items[i].url+'">More Info</a></p>';
         }
 
+//gda not a popup anymore
         L.marker([lat,lng], { title:name, attributes:items[i] }).bindPopup(html).addTo(MARKERS);
     }
 }
@@ -537,6 +531,7 @@ function renderEventsMap() {
                 html += '<br/>';
                 html += address;
 
+//gda not a popup anymore
             L.marker([lat,lng], { title:name, attributes:loc }).bindPopup(html).addTo(MARKERS);
         }
     }
