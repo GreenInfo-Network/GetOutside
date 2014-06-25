@@ -496,7 +496,6 @@ function performSearchHandleResults(reply) {
 function renderPlacesMap() {
     var items = $('#page-search-results-places-list').data('rawresults');
 
-return;//gda
     for (var i=0, l=items.length; i<l; i++) {
         L.marker([items[i].lat,items[i].lng], { title:items[i].name, attributes:items[i] }).addTo(MARKERS).on('click',function () {
           clickMarker_Place(this);
