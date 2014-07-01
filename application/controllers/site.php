@@ -159,6 +159,10 @@ public function ajax_map_points() {
         $places->group_end();
     }
 
+    // the data source must not be disabled
+    // disabling a data source should "hide" these markers from the front-facing map
+    $places->where_related('placedatasource','enabled',1);
+
     // done with the easy filters, apply them now
     $places->distinct()->get();
     //$places->check_last_query();

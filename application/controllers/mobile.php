@@ -80,6 +80,12 @@ public function fetchdata() {
     if (is_array(@$_POST['categories'])) {
         $places->where_in_related('placecategory', 'id', $_POST['categories']);
     }
+
+    // the data source must not be disabled
+    // disabling a data source should "hide" these markers from the front-facing map
+    $places->where_related('placedatasource','enabled',1);
+
+    // ready!
     $places->get();
     foreach ($places as $place) {
         // invalid coordinates, skip it
