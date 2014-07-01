@@ -202,6 +202,7 @@ public function ajax_map_points() {
         }
 
         $els = new EventLocation();
+        $els->where_related('event/eventdatasource','enabled',1);
         $els->get();
         foreach ($els as $el) {
             // see whether this EventLocation fits the keyword filter: check the parent Event's title and description fields
@@ -272,7 +273,10 @@ public function ajax_calendar_events($id=0) {
     // NOTE: the output format here is specific to fullCalendar, the chosen client-side calendar renderer
     if ($id) {
         $events = new Event();
-        $events->where('eventdatasource_id',$id)->where('starts >=',$_GET['startdate'])->where('ends <',$_GET['enddate'])->get();
+        $events->where('eventdatasource_id',$id);
+        $events->where_related('eventdatasource','enabled',1);
+        $events->where('starts >=',$_GET['startdate']);
+        $events->where('ends <',$_GET['enddate'])->get();
 
         $output = array();
         foreach ($events as $event) {
@@ -294,6 +298,7 @@ public function ajax_calendar_events($id=0) {
         // e.g. activity occurs on 2014-04-23 and also on 2014-04-30 and on 2014-04-16, ...
         // the startdate and enddate are already unix timestamps, so we can iterate 24 hours at a time and see what matches
         $activities = new PlaceActivity();
+        $activities->where_related('place/placedatasource','enabled',1);
         $activities->get();
         for ($time=$_GET['startdate']; $time<$_GET['enddate']; $time+=86400) {
             $day    = strtolower( date('D',$time) );

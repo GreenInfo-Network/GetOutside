@@ -170,6 +170,12 @@ public function fetchdata() {
     if (is_array(@$_POST['gender'])) {
         $events->where_in('audience_gender',$_POST['gender']);
     }
+
+    // the data source must not be disabled
+    // disabling a data source should "hide" these markers from the front-facing map
+    $events->where_related('eventdatasource','enabled',1);
+
+    // ready!
     $events->get();
     foreach ($events as $event) {
         // the time filter: if it doesn't start this week, or ended last week, it's outta here
