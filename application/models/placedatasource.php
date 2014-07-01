@@ -203,11 +203,11 @@ public function recategorizeAllPlaces() {
         if (sizeof($category_ids)) {
             $looked_good++;
             $place->placecategory->delete($place);
+
             foreach ($category_ids as $catid) {
-                $cat = new PlaceCategory();
-                $cat->where('id',$catid)->get();
-                $cat->save($place);
-            }
+            $cats = new PlaceCategory();
+            $cats->where_in('id',$category_ids)->get();
+            $place->save($cats);
         } else {
             $place->placecategory->delete($place);
             $had_none++;
