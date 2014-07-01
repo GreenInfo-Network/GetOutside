@@ -204,7 +204,6 @@ public function recategorizeAllPlaces() {
             $looked_good++;
             $place->placecategory->delete($place);
 
-            foreach ($category_ids as $catid) {
             $cats = new PlaceCategory();
             $cats->where_in('id',$category_ids)->get();
             $place->save($cats);
