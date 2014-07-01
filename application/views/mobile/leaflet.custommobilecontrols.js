@@ -28,7 +28,7 @@ L.controlCustomButtonPanel = L.Control.extend({
         L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)
             .on(subcontainer, 'click', function (event) {
                 // go to the Search Results page
-                $.mobile.changePage('#page-search-results');
+                $.mobile.changePage('#page-search-results-places');
         }, this);
 
         // sub-control 3
