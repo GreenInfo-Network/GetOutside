@@ -199,16 +199,17 @@ public function recategorizeAllPlaces() {
         $attribs = @json_decode($place->attributes_json);
         $category_ids = $this->calculateCategoryIDsFromAttributes($attribs);
 
-        // increment whichever counter
+        // delete existing categories
+        $place->placecategory->delete($place);
+
+        // assign new categories, and increment whichever counter is appropriate
         if (sizeof($category_ids)) {
             $looked_good++;
-            $place->placecategory->delete($place);
 
             $cats = new PlaceCategory();
             $cats->where_in('id',$category_ids)->get();
-            $place->save($cats);
+            $place->save($cats->all);
         } else {
-            $place->placecategory->delete($place);
             $had_none++;
         }
     }
