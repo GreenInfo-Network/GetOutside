@@ -122,7 +122,11 @@ public function reloadContent() {
     // splicing onto them the $summaries entry from the Basic feed   so we can extract the Where: info from them
     // WARNING: as of now, the driver uses intimate knowledge of the framework context (siteconfig) which hypothetically should be in the Controller...
     //          but how is that gonna happen, without the Controller introspecting the driver details in ways which also violate MVC...?
+    // Tip: as we go through and geocode, we cache the lat/lng by address, so that a second geocode on the same address will not require the geocoder service
+    //      this helps runtimes if the events tend to repeat at the same locations a lot, which is quite often true for park-n-rec things
     $bing_key   = $this->siteconfig->get('bing_api_key');
+    $geo_cache  = array();
+
     $howmany    = 0;
     $no_geocode = 0;
     foreach ($full_xml->entry as $entry) {
@@ -184,12 +188,25 @@ public function reloadContent() {
         $where = @$where[2];
         if (! $where) { $no_geocode++; continue; }
 
-        $geocode = sprintf("http://dev.virtualearth.net/REST/v1/Locations?key=%s&output=json&query=%s",
-            $bing_key, urlencode($where)
-        );
-        $geocode = @json_decode(file_get_contents($geocode));
-        $lat = @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
-        $lng = @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+        if (array_key_exists($where,$geo_cache)) {
+            // this address has previously been cached, so just load it from there
+            // the check for 0 takes place below, so the cache can in fact contain 0,0 points for known fails
+            $lat = $geo_cache[$where]['lat'];
+            $lng = $geo_cache[$where]['lng'];
+        } else {
+            // not in the cache, so geocode it...
+            $geocode = sprintf("http://dev.virtualearth.net/REST/v1/Locations?key=%s&output=json&query=%s",
+                $bing_key, urlencode($where)
+            );
+            $geocode = @json_decode(file_get_contents($geocode));
+            $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+            $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+
+            // ... then put it into the cache
+            // note that this may have failed, but the casting will turn them into 0s if so
+            // a 0,0 result is valid and specifically indicates that the address failed
+            $geo_cache[$where] = array( 'lat'=>$lat, 'lng'=>$lng );
+        }
         if (!$lat or !$lng) { $no_geocode++; continue; }
 
         $loc = new EventLocation();
