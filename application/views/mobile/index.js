@@ -486,6 +486,12 @@ function performSearchAfterGeocode(address) {
 }
 
 function performSearchHandleResults(reply) {
+    // first some light data fudging
+    // Places' "categories" attribute is a list of category names; we want a comma-joined string
+    for (var i=0, l=reply.places.length; i<l; i++) {
+        reply.places[i].categories = reply.places[i].categories.join(", ");
+    }
+
     // assign the results into the listing components (listviews, map) ...
     $('#page-search-results-places-list').data('rawresults', reply.places);
     $('#map_canavs').data('rawresults', reply.places);

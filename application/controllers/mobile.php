@@ -104,6 +104,10 @@ public function fetchdata() {
         $thisone['lng']     = (float) $place->longitude;
         $thisone['url']     = site_url("site/place/{$place->id}");
 
+        // add the list of categories
+        $thisone['categories'] = array();
+        foreach ($place->placecategory as $cat) $thisone['categories'][] = $cat->name;
+
         // does this Place have any PlaceActivity items associated to it?
         if ($place->placeactivity->count()) {
             $thisone['activities'] = array();
