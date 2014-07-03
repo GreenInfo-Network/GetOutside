@@ -137,6 +137,7 @@ public function reloadContent() {
         // Gender requirements?   Active.com API has regReqGenderCd which may be M F or blank
         // blank in all cases I've ever seen to date, so this is based on asking tech support...
         // see mobile/index.phtml for the official list of coded values AND BE AWARE THAT MySQL forces these to be STRINGS AND NOT NUMBERS
+        // this would be used for filtering events by gender, which may or may not be of ultimate use since no events here have that field populated
         switch ($entry->regReqGenderCd) {
             case 'M':
                 $event->audience_gender = '1';
