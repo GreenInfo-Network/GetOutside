@@ -127,8 +127,9 @@ public function reloadContent() {
     $bing_key   = $this->siteconfig->get('bing_api_key');
     $geo_cache  = array();
 
-    $howmany    = 0;
-    $no_geocode = 0;
+    $howmany     = 0;
+    $no_geocode  = 0;
+    $no_location = 0;
     foreach ($full_xml->entry as $entry) {
         $id             = basename( (string) $entry->id );
         $entry->summary = @$summaries[$id]; if (! $entry->summary) $entry->summary = "";
@@ -186,7 +187,7 @@ public function reloadContent() {
         $where = null;
         preg_match('/[\r\n]+(<br>|<br \/>)Where: (.+?)[\r\n]+/', $entry->summary, $where);
         $where = @$where[2];
-        if (! $where) { $no_geocode++; continue; }
+        if (! $where) { $no_location++; continue; }
 
         if (array_key_exists($where,$geo_cache)) {
             // this address has previously been cached, so just load it from there
@@ -207,6 +208,7 @@ public function reloadContent() {
             // a 0,0 result is valid and specifically indicates that the address failed
             $geo_cache[$where] = array( 'lat'=>$lat, 'lng'=>$lng );
         }
+if (!$lat or !$lng) error_log("GDA: $where");
         if (!$lat or !$lng) { $no_geocode++; continue; }
 
         $loc = new EventLocation();
@@ -225,7 +227,8 @@ public function reloadContent() {
     // guess we're done and happy; throw an error  (ha ha)
     $message = array();
     $message[] = "Successfully loaded $howmany places.";
-    if ($no_geocode) $message[] = "$no_geocode places could not have their location geocoded.";
+    if ($no_location) $message[] = "$no_location places had no location given.";
+    if ($no_geocode)  $message[] = "$no_geocode places could not have their location geocoded.";
     $message = implode("\n", $message);
     throw new EventDataSourceSuccessException($message);
 }
