@@ -101,7 +101,6 @@ a {
 #map_infopanel {
     position:absolute; bottom:0; left:0;
     width:100%;
-    max-height:50%;
 
     display:none; /* becomes visible via the clickMarker_ family of functions */
 
@@ -114,7 +113,8 @@ a {
 }
 
 #map_infopanel > div {
-    text-align:center;
+    width:40%;
+    margin:0 0 0 40%;
 }
 
 /*** GLOWING MARKERS ***/
