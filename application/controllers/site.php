@@ -275,11 +275,13 @@ public function ajax_calendar_events($id=0) {
         $events = new Event();
         $events->where('eventdatasource_id',$id);
         $events->where_related('eventdatasource','enabled',1);
-        $events->where('starts >=',$_GET['startdate']);
-        $events->where('ends <',$_GET['enddate'])->get();
+        $events->get();
 
         $output = array();
         foreach ($events as $event) {
+            if ($event->starts > $_GET['enddate']) continue; // not started yet
+            if ($event->ends < $_GET['startdate']) continue; // ended already
+
             $thisone = array();
             $thisone['id']      = $event->id;
             $thisone['title']   = $event->name;
