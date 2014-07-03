@@ -109,7 +109,8 @@ public function reloadContent() {
         if (! $lat or ! $lon) { $nolocation++; continue; }
 
         // find an URL
-        $url = @$entry->assetLegacyData->seoUrl; if (! $url) $url = @$entry->registrationUrlAdr;
+        $url = @$entry->assetLegacyData->seoUrl;
+        if (! $url) $url = @$entry->registrationUrlAdr;
 
         $event = new Event();
         $event->eventdatasource_id  = $this->id;
