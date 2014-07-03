@@ -50,30 +50,48 @@ public function reloadContent() {
     if (! preg_match('/^\w+$/', $apikey)) throw new EventDataSourceErrorException('Active.com Event Search API v2 requires an API key.');
     if ($orgid and !preg_match('/^[\w\-]+$/', $orgid)) throw new EventDataSourceErrorException('The specified Organization ID is not valid.');
 
-    // make up the API call
-    // - filter by Org ID (all org events) or else by region (bounding box of the city, 40 miles radius)
+    // make up the API calls
+    // - first fetch is with 0 items per page; gets us a "total_results" attribute so we can begin paging over the results
+    // - filter by Org ID (all org events) or else by region (bounding box of the city, 50 miles radius)
     // - the &bbox= param does not work (always empty resultset) so use &lat_lon= and &radius=    (too bad, would be great to use the selected area in the admin panel)
     // - no need to filter by start_date and end_date as expired events won't be in the feed anyway
-    $lat = 0.5 * ( $this->siteconfig->get('bbox_s') + $this->siteconfig->get('bbox_n') );
-    $lon = 0.5 * ( $this->siteconfig->get('bbox_w') + $this->siteconfig->get('bbox_e') );
 
     $params = array();
     $params['sort']         = 'date_asc';
     $params['category']     = 'event';
-    $params['lat_lon']      = sprintf("%.5f,%.5f", $lat, $lon );
-    $params['radius']       = 40;
-    $params['per_page']     = 1000;
-    //$params['bbox']         = sprintf("%f,%f;%f,%f", $this->siteconfig->get('bbox_s'), $this->siteconfig->get('bbox_w'), $this->siteconfig->get('bbox_n'), $this->siteconfig->get('bbox_e') );
-    if ($orgid) $params['org_id'] = $orgid;
+    $params['per_page']     = 0;
+    if ($orgid) {
+        $params['org_id'] = $orgid;
+    } else {
+        $lat = 0.5 * ( $this->siteconfig->get('bbox_s') + $this->siteconfig->get('bbox_n') );
+        $lon = 0.5 * ( $this->siteconfig->get('bbox_w') + $this->siteconfig->get('bbox_e') );
+        $params['lat_lon']      = sprintf("%.5f,%.5f", $lat, $lon );
+        $params['radius']       = 50;
+    }
     $url = sprintf('http://api.amp.active.com/v2/search?api_key=%s&%s', $apikey, http_build_query($params) );
     //throw new EventDataSourceErrorException($url);
 
-    // make the request, get some JSON
+    // make this first request, which is only to figure out how many records we will be fetching
     $content = @json_decode(@file_get_contents($url));
-    if (!$content or !$content->results) throw new EventDataSourceErrorException("No results. Check that this API key is active for the Activity Search API v2");
+    if (!$content) throw new EventDataSourceErrorException("No result structure. Check that this API key is active for the Activity Search API v2");
+    if (!$content->total_results) throw new EventDataSourceErrorException("No results. Check that there are in fact activities in this area.");
+
+    // now iterate in pages of 1000, but with a hard limit of 10,000 in all cuz 10 trips to their server is plenty of waiting
+    // and collect a big ol' list of all of the event entries
+    $collected_events = array();
+    $params['per_page'] = 1000;
+    if ($content->total_results > 10*$params['per_page']) $content->total_results = 10*$params['per_page'];
+    $pages = ceil($content->total_results / $params['per_page']);
+    for ($page=1; $page<=$pages; $page++) {
+        $params['current_page'] = $page;
+        $url     = sprintf('http://api.amp.active.com/v2/search?api_key=%s&%s', $apikey, http_build_query($params) );
+        $content = @json_decode(@file_get_contents($url));
+        foreach ($content->results as $entry) $collected_events[] = $entry;
+    }
+    //throw new EventDataSourceErrorException(sprintf("Collected %d raw entries", sizeof($collected_events) ));
 
     // guess we're good! delete the existing Events in this source...
-    // AND ALSO any EventLocations
+    // and also any EventLocations, cuz MySQL isn't smart enough to cacade-delete...
     foreach ($this->event as $old) {
         foreach ($old->eventlocation as $l) $l->delete();
         $old->delete();
@@ -83,8 +101,14 @@ public function reloadContent() {
     $success    = 0;
     $failed     = 0;
     $nolocation = 0;
-    foreach ($content->results as $entry) {
-        // find an URL or else give up
+    foreach ($collected_events as $entry) {
+        // if this Event lacks a location, bail
+        // this is later used to generate an EventLocation
+        $lat = (float) @$entry->place->geoPoint->lat;
+        $lon = (float) @$entry->place->geoPoint->lon;
+        if (! $lat or ! $lon) { $nolocation++; continue; }
+
+        // find an URL
         $url = @$entry->assetLegacyData->seoUrl; if (! $url) $url = @$entry->registrationUrlAdr;
 
         $event = new Event();
@@ -148,17 +172,7 @@ public function reloadContent() {
         $event->save();
         $success++;
 
-        // DONE with the Place itself
-        // now see if we should create an EventLocation too
-        // note: at this time 100% of all events tested have exactly 1 'place' element, but let's do error checking otherwise
-        $lat = (float) $entry->place->geoPoint->lat;
-        $lon = (float) $entry->place->geoPoint->lon;
-        if (! $lat or ! $lon) {
-            $nolocation++;
-            continue;
-        }
-
-        //error_log("Entry: %f x %f <br/>\n", $lat, $lon );
+        // DONE with the Event itself; now create the EventLocation
         $loc = new EventLocation();
         $loc->event_id      = $event->id;
         $loc->latitude      = $lat;
