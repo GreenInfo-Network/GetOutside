@@ -411,7 +411,11 @@ function getMarkerById(id) {
     // if it doesn't exist, null is returned
     var lx = MARKERS.getLayers();
     for (var i=0, l=lx.length; i<l; i++) {
+        // a simple Place has a simple ID
         if (id == lx[i].options.attributes.id) return lx[i];
+
+        // a LocationEvent marker has the eventlocation-ID under the location sub-attribute
+        if (id == lx[i].options.attributes.location.id) return lx[i];
     }
     return null;
 }
