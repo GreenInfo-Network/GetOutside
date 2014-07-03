@@ -580,7 +580,7 @@ function renderPlacesList() {
             switchToMap(function () {
                 zoomToPoint(latlng);
                 var marker = getMarkerById(markid);
-                if (marker) marker.openPopup();
+                if (marker) clickMarker_Place(marker);
             });
         });
     }
@@ -634,7 +634,7 @@ function renderEventsList() {
                     switchToMap(function () {
                         zoomToPoint(latlng);
                         var marker = getMarkerById(markid);
-                        if (marker) marker.openPopup();
+                        if (marker) clickMarker_Event(marker);
                     });
                 });
             }
