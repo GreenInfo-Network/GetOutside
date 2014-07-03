@@ -154,6 +154,7 @@ public function reloadContent() {
         // and we should massage this to find the best match 0-5: 1=Infants, 2=Preschool, 3=Youth/Teens, 4=Adults, 5=Senior, 0=All Ages
         // these aren't really seen in the data feed so far, and are based on asking Active.com's tech support
         // see mobile/index.phtml for the official list of coded values AND BE AWARE THAT MySQL forces these to be STRINGS AND NOT NUMBERS
+        // this would be used for filtering events by age, which may or may not be of ultimate use since no events here have that field populated
         $event->audience_age = '0'; // start with All Ages by default
         $entry->regReqMinAge = (integer) $entry->regReqMinAge;
         $entry->regReqMaxAge = (integer) $entry->regReqMaxAge;
