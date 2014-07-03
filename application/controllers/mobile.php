@@ -109,6 +109,7 @@ public function fetchdata() {
         foreach ($place->placecategory as $cat) $thisone['categories'][] = $cat->name;
 
         // does this Place have any PlaceActivity items associated to it?
+        // this is a flat list of all name-days-time settings, though I'm told the browser will "aggregate" them by name so as to make a compact layout; not this endpoint's problem...
         if ($place->placeactivity->count()) {
             $thisone['activities'] = array();
             foreach ($place->placeactivity as $activity) {
