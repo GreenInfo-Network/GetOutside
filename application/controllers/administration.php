@@ -248,12 +248,22 @@ public function ajax_save_event_source() {
     $_POST['option2']   = trim(@$_POST['option2']);
     $_POST['option3']   = trim(@$_POST['option3']);
     $_POST['option4']   = trim(@$_POST['option4']);
+    $_POST['option5']   = trim(@$_POST['option5']);
+    $_POST['option6']   = trim(@$_POST['option6']);
+    $_POST['option7']   = trim(@$_POST['option7']);
+    $_POST['option8']   = trim(@$_POST['option8']);
+    $_POST['option9']   = trim(@$_POST['option9']);
     if (! $_POST['name']) return print "The name is required.";
     if ($source->option_fields['url']     and $source->option_fields['url']['required']     and !$_POST['url'])      return print "Missing required field: {$source->option_fields['url']['name']}";
     if ($source->option_fields['option1'] and $source->option_fields['option1']['required'] and !$_POST['option1'])  return print "Missing required field: {$source->option_fields['option1']['name']}";
     if ($source->option_fields['option2'] and $source->option_fields['option2']['required'] and !$_POST['option2'])  return print "Missing required field: {$source->option_fields['option2']['name']}";
     if ($source->option_fields['option3'] and $source->option_fields['option3']['required'] and !$_POST['option3'])  return print "Missing required field: {$source->option_fields['option3']['name']}";
     if ($source->option_fields['option4'] and $source->option_fields['option4']['required'] and !$_POST['option4'])  return print "Missing required field: {$source->option_fields['option4']['name']}";
+    if ($source->option_fields['option5'] and $source->option_fields['option5']['required'] and !$_POST['option5'])  return print "Missing required field: {$source->option_fields['option5']['name']}";
+    if ($source->option_fields['option6'] and $source->option_fields['option6']['required'] and !$_POST['option6'])  return print "Missing required field: {$source->option_fields['option6']['name']}";
+    if ($source->option_fields['option7'] and $source->option_fields['option7']['required'] and !$_POST['option7'])  return print "Missing required field: {$source->option_fields['option7']['name']}";
+    if ($source->option_fields['option8'] and $source->option_fields['option8']['required'] and !$_POST['option8'])  return print "Missing required field: {$source->option_fields['option8']['name']}";
+    if ($source->option_fields['option9'] and $source->option_fields['option9']['required'] and !$_POST['option9'])  return print "Missing required field: {$source->option_fields['option9']['name']}";
 
     // validation: color must be #XXXXXX
     if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['color'])) return print "Select a valid color.";
@@ -268,6 +278,11 @@ public function ajax_save_event_source() {
     $source->option2       = $_POST['option2'];
     $source->option3       = $_POST['option3'];
     $source->option4       = $_POST['option4'];
+    $source->option5       = $_POST['option5'];
+    $source->option6       = $_POST['option6'];
+    $source->option7       = $_POST['option7'];
+    $source->option8       = $_POST['option8'];
+    $source->option9       = $_POST['option9'];
     $source->on_by_default = $_POST['on_by_default'];
     $source->enabled       = $_POST['enabled'];
     $source->save();

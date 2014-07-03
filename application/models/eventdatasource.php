@@ -100,6 +100,7 @@ var $has_many         = array('event',);
 //      required => TRUE/FALSE      indicates whether this field MUST be filled in; use FALSE if it's okay for it to be blank (of course, make your driver smart enough to handle both its presence and absence)
 //      title => text               on the editing page, the title of this field, e.g. "API Key"
 //      help => text                on the editing page, this forms the text instructions for the field, e.g. "Contact your CSR for more info..."
+//      options => assoc            optional; instead of a text field, create a SELECT dropdown with these value=>label options
 // The text fields accept HTML and will not be escaped. Tip: If you include hyperlinks, use target=_blank so they don't lose the admin UI.
 var $option_fields = array(
     'url'     => array('required'=>TRUE, 'name'=>"URL", 'help'=>"Enter the URL of the remote feed."),
