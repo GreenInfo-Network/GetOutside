@@ -143,6 +143,12 @@ function initSearchForms() {
         }
     }).val('gps').trigger('change');
 
+    // Search Settings has an Apply button
+    // this should in fact switch over to the Search page as noirmal... but then perform a search
+    $('#page-search-settings a[href="#page-search"]').tap(function () {
+        $('#page-search button[name="search-go"]').tap();
+    });
+
     // Search Settings has this weekdays selector, as well as an option for Today vs Upcoming Week
     // spec is for these to be checkboxes,though they act kinda like radioboxes (kinda)
     // in no case may none of them be checked; if that happens select the One Week option
