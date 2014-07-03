@@ -573,21 +573,44 @@ function renderPlacesList() {
         var li   = $('<li></li>').data('rawresult',item).appendTo($target);
 
         // if this Place has activities, create a inset listview
+        // aggregating the entries by the name, e.g. instead of listing "Open Swim Mon-Tue", "Open Swim Thu-Fri"
+        // they'd prefer to list "Open Swim Mon-Tue, Thu-Fri" with less vertical space consumed, and fewer insert breaks
         if (item.activities) {
-            var label = $('<h2></h2>').text(item.name).appendTo(li);
-            $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
-
-            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(li);
+            // make an assoc to guarantee uniqueness, each name having a list of days-and-times
+            var activities = {};
             for (var ai=0, al=item.activities.length; ai<al; ai++) {
                 var actname  = item.activities[ai].name;
                 var actstart = item.activities[ai].start;
                 var actend   = item.activities[ai].end;
                 var actdays  = item.activities[ai].days;
+                if (! activities[actname]) activities[actname] = [];
+                activities[actname].push({ start:actstart, end:actend, days:actdays });
+            }
 
-                var line1 = $('<div></div>').addClass('ui-btn-text').text(actname);
-                var line2 = $('<div></div>').addClass('ui-btn-text').text(actstart + ' - ' + actend);
-                var line3 = $('<div></div>').addClass('ui-btn-text').text(actdays);
-                $('<li></li>').append(line1).append(line2).append(line3).appendTo(sublist);
+            // make a list of the keys of the activities listing, and sort it; thus we can alphabetically iterate
+            // remember, assocs are inherently unsorted and if they happen to come out alphabetically it was purely coincidental
+            var activity_names = [];
+            for (var i in activities) activity_names.push(i);
+            activity_names.sort();
+
+            // finally, some content!
+            var label = $('<h2></h2>').text(item.name).appendTo(li);
+            $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
+
+            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(li);
+            for (var ai=0, al=activity_names.length; ai<al; ai++) {
+                var actname  = activity_names[ai];
+                var actlist  = activities[actname];
+
+                var inset = $('<li></li>').appendTo(sublist);
+                $('<div></div>').addClass('ui-btn-text').text(actname).appendTo(inset);
+                for (var tai=0, tal=actlist.length; tai<tal; tai++) {
+                    var days  = actlist[tai].days;
+                    var start = actlist[tai].start;
+                    var end   = actlist[tai].end;
+
+                    $('<div></div>').addClass('ui-btn-text').html(days + ' &nbsp;&nbsp; ' + start + ' - ' + end).appendTo(inset);
+                }
             }
         } else {
             var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
