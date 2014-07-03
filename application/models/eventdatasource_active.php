@@ -62,6 +62,7 @@ public function reloadContent() {
     $params['category']     = 'event';
     $params['lat_lon']      = sprintf("%.5f,%.5f", $lat, $lon );
     $params['radius']       = 40;
+    $params['per_page']     = 10000;
     //$params['bbox']         = sprintf("%f,%f;%f,%f", $this->siteconfig->get('bbox_s'), $this->siteconfig->get('bbox_w'), $this->siteconfig->get('bbox_n'), $this->siteconfig->get('bbox_e') );
     if ($orgid) $params['org_id'] = $orgid;
     $url = sprintf('http://api.amp.active.com/v2/search?api_key=%s&%s', $apikey, http_build_query($params) );
