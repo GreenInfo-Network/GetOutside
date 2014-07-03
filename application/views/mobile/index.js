@@ -282,18 +282,30 @@ function initMap() {
 
 function initMapInfoPanel() {
     // the slide-in panel over the map, showing info about whatever was clicked
-    // see also the clickMarker_ family of functions
+    // this is primarily opened and populated by the clickMarker_ family of functions, so see them for more info
 
-    // the A directly under the info panel, closes the panel
-    $('#map_infopanel > a').click(function () {
+    // buttons in the info panel: close this slideout
+    $('#map_infopanel > a[data-icon="delete"]').click(function () {
         $('#map_infopanel').hide();
     });
+
+    // buttons in the info panel: open navigation to the given location
+    // due to popup blockers inherent in mobile browsers, this works by properly assigning a 'href' and clicking the link
+    // coordinates are populated by updateNavigationLinkFromMarker() which itself is called from the clickMarker_ family of functions
+    //$('#map_infopanel > a[data-icon="navigation"]')
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function is_ios() {
+    return -1 != navigator.userAgent.indexOf('iOS');
+}
+function is_android() {
+    return -1 != navigator.userAgent.indexOf('Android');
+}
 
 function selectBasemap(which) {
     for (var i in BASEMAPS) MAP.removeLayer(BASEMAPS[i]);
@@ -640,7 +652,7 @@ function renderEventsList() {
                     switchToMap(function () {
                         zoomToPoint(latlng);
                         var marker = getMarkerById(markid);
-                        if (marker) clickMarker_Event(marker);
+                        if (marker) clickMarker_EventLocation(marker);
                     });
                 });
             }
@@ -722,6 +734,9 @@ function clickMarker_EventLocation(marker) {
     // start by highlighting, why not?
     highlightMarker(marker);
 
+    // update the Directions link to navigate to this marker
+    updateNavigationLinkFromMarker(marker);
+
     // expand the info panel, then show only this one subpanel for the marker type
     var panel = $('#map_infopanel').show();
     var subpanel = panel.children('div[data-type="eventlocation"]').show();
@@ -758,6 +773,9 @@ function clickMarker_EventLocation(marker) {
 function clickMarker_Place(marker) {
     // start by highlighting, why not?
     highlightMarker(marker);
+
+    // update the Directions link to navigate to this marker
+    updateNavigationLinkFromMarker(marker);
 
     // expand the info panel, then show only this one subpanel for the marker type
     var panel = $('#map_infopanel').show();
@@ -801,3 +819,31 @@ function highlightMarker(marker) {
     }
     marker.setZIndexOffset(10000);
 }
+
+function updateNavigationLinkFromMarker(marker) {
+    // this hyperlink is triggered on click, to open the navigation/directions to the given point; see also see initMapInfoPanel() 
+    // updateNavigationLinkFromMarker() should be called from the clickMarker_ family of functions, to bring the nav link into line with the marker being displayed
+    var target = $('#map_infopanel > a[data-icon="navigation"]');
+    var there  = marker.getLatLng();
+
+    if (is_ios()) {
+        // iOS; open Apple Maps cuz there is no navigation intent
+        var here = LOCATION.getLatLng();
+        //var url  = 'http://maps.apple.com/maps?saddr=loc:'+here.lat+','+here.lng+'&daddr=loc:'+there.lat+','+there.lng;
+        var url  = 'maps:daddr='+here.lat+','+here.lng;
+        target.prop('href',url);
+    } else if (is_android()) {
+        // Android; open Google Maps, cuz the google.navigation intent is not consistently implemented
+        var here = LOCATION.getLatLng();
+        var url  = 'http://maps.google.com/maps?saddr=loc:'+here.lat+','+here.lng+'&daddr=loc:'+there.lat+','+there.lng;
+        target.prop('href',url);
+    }
+    else {
+        // desktop; fail over and open a new window, to Google Maps
+        // for this case we explicitly give our starting point, since it's not an onboard app that's been tracking us all along
+        var here = LOCATION.getLatLng();
+        var url  = 'http://maps.google.com/maps?saddr=loc:'+here.lat+','+here.lng+'&daddr=loc:'+there.lat+','+there.lng;
+        target.prop('href',url);
+    }
+}
+

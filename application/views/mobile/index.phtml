@@ -39,6 +39,11 @@
     var START_Y = <?= ( $this->siteconfig->get('bbox_s') + $this->siteconfig->get('bbox_n') ) /2 ?>;
     </script>
 
+    <!-- remote debugging for mobile apps; please use your own weinre server! -->
+    <!--
+    <script type="text/javascript" src="http://weinre.greeninfo.org:8080/target/target-script-min.js#getoutside"></script>
+    -->
+
     <!-- sitewide styling overriding the selected theme and providing common code & style to the front-facing site -->
     <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/mobile/index.css" />
     <script type="text/javascript" src="<?= site_url() ?>/application/views/mobile/index.js"></script>
@@ -184,15 +189,16 @@
                 of the supported area.
             </div>
             <div id="map_infopanel">
-                <a href="javascript:void(0);" data-role="button" data-icon="delete" data-iconpos="notext" data-inline="true" data-mini="true"></a><!--this X closes the panel, see initMapInfoPanel() -->
+                <a href="javascript:void(0);" target="_blank" data-role="button" data-icon="navigation" data-inline="true" data-mini="true" style="float:right;" data-lng="" data-lat="">Directions</a><!--this opens the nav app, see initMapInfoPanel() -->
+                <a href="javascript:void(0);" data-role="button" data-icon="delete" data-iconpos="notext" data-inline="true" data-mini="true" style="float:left;"></a><!--this X closes the panel, see initMapInfoPanel() -->
                 <div data-type="place">
-                    <h3 data-field="name"></h3>
+                    <p data-field="name" style="font-weight:bold; font-size:115%;"></p>
                     <p data-field="desc"></p>
                     <a data-field="url" target="_blank" href="about:blank">More Info</a>
                     <p>Categories: <span data-field="categories"></span></p>
                 </div>
                 <div data-type="eventlocation">
-                    <h3 data-field="event.name"></h3>
+                    <p data-field="event.name" style="font-weight:bold; font-size:115%;"></p>
                     <p data-field="event.datetime"></p>
                     <p>
                         <span data-field="location.title"></span>
