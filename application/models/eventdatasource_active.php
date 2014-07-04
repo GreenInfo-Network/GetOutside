@@ -15,8 +15,8 @@ var $option_fields = array(
     'option5' => NULL,
     'option6' => NULL,
     'option7' => NULL,
-    'option8' => NULL,
-    'option9' => NULL,
+    'option8' => array('required'=>FALSE, 'name'=>"Include classes and workshops?", 'help'=>"When fetching events, should classes be included or excluded?", 'options'=>array('0'=>'Excluded', '1'=>'Included') ),
+    'option9' => array('required'=>FALSE, 'name'=>"Include conferences and meetings?", 'help'=>"When fetching events, should meetings be included or excluded?", 'options'=>array('0'=>'Excluded', '1'=>'Included') ),
 );
 
 // one of very few event data source types, where location exists reliably and in computer-readable form
@@ -49,6 +49,24 @@ public function reloadContent() {
     $orgid  = $this->option2;
     if (! preg_match('/^\w+$/', $apikey)) throw new EventDataSourceErrorException('Active.com Event Search API v2 requires an API key.');
     if ($orgid and !preg_match('/^[\w\-]+$/', $orgid)) throw new EventDataSourceErrorException('The specified Organization ID is not valid.');
+
+    // compose the list of what Category names are classes and meetings, and whether we should include these
+    // this is used to exclude some events by these broad category areas
+    // why an assoc? speedy random access, better than a linear array
+    $include_classes  = (integer) $this->option8 ? TRUE : FALSE;
+    $include_meetings = (integer) $this->option9 ? TRUE : FALSE;
+    $categories_classes = array(
+        'Workshops' => TRUE,
+        'Classes' => TRUE,
+        'Lessons' => TRUE,
+        'Clinics' => TRUE,
+    );
+    $categories_meetings = array(
+        'Leagues' => TRUE,
+        'Memberships' => TRUE,
+        'Conferences' => TRUE,
+        'Meetings' => TRUE,
+    );
 
     // make up the API calls
     // - first fetch is with 0 items per page; gets us a "total_results" attribute so we can begin paging over the results
@@ -101,12 +119,35 @@ public function reloadContent() {
     $success    = 0;
     $failed     = 0;
     $nolocation = 0;
+    $nocategory = 0;
     foreach ($collected_events as $entry) {
         // if this Event lacks a location, bail
         // this is later used to generate an EventLocation
         $lat = (float) @$entry->place->geoPoint->lat;
         $lon = (float) @$entry->place->geoPoint->lon;
         if (! $lat or ! $lon) { $nolocation++; continue; }
+
+        // if this event is in a subcategory not interesting to us, skip it
+        // known list to date:
+        // Workshops
+        // Classes
+        // Lessons
+        // Clinics
+        // Memberships
+        // Conferences
+        // Meetings
+        // Trail heads
+        // Camps
+        // Clubs
+        // Event
+        // Leagues
+        // Races
+        // Tournaments
+
+        $category = @$entry->assetCategories[0]->category->categoryName;
+        if (! $include_classes  and array_key_exists($category,$categories_classes))   { $nocategory++; continue; }
+        if (! $include_meetings and array_key_exists($category,$categories_meetings))  { $nocategory++; continue; }
+error_log("GDA keepcat: $category");
 
         // find an URL
         $url = @$entry->assetLegacyData->seoUrl;
@@ -194,6 +235,7 @@ public function reloadContent() {
     $message[] = "Successfully loaded $success events.";
     if ($failed)        $message[] = "$failed events skipped due to blank/missing name.";
     if ($nolocation)    $message[] = "$nolocation events lacked a location.";
+    if ($nocategory)    $message[] = "$nocategory events excluded due to category filters.";
     $message = implode("\n",$message);
     throw new EventDataSourceSuccessException($message);
 }
