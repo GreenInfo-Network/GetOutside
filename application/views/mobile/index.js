@@ -465,6 +465,8 @@ function performSearchReally(options) {
     $('#page-search-settings input[name="weekdays"]:checked').each(function () { params.weekdays.push($(this).prop('value')); });
     $('#page-search-settings input[name="gender"]:checked').each(function () { params.gender.push($(this).prop('value')); });
     $('#page-search-settings input[name="agegroup"]:checked').each(function () { params.agegroup.push($(this).prop('value')); });
+    if (params.agegroup.length == 1 && params.agegroup[0] == '0')   delete(params.agegroup);
+    if (params.gender.length   == 1 && params.gender[0] == '0')     delete(params.gender);
 
     // .. and send off
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
