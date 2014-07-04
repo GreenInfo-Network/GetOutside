@@ -575,9 +575,10 @@ function renderPlacesList() {
         var li   = $('<li></li>').data('rawresult',item).appendTo($target);
 
         // if this Place has activities, create a inset listview
-        // aggregating the entries by the name, e.g. instead of listing "Open Swim Mon-Tue", "Open Swim Thu-Fri"
-        // they'd prefer to list "Open Swim Mon-Tue, Thu-Fri" with less vertical space consumed, and fewer insert breaks
         if (item.activities) {
+            // there are activities so this element is much more complex
+            // in that we need to make an inset panel for each type of activity,  which has a list of the days/times for that activity
+
             // make an assoc to guarantee uniqueness, each name having a list of days-and-times
             var activities = {};
             for (var ai=0, al=item.activities.length; ai<al; ai++) {
@@ -592,7 +593,7 @@ function renderPlacesList() {
             // make a list of the keys of the activities listing, and sort it; thus we can alphabetically iterate
             // remember, assocs are inherently unsorted and if they happen to come out alphabetically it was purely coincidental
             var activity_names = [];
-            for (var i in activities) activity_names.push(i);
+            for (var act in activities) activity_names.push(act);
             activity_names.sort();
 
             // finally, some content!
@@ -615,6 +616,8 @@ function renderPlacesList() {
                 }
             }
         } else {
+            // no activities so this element is much simpler,
+            // just a the text label and the distance readout placeholder
             var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
             $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
             $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
