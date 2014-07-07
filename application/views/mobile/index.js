@@ -415,7 +415,7 @@ function getMarkerById(id) {
         if (id == lx[i].options.attributes.id) return lx[i];
 
         // a LocationEvent marker has the eventlocation-ID under the location sub-attribute
-        if (id == lx[i].options.attributes.location.id) return lx[i];
+        if (lx[i].options.attributes.location && id == lx[i].options.attributes.location.id) return lx[i];
     }
     return null;
 }
@@ -600,7 +600,25 @@ function renderPlacesList() {
             var label = $('<h2></h2>').text(item.name).appendTo(li);
             $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
 
-            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(li);
+            var button = $('<div></div>').text('Show activities').addClass('placeactivities_toggle').appendTo(li);
+            button.click(function (event) {
+                // keep the click from falling through to the location itself, and thus triggering a switch over to the map
+                event.preventDefault();
+                event.stopPropagation();
+
+                // clicking ths link toggles the neighboring DIV that has the inset listview
+                var target = $(this).siblings('div.placeactivities');
+                if ( target.is(':visible') ) {
+                    target.hide();
+                    $(this).text('Show activities');
+                } else {
+                    target.show();
+                    $(this).text('Hide activities');
+                }
+            });
+
+            var div = $('<div></div>').addClass('placeactivities').appendTo(li);
+            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(div);
             for (var ai=0, al=activity_names.length; ai<al; ai++) {
                 var actname  = activity_names[ai];
                 var actlist  = activities[actname];
@@ -629,7 +647,9 @@ function renderPlacesList() {
             var markid = $(this).data('rawresult').id;
             switchToMap(function () {
                 zoomToPoint(latlng);
+console.log(markid);//gda
                 var marker = getMarkerById(markid);
+console.log(marker);//gda
                 if (marker) clickMarker_Place(marker);
             });
         });

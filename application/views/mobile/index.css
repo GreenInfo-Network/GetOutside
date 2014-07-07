@@ -125,6 +125,30 @@ img.leaflet-marker-icon.leaflet-marker-highlight {
     border-radius:10px;
 }
 
+
+/*** RESULT LISTINGS ***/
+
+#page-search-results-places-list li {
+    cursor:pointer;
+}
+
+#page-search-results-events-list li {
+    cursor:pointer;
+}
+
+#page-search-results-places-list div.placeactivities_toggle {
+    color:#6060FF;
+    font-weight:bold;
+}
+
+#page-search-results-places-list div.placeactivities {
+    display:none; /* there's a button to show it; see renderPlacesList() */
+}
+
+
+placeactivities
+
+
 /*** JQUERY FIXES ***/
 
 .ui-listview > .ui-li-static, .ui-listview > .ui-li-divider, .ui-listview > li > a.ui-btn {
