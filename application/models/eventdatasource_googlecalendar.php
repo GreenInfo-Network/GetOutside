@@ -208,7 +208,6 @@ public function reloadContent() {
             // a 0,0 result is valid and specifically indicates that the address failed
             $geo_cache[$where] = array( 'lat'=>$lat, 'lng'=>$lng );
         }
-if (!$lat or !$lng) error_log("GDA: $where");
         if (!$lat or !$lng) { $no_geocode++; continue; }
 
         $loc = new EventLocation();
