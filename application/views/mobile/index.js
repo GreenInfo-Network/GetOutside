@@ -101,7 +101,7 @@ function resizeMap() {
 
 function switchToMap(callback) {
     $.mobile.changePage('#page-map');
-    if (callback) setTimeout(callback,500);
+    if (callback) setTimeout(callback,750);
     setTimeout(resizeMap,750);
 }
 
@@ -401,8 +401,8 @@ function performBrowseMap() {
     // zooming in on your own location, is against the spirit of Browse Map... and has some awful timing issues
     // if they have AUTO_RECENTER enabled, they'll zoom on their own location in a moment anyway when a locationfound event happens
     switchToMap(function () {
+        MAP.fitBounds(MAX_EXTENT);
         performSearchReally({ 'afterpage':'#page-map' });
-        zoomToPoint(L.latLng([START_Y,START_X]));
     });
 }
 
