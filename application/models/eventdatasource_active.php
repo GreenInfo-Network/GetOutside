@@ -10,7 +10,7 @@ var $option_fields = array(
     'url'     => NULL,
     'option1' => array('required'=>TRUE, 'name'=>"API Key", 'help'=>"Your Active.com API key for the Event Search API v2"),
     'option2' => array('required'=>FALSE, 'name'=>"Org ID", 'help'=>"Optional: Enter your Organization GUID to filter the listings, showing only your events from Active.com. To find your Organization GUID, contact Active.com technical support."),
-    'option3' => NULL,
+    'option3' => array('required'=>FALSE, 'name'=>"Skip Place GUID", 'help'=>"Optional: Enter a Place GUID and events at this location will be skipped. This is useful when a majority of events are simply placed at the center of the city, and not at their actual address. Example: &quot;Minneapolis - St Paul&quot; is 78f2df42-a297-4635-a587-282d0578623f"),
     'option4' => NULL,
     'option5' => NULL,
     'option6' => NULL,
@@ -68,6 +68,9 @@ public function reloadContent() {
         'Meetings' => TRUE,
     );
 
+    // is there a Place GUID for skipping events falling at a given location?
+    $exclude_place_guid = $this->option3;
+
     // make up the API calls
     // - first fetch is with 0 items per page; gets us a "total_results" attribute so we can begin paging over the results
     // - filter by Org ID (all org events) or else by region (bounding box of the city, 50 miles radius)
@@ -116,13 +119,16 @@ public function reloadContent() {
     }
 
     // ... then load the new ones
-    $success    = 0;
-    $failed     = 0;
-    $nolocation = 0;
-    $nocategory = 0;
+    $success      = 0;
+    $failed       = 0;
+    $nolocation   = 0;
+    $nocategory   = 0;
+    $skiplocation = 0;
     foreach ($collected_events as $entry) {
         // if this Event lacks a location, bail
         // this is later used to generate an EventLocation
+        // and we only want events which can be plotted onto the map
+        if ($exclude_place_guid and @$entry->place->placeGuid == $exclude_place_guid) { $skiplocation++; continue; }
         $lat = (float) @$entry->place->geoPoint->lat;
         $lon = (float) @$entry->place->geoPoint->lon;
         if (! $lat or ! $lon) { $nolocation++; continue; }
@@ -150,6 +156,8 @@ public function reloadContent() {
 
         // find an URL
         $url = @$entry->assetLegacyData->seoUrl;
+        if (! $url) $url = @$entry->urlAdr;
+        if (! $url) $url = @$entry->homePageUrlAdr;
         if (! $url) $url = @$entry->registrationUrlAdr;
 
         $event = new Event();
@@ -159,7 +167,8 @@ public function reloadContent() {
         $event->ends                = strtotime($entry->activityEndDate); // Unix timestamp
         $event->name                = substr($entry->assetName,0,100);
         $event->url                 = $url;
-        $event->description         = (string) @$entry->assetDescriptions[0]->description;
+        $event->description         = ""; // real-world descriptions are multi-kilobyte HTML, looks awful
+        //$event->description         = (string) @$entry->assetDescriptions[0]->description;
 
         // name is required
         if (!$event->name) { $failed++; continue; }
@@ -233,7 +242,8 @@ public function reloadContent() {
     $message = array();
     $message[] = "Successfully loaded $success events.";
     if ($failed)        $message[] = "$failed events skipped due to blank/missing name.";
-    if ($nolocation)    $message[] = "$nolocation events lacked a location.";
+    if ($nolocation)    $message[] = "$nolocation events skipped due to no location.";
+    if ($skiplocation)  $message[] = "$skiplocation events skipped due to location being excluded Place GUID.";
     if ($nocategory)    $message[] = "$nocategory events excluded due to category filters.";
     $message = implode("\n",$message);
     throw new EventDataSourceSuccessException($message);
