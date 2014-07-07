@@ -34,6 +34,13 @@ a {
 }
 
 
+/*** SEARCH PAGE ***/
+
+#page-search {
+    margin: 0 5%;
+    width: 90%;
+}
+
 /*** OUTSIDE AREA if the user is outside the supported area, these elements are visible ***/
 
 .outside_area {
@@ -113,8 +120,8 @@ a {
 }
 
 #map_infopanel > div {
-    width:40%;
-    margin:0 0 0 40%;
+    width:99%;
+    margin:0 10px 0 10px;
 }
 
 /*** GLOWING MARKERS ***/
