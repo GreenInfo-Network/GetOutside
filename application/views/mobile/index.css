@@ -41,6 +41,19 @@ a {
     width: 90%;
 }
 
+#page-search button[data-theme="b"] {
+    background-color: #f0f0f0;
+    border-color: #a0a0a0;
+    color: #000000;
+    text-shadow: 0 0 0 #111;
+
+    text-align: center;
+}
+
+#page-search .ui-btn {
+    text-align: left;
+}
+
 /*** OUTSIDE AREA if the user is outside the supported area, these elements are visible ***/
 
 .outside_area {
