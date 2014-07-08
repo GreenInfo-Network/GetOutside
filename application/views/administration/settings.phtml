@@ -60,6 +60,8 @@ th {
             <li><a href="#settingsform_tab_mobile">Mobile Site</a></li>
         </ul>
         <div id="settingsform_tab_basic">
+            <p>These basic settings define the title of your website and of your organization. Also defined is a general color theme for the desktop browser version of the website.</p>
+
             <table class="table-condensed">
             <tr>
                 <td>Web Site Title <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This title appears in the browser's navigation tab and in bookmarks. In most other places, you would manually enter the title like any other website content."></div></td>
@@ -84,6 +86,8 @@ th {
             </table>
         </div>
         <div id="settingsform_tab_html">
+            <p>This panel allows you to define the HTML content for various pages of your website, such as the opening page.</p>
+
             <table class="table-condensed">
             <tr>
                 <td>HTML for the front page <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This HTML will form the content of the front page of your site at <?= htmlentities(site_url()) ?>"></div></td>
@@ -100,6 +104,9 @@ th {
             </table>
         </div>
         <div id="settingsform_tab_extent">
+            <p>This panel allows you to define map settings, such as the area of interest and a Bing Maps API key for geocoding.</p>
+            <p>Note that the area given may not exactly match the map as it appears on other computer screens.</p>
+
             <table class="table-condensed">
             <tr>
                 <td>Bing Maps API Key <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Address searching and directions are courtesy of Bing Maps. To use these, you need a Bing Maps API Key."></div></td>
@@ -123,8 +130,9 @@ th {
             </table>
         </div>
         <div id="settingsform_tab_mobile">
-            <table class="table-condensed">
+            <p>Users on mobile devices will automatically be redirected to <a target="_blank" href="<?= site_url() ?>/mobile">the mobile site</a>. Use this panel to set colors and other options for the mobile site.</p>
 
+            <table class="table-condensed">
             <tr>
                 <td colspan="2"><h3>Colors</h3></td>
             </tr>
