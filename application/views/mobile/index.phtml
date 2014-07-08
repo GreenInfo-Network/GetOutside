@@ -11,18 +11,21 @@
     <script type="text/javascript" src="<?= site_url() ?>/application/views/common/jquery.sort.js"></script>
 
     <!-- Leaflet map framework -->
-    <link rel="stylesheet" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
     <!--[if lte IE 8]>
-    <link rel="stylesheet" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
     <![endif]-->
     <script src="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
 
     <script src="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.js"></script>
-    <link rel="stylesheet" href="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.css" />
 
     <script src="<?=site_url()  ?>/application/views/common/leaflet.markercluster/leaflet.markercluster.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
+
+    <!-- the custom, admin-generated stylesheet -->
+    <link rel="stylesheet" type="text/css" href="<?=site_url() ?>mobile/css" />
 
     <script type="text/javascript">
     var BASE_URL = <?= json_encode(site_url()) ?>;
@@ -37,6 +40,11 @@
     var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
     var START_X = <?= ( $this->siteconfig->get('bbox_w') + $this->siteconfig->get('bbox_e') ) /2 ?>;
     var START_Y = <?= ( $this->siteconfig->get('bbox_s') + $this->siteconfig->get('bbox_n') ) /2 ?>;
+
+    var MARKER_WIDTH      = <?= $this->siteconfig->get('mobile_marker_width') ?>;
+    var MARKER_HEIGHT     = <?= $this->siteconfig->get('mobile_marker_height') ?>;
+    var GPS_MARKER_WIDTH  = <?= $this->siteconfig->get('mobile_marker_gps_width') ?>;
+    var GPS_MARKER_HEIGHT = <?= $this->siteconfig->get('mobile_marker_gps_height') ?>;
     </script>
 
     <!-- remote debugging for mobile apps; please use your own weinre server! -->
@@ -54,7 +62,7 @@
 <div data-role="page" id="page-search">
     <form action="javascript:void(0);">
         <div class="center">
-            <img src="<?= site_url() ?>/application/views/mobile/mobile-logo.png" />
+            <img src="<?= site_url() ?>/mobile/image/logo" />
         </div>
 
         <div class="outside_area" id="search-outsidearea">

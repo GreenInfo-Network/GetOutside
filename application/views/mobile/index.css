@@ -41,15 +41,6 @@ a {
     width: 90%;
 }
 
-#page-search button[data-theme="b"] {
-    background-color: #f0f0f0;
-    border-color: #a0a0a0;
-    color: #000000;
-    text-shadow: 0 0 0 #111;
-
-    text-align: center;
-}
-
 #page-search .ui-btn {
     text-align: left;
 }
@@ -89,22 +80,20 @@ a {
     
 }
 .search-results-navbar div {
+    /* colors are overridden in the mobile/css dynamic stylesheet *(admin-defined) */
     background-color:black;
+    border-right:1px solid white;
 
     height:2.5em;
 
     text-align:center;
     vertical-align:middle;
-
-    border-right:1px solid white;
 }
 .search-results-navbar div:last-child {
     border-right:0 none transparent;
 }
 .search-results-navbar a {
-    color:white !important;
-    text-shadow:none;
-
+    /* colors are defined in mobile/css dynamic stylesheet (admin-defined) */
     display:inline-block;
 }
 .search-results-navbar div:first-child {
@@ -135,14 +124,6 @@ a {
 #map_infopanel > div {
     width:99%;
     margin:0 10px 0 10px;
-}
-
-/*** GLOWING MARKERS ***/
-img.leaflet-marker-icon.leaflet-marker-highlight {
-    box-shadow: 0 0 8px 6px #ff8000 !important;
-    background-color: #ff8000 !important;
-    -webkit-box-shadow: 0 0 8px 6px #ff8000 !important;
-    border-radius:10px;
 }
 
 

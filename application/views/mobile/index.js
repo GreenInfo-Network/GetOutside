@@ -234,9 +234,10 @@ function initMap() {
     selectBasemap('terrain');
 
     // define the marker and circle for our location and accuracy
+    // the marker is loaded from a data endpoint and the width & height are in HTML, since these are dynamically set by the admin UI
     var icon = L.icon({
-        iconUrl: BASE_URL + 'application/views/mobile/images/marker-gps.png',
-        iconSize: [25, 41]
+        iconUrl: BASE_URL + 'mobile/image/marker_gps',
+        iconSize: [GPS_MARKER_WIDTH, GPS_MARKER_HEIGHT]
     });
     LOCATION  = L.marker([0,0], { clickable:false, draggable:false, icon:icon }).addTo(MAP);
     ACCURACY  = L.circle([0,0], 1000, { clickable:false }).addTo(MAP);
@@ -538,7 +539,12 @@ function renderPlacesMap() {
     var items = $('#page-search-results-places-list').data('rawresults');
 
     for (var i=0, l=items.length; i<l; i++) {
-        L.marker([items[i].lat,items[i].lng], { title:items[i].name, attributes:items[i] }).addTo(MARKERS).on('click',function () {
+        var icon = L.icon({
+            iconUrl: BASE_URL + 'mobile/image/marker',
+            iconSize: [MARKER_WIDTH, MARKER_HEIGHT]
+        });
+
+        L.marker([items[i].lat,items[i].lng], { icon:icon, title:items[i].name, attributes:items[i] }).addTo(MARKERS).on('click',function () {
           clickMarker_Place(this);
         });
     }
@@ -550,9 +556,14 @@ function renderEventsMap() {
     for (var ei=0, el=events.length; ei<el; ei++) {
         if (! events[ei].locations) continue; // an event with no Locations, doesn't need to be on the map
 
+        var icon = L.icon({
+            iconUrl: BASE_URL + 'mobile/image/marker',
+            iconSize: [MARKER_WIDTH, MARKER_HEIGHT]
+        });
+
         for (var li=0, ll=events[ei].locations.length; li<ll; li++) {
             var loc = events[ei].locations[li];
-            L.marker([loc.lat,loc.lng], { title:events[ei].name, attributes:{ event:events[ei], location:loc } }).addTo(MARKERS).on('click',function () {
+            L.marker([loc.lat,loc.lng], { icon:icon, title:events[ei].name, attributes:{ event:events[ei], location:loc } }).addTo(MARKERS).on('click',function () {
               clickMarker_EventLocation(this);
             });
         }

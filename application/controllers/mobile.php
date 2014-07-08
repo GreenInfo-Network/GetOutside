@@ -18,6 +18,7 @@ public function __construct() {
 
 /***************************************************************************************
  * THE ONLY PAGE: the mobile framework
+ * and also some endpoints for fetching data... and for fetching a CSS document
  ***************************************************************************************/
 
 public function index() {
@@ -36,6 +37,49 @@ public function index() {
 
     // ready, display!
     $this->load->view('mobile/index.phtml',$data);
+}
+
+
+// these endpoints supply dynamic assets for the mobile app, notably the CSS stylesheet and the various images/logos
+public function css() {
+    $siteconfig = new SiteConfig();
+
+    // grab all keys whose name starts with mobile_ and stuff 'em into the o
+    $data = array();
+    foreach ($siteconfig->all() as $key=>$value) {
+        if (substr($key,0,7) != 'mobile_') continue;
+        $remainder = preg_replace('/^mobile_/', '', $key);
+        $data[$remainder] = $value;
+    }
+
+    // and print out the resulting CSS stylesheet
+    header('Content-type: text/css');
+    $this->load->view('mobile/css.phtml', $data);
+}
+public function image($which='') {
+    // we use a switch here so we can ensure that it's a valid SiteConfig key for a known image
+    // not as seamless as simply allowing any ol' SiteConfig key, but let's prevent any possible shenanigans involved if we decode any arbitrary user-supplied data for any arbitrary config key
+    switch ($which) {
+        case 'marker':
+            $key = 'mobile_marker';
+            break;
+        case 'marker_gps':
+            $key = 'mobile_marker_gps';
+            break;
+        case 'logo':
+            $key = 'mobile_logo';
+            break;
+        default:
+            return print "Invalid image";
+            break;
+    }
+
+    // whatever key we got, fetch it, base64 it, spit it out
+    $siteconfig = new SiteConfig();
+    $logo = $siteconfig->get($key);
+    $logo = base64_decode($logo);
+    header('Content-type: image/png');
+    print $logo;
 }
 
 
