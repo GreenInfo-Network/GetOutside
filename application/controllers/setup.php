@@ -246,6 +246,8 @@ public function index() {
     $siteconfig->set('mobile_alertbgcolor',      Mobile::$DEFAULT_COLORS['alertbgcolor'] );
     $siteconfig->set('mobile_markerglowcolor',   Mobile::$DEFAULT_COLORS['markerglowcolor'] );
     $siteconfig->set('mobile_logo',              Mobile::$DEFAULT_LOGO['content'] );
+    $siteconfig->set('mobile_logo_width',        Mobile::$DEFAULT_LOGO['width'] );
+    $siteconfig->set('mobile_logo_height',       Mobile::$DEFAULT_LOGO['height'] );
     $siteconfig->set('mobile_marker',            Mobile::$DEFAULT_MARKER['content'] );
     $siteconfig->set('mobile_marker_width',      Mobile::$DEFAULT_MARKER['width'] );
     $siteconfig->set('mobile_marker_height',     Mobile::$DEFAULT_MARKER['height'] );
