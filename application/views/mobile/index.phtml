@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?= $this->siteconfig->get('title') ?></title>
+    <title><?= $title ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- jQuery and jQuery Mobile -->
@@ -30,21 +30,21 @@
     <script type="text/javascript">
     var BASE_URL = <?= json_encode(site_url()) ?>;
 
-    var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
+    var BING_API_KEY = <?= json_encode($bing_api_key) ?>;
 
     var DISTANCE_UNITS = <?= json_encode($metric ? 'km' : 'mi') ?>;
 
-    var START_W = <?= $this->siteconfig->get('bbox_w') ?>;
-    var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
-    var START_E = <?= $this->siteconfig->get('bbox_e') ?>;
-    var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
-    var START_X = <?= ( $this->siteconfig->get('bbox_w') + $this->siteconfig->get('bbox_e') ) /2 ?>;
-    var START_Y = <?= ( $this->siteconfig->get('bbox_s') + $this->siteconfig->get('bbox_n') ) /2 ?>;
+    var START_W = <?= $bbox_w ?>;
+    var START_S = <?= $bbox_s ?>;
+    var START_E = <?= $bbox_e ?>;
+    var START_N = <?= $bbox_n ?>;
+    var START_X = <?= $start_x ?>;
+    var START_Y = <?= $start_y ?>;
 
-    var MARKER_WIDTH      = <?= $this->siteconfig->get('mobile_marker_width') ?>;
-    var MARKER_HEIGHT     = <?= $this->siteconfig->get('mobile_marker_height') ?>;
-    var GPS_MARKER_WIDTH  = <?= $this->siteconfig->get('mobile_marker_gps_width') ?>;
-    var GPS_MARKER_HEIGHT = <?= $this->siteconfig->get('mobile_marker_gps_height') ?>;
+    var MARKER_WIDTH      = <?= $marker_width ?>;
+    var MARKER_HEIGHT     = <?= $marker_height ?>;
+    var GPS_MARKER_WIDTH  = <?= $marker_gps_width ?>;
+    var GPS_MARKER_HEIGHT = <?= $marker_gps_height ?>;
     </script>
 
     <!-- remote debugging for mobile apps; please use your own weinre server! -->
