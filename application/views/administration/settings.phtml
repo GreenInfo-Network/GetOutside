@@ -10,10 +10,17 @@
 <!-- TinyMCE HTML editor -->
 <script type="text/javascript" src="<?= site_url() ?>/application/views/common/tinymce/js/tinymce/tinymce.min.js"></script>
 
+<!-- color picker -->
+<link rel="stylesheet" media="screen" type="text/css" href="<?= site_url() ?>/application/views/common/colorpicker/css/colorpicker.css" />
+<script type="text/javascript" src="<?= site_url() ?>/application/views/common/colorpicker/js/colorpicker.js"></script>
+
+<!-- AjaxForm, we now have file uploads and plain AJAX can't handle it -->
+<script type="text/javascript" src="<?= site_url() ?>/application/views/common/jquery.ajaxform.js"></script>
+
 <!-- code specific to this page -->
 <script type="text/javascript" src="<?= site_url() ?>/application/views/administration/settings.js"></script>
 <script type="text/javascript">
-var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
+var BING_API_KEY = <?= json_encode( $siteconfig['bing_api_key'] ) ?>;
 </script>
 
 <style type="text/css">
@@ -44,34 +51,35 @@ th {
 
 
 
-<form action="javascript:void(0);" id="settingsform">
+<form id="settingsform" action="<?= site_url() ?>administration/ajax_save_settings" method="post" enctype="multipart/form-data">
     <div class="tabs container" style="width:100%; padding:0;">
         <ul>
             <li><a href="#settingsform_tab_basic">Web Site Title &amp; Theme</a></li>
             <li><a href="#settingsform_tab_html">HTML Web Pages</a></li>
             <li><a href="#settingsform_tab_extent">Map Services</a></li>
+            <li><a href="#settingsform_tab_mobile">Mobile Site</a></li>
         </ul>
         <div id="settingsform_tab_basic">
             <table class="table-condensed">
             <tr>
                 <td>Web Site Title <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This title appears in the browser's navigation tab and in bookmarks. In most other places, you would manually enter the title like any other website content."></div></td>
-                <td><input type="text" name="title" size="50" maxlength="50" value="<?= htmlspecialchars( $this->siteconfig->get('title') ) ?>" /></td>
+                <td><input type="text" name="title" size="50" maxlength="50" value="<?= htmlspecialchars( $siteconfig['title'] ) ?>" /></td>
             </tr>
             <tr>
                 <td>Web Site Theme <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Select a color theme for your website."></div></td>
                 <td>
-                    <?= form_dropdown('jquitheme', $themes, $this->siteconfig->get('jquitheme') ) ?>
+                    <?= form_dropdown('jquitheme', $themes, $siteconfig['jquitheme'] ) ?>
                     <br/>
                     <img id="jquitheme_swatch" src="about:blank;" title="This is an example of the selected color scheme." />
                 </td>
             </tr>
             <tr>
                 <td>Organization Name <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="In the bottom-left of pages, this organization name will appear as a hyperlink to your main website."></div></td>
-                <td><input type="text" name="company_name" size="50" maxlength="50" value="<?= htmlspecialchars( $this->siteconfig->get('company_name') ) ?>" /></td>
+                <td><input type="text" name="company_name" size="50" maxlength="50" value="<?= htmlspecialchars( $siteconfig['company_name'] ) ?>" /></td>
             </tr>
             <tr>
                 <td>Organization Web Site URL<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="In the bottom-left of pages, this hyperlink will be shown so visitors can get to your main website."></div></td>
-                <td><input type="text" name="company_url" size="50" maxlength="50" value="<?= htmlspecialchars( $this->siteconfig->get('company_url') ) ?>" /></td>
+                <td><input type="text" name="company_url" size="50" maxlength="50" value="<?= htmlspecialchars( $siteconfig['company_url'] ) ?>" /></td>
             </tr>
             </table>
         </div>
@@ -80,13 +88,13 @@ th {
             <tr>
                 <td>HTML for the front page <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This HTML will form the content of the front page of your site at <?= htmlentities(site_url()) ?>"></div></td>
                 <td>
-                    <textarea name="html_frontpage"><?= htmlspecialchars($this->siteconfig->get('html_frontpage')) ?></textarea>
+                    <textarea name="html_frontpage"><?= htmlspecialchars($siteconfig['html_frontpage']) ?></textarea>
                     </td>
             </tr>
             <tr>
                 <td>HTML for the &quot;About&quot; page <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This HTML will form the content of the About page."></div></td>
                 <td>
-                    <textarea name="html_about"><?= htmlspecialchars($this->siteconfig->get('html_about')) ?></textarea>
+                    <textarea name="html_about"><?= htmlspecialchars($siteconfig['html_about']) ?></textarea>
                 </td>
             </tr>
             </table>
@@ -95,23 +103,124 @@ th {
             <table class="table-condensed">
             <tr>
                 <td>Bing Maps API Key <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Address searching and directions are courtesy of Bing Maps. To use these, you need a Bing Maps API Key."></div></td>
-                <td><input type="text" name="bing_api_key" size="80" maxlength="100" value="<?= htmlspecialchars( $this->siteconfig->get('bing_api_key') ) ?>" /></td>
+                <td><input type="text" name="bing_api_key" size="80" maxlength="100" value="<?= htmlspecialchars( $siteconfig['bing_api_key'] ) ?>" /></td>
             </tr>
             <tr>
                 <td>Starting Map View <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Pan and zoom the map to define the area displayed when a visitor first visits the Map page."></div></td>
                 <td>
-                    <input type="text" name="bbox_w" value="<?= $this->siteconfig->get('bbox_w') ?>" style="display:none;" />
-                    <input type="text" name="bbox_s" value="<?= $this->siteconfig->get('bbox_s') ?>" style="display:none;" />
-                    <input type="text" name="bbox_e" value="<?= $this->siteconfig->get('bbox_e') ?>" style="display:none;" />
-                    <input type="text" name="bbox_n" value="<?= $this->siteconfig->get('bbox_n') ?>" style="display:none;" />
+                    <input type="text" name="bbox_w" value="<?= $siteconfig['bbox_w'] ?>" style="display:none;" />
+                    <input type="text" name="bbox_s" value="<?= $siteconfig['bbox_s'] ?>" style="display:none;" />
+                    <input type="text" name="bbox_e" value="<?= $siteconfig['bbox_e'] ?>" style="display:none;" />
+                    <input type="text" name="bbox_n" value="<?= $siteconfig['bbox_n'] ?>" style="display:none;" />
                     <div id="bbox_map_canvas"></div>
                     <input type="text" id="geocode" size="58" placeholder="Search for your city or neighborhood" /> <input type="button" id="geocode_go" value="Search" />
                 </td>
             </tr>
             <tr>
                 <td>Metric or Imperial? <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Report distances in metric (kilometers) or Imperial (miles) ?"></div></td>
-                <td><?= form_dropdown('metric_units', array('0'=>'Imperial (miles)', '1'=>'Metric (kilometers)'), $this->siteconfig->get('metric_units') ) ?></td>
+                <td><?= form_dropdown('metric_units', array('0'=>'Imperial (miles)', '1'=>'Metric (kilometers)'), $siteconfig['metric_units'] ) ?></td>
             </tr>
+            </table>
+        </div>
+        <div id="settingsform_tab_mobile">
+            <table class="table-condensed">
+
+            <tr>
+                <td colspan="2"><h3>Colors</h3></td>
+            </tr>
+            <tr>
+                <td>General BG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="The global background color. This is used site-wide, except as overridden below."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_bgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_bgcolor'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>General FG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="The global foreground (text) color. This is used site-wide, except as overridden below."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_fgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_fgcolor'] ) ?>" /></td>
+            </tr>
+
+            <tr>
+                <td>Button BG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Default buttons: Background color. This means most buttons and selector widgets."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_buttonbgcolor1" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonbgcolor1'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Button FG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Default buttons: Foreground (text) color. This means most buttons and selector widgets."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_buttonbgcolor2" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonbgcolor2'] ) ?>" /></td>
+            </tr>
+
+            <tr>
+                <td>Alternate BG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Alternate buttons: Background color. Alternate buttons are a few special ones on the Search panel."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_buttonfgcolor1" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonfgcolor1'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Alternate FG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Alternate buttons: Foreground (text) color. Alternate buttons are a few special ones on the Search panel."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_buttonfgcolor2" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonfgcolor2'] ) ?>" /></td>
+            </tr>
+
+            <tr>
+                <td>Highlight BG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Highlight: Background color. Highlights include special alert buttons, as well as the currently-selected tab."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_alertbgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_alertbgcolor'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Highlight FG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Highlight: Foreground (text) color. Highlights include special alert buttons, as well as the currently-selected tab."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_alertfgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_alertfgcolor'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Marker Glow<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for a place, the marker has a glow effect added to it. Pick the color for this glow."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_markerglowcolor'] ) ?>" /></td>
+            </tr>
+
+            <tr>
+                <td colspan="2"><h3>Map Markers</h3></td>
+            </tr>
+            <tr>
+                <td>Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to show places and events on the map. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker" />
+                    <br/>
+                    <?= $siteconfig['mobile_marker_width'] ?> x <?= $siteconfig['mobile_marker_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="mobile_marker" size="50" />
+                    <br/>
+                </td>
+            </tr>
+            <tr>
+                <td>GPS Marker<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to show the user's location. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_gps" />
+                    <br/>
+                    <?= $siteconfig['mobile_marker_gps_width'] ?> x <?= $siteconfig['mobile_marker_gps_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="mobile_marker_gps" size="50" />
+                    <br/>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2"><h3>Branding</h3></td>
+            </tr>
+            <tr>
+                <td>Main Logo<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This logo will be shown at the top-center of the landing page (which is also the search page). The size should be approximately 230 x 120. Tip: Using a logo wider than 320px or taller than 150px may not look good on small devices."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/logo" />
+                    <br/>
+                    <?= $siteconfig['mobile_logo_width'] ?> x <?= $siteconfig['mobile_logo_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current logo, select the file here.<br/>
+                    The size should be approximately 230 x 120.<br/>
+                    Using a logo wider than 320px or taller than 150px may not look good on small devices.<br/>
+                    Tip: The background should be transparent, or else complementary to your background color.<br/>
+                    <input type="file" name="mobile_logo" size="50" />
+                </td>
+            </tr>
+
             </table>
         </div>
 
