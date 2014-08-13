@@ -45,7 +45,7 @@ public function reload_places() {
     $sources->get();
     printf("Found %d Place data sources\n", $sources->result_count() );
 
-    // a link to the site config; a not-so-great MVC-violating hack, now that the data sxources need detailed knowledge of website configuration
+    // a link to the site config; a not-so-great MVC-violating hack, now that the data sources need detailed knowledge of website configuration
     $this->load->model('SiteConfig');
     $siteconfig = new SiteConfig();
 
