@@ -227,7 +227,7 @@ public function reloadContent() {
     $message = array();
     $message[] = "Successfully loaded $howmany events.";
     if ($no_location) $message[] = "$no_location events had no location given.";
-    if ($no_geocode)  $message[] = "$no_geocode events had location but could not be found.";
+    if ($no_geocode)  $message[] = "$no_geocode events had a location which could not be found. Check that complete addresses are used.";
     $message = implode("\n", $message);
     throw new EventDataSourceSuccessException($message);
 }
