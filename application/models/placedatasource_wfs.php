@@ -99,9 +99,15 @@ public function reloadContent() {
     $features = @$xml->featureMember;
     if (! sizeof($features) ) throw new PlaceDataSourceErrorException( array('Got back no features.') );
 
+    // start the verbose output
+    $details = array();
+    $details[] = "Loaded $url";
+
     // deletions prep work: a list of all Remote-ID currently in the database within this data source
     // as we go over the records we'll remove them from this list
     // anything still remaining at the end of this process, is no longer in the remote data source and therefore should be deleted from the local database to match
+    $howmany_old = $this->place->count();
+    $details[] = sprintf("Cataloging %d old Place entries for possible removal", $howmany_old );
     $deletions = array();
     foreach ($this->place as $old) $deletions[$old->remoteid] = $old->id;
 
@@ -140,7 +146,7 @@ public function reloadContent() {
         // the simple attributes: name and description
         $name     = @$attributes[$namefield];
         $desc     = $descfield ? @$attributes[$descfield] : '';
-        if (! $name) { $name= ''; $warn_noname++; }
+        if (! $name) { $name= ''; $warn_noname++; $details[] = "Record $remoteid lacks a name"; }
         if (! $desc) { $desc= ''; }
 
         // geometry may be a gml:LinearRing (polygon, multipolygon) or a gml:Point (point) but they both have "gml:coordinates" so we lock on to that
@@ -158,12 +164,14 @@ public function reloadContent() {
         // check for obviously bad coordinates, or none at all
         if (!$lonlat) {
             $warn_badcoords++;
+            $details[] = "Record $remoteid has no coordinate information.";
             continue;
         }
         $lat = $lonlat[0];
         $lon = $lonlat[1];
         if (!$lon or !$lat or $lat>90 or $lat<-90 or $lon<-180 or $lon>180) {
             $warn_badcoords++;
+            $details[] = "Record $remoteid coordinates do not look right: $lat $lon";
             continue;
         }
 
@@ -175,12 +183,14 @@ public function reloadContent() {
             // update of an existing Place; remove this record from the "to be deleted cuz it's not in the remote source" list
             unset($deletions[$remoteid]);
 
+            $details[] = "Updating record {$remoteid}";
             $records_updated++;
         } else {
             // a new Place; set the DSID, and also Remote ID so we can identify it on future runs
             $place->placedatasource_id  = $this->id;
             $place->remoteid            = $remoteid;
 
+            $details[] = "Creating new record {$remoteid} -- $name";
             $records_new++;
         }
         $place->name             = substr($name,0,50);
@@ -200,7 +210,11 @@ public function reloadContent() {
         // do the delete...
         $delete = new Place();
         $delete->where('placedatasource_id',$this->id)->where_in('id', array_values($deletions) )->get();
-        foreach ($delete as $d) $d->delete();
+        foreach ($delete as $d) {
+            $d->delete();
+            $details[] = "Deleting outdated record: {$d->remoteid} : $d->name";
+        }
+
         // then make $deletions simply the number of records deleted
         $deletions = sizeof($deletions);
     } else {
@@ -223,6 +237,7 @@ public function reloadContent() {
         'updated' => $records_updated,
         'deleted' => $deletions,
         'nogeom'  => $warn_badcoords,
+        'details' => $details,
     );
     throw new PlaceDataSourceSuccessException($messages,$info);
 }

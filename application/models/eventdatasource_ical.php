@@ -55,12 +55,16 @@ public function reloadContent() {
     $ical = new ICal($url);
     if (! @$ical->cal) throw new EventDataSourceErrorException( array('Content is not an iCal/ICS feed.') );
 
+    $details = array();
+    $details[] = "Successfully parsed $url";
+
     // finally got here, so we're good
     // take a moment and delete all of the old Events from this data source
+    $howmany_old = $this->event->count();
     foreach ($this->event as $old) $old->delete();
+    $details[] = "Clearing out: $howmany_old old Event records";
 
     // start adding events!
-    $details = array();
     $success = 0;
     $failed  = 0;
     foreach ($ical->events() as $entry) {

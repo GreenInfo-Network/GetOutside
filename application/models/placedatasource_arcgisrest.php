@@ -98,9 +98,15 @@ public function reloadContent() {
         if ( strcasecmp($field->name,$descfield) == 0) $descfield = $field->name;
     }
 
+    // start the verbose output
+    $details = array();
+    $details[] = "Loaded $url";
+
     // compose a list of all Remote-ID currently in the database within this data source
     // as we go over the records we'll remove them from this list
     // anything still remaining at the end of this process, is no longer in the remote data source and therefore should be deleted from the local database to match
+    $howmany_old = $this->place->count();
+    $details[] = sprintf("Cataloging %d old Place entries for possible removal", $howmany_old );
     $deletions = array();
     foreach ($this->place as $old) $deletions[$old->remoteid] = $old->id;
 
@@ -114,7 +120,7 @@ public function reloadContent() {
         $remoteid    = (integer) $feature->attributes->OBJECTID;
         $name        = $feature->attributes->{$namefield};
         $description = $descfield ? $feature->attributes->{$descfield} : '';
-        if (! $name)        { $name= ' ';        $warn_noname++; }
+        if (! $name)        { $name= ' ';        $warn_noname++; $details[] = "Record $remoteid lacks a name"; }
         if (! $description) { $description = ''; $warn_nodesc++; }
 
         list($longitude,$latitude) = call_user_func_array(array($this, $geom_extractor), array($feature->geometry));
@@ -126,12 +132,14 @@ public function reloadContent() {
             // update of an existing Place; remove this record from the "to be deleted cuz it's not in the remote source" list
             unset($deletions[$remoteid]);
 
+            $details[] = "Updating record {$remoteid}";
             $records_updated++;
         } else {
             // a new Place; set the DSID, and also Remote ID so we can identify it on future runs
             $place->placedatasource_id  = $this->id;
             $place->remoteid            = $remoteid;
 
+            $details[] = "Creating new record {$remoteid} -- $name";
             $records_new++;
         }
         $place->name             = substr($name,0,50);
@@ -148,7 +156,11 @@ public function reloadContent() {
         // do the delete...
         $delete = new Place();
         $delete->where('placedatasource_id',$this->id)->where_in('id', array_values($deletions) )->get();
-        foreach ($delete as $d) $d->delete();
+        foreach ($delete as $d) {
+            $d->delete();
+            $details[] = "Deleting outdated record: {$d->remoteid} : $d->name";
+        }
+
         // then make $deletions simply the number of records deleted
         $deletions = sizeof($deletions);
     } else {
@@ -170,6 +182,7 @@ public function reloadContent() {
         'updated' => $records_updated,
         'deleted' => $deletions,
         'nogeom'  => $warn_geom,
+        'details' => $details,
     );
     throw new PlaceDataSourceSuccessException($messages,$info);
 }

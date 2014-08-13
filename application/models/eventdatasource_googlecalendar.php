@@ -114,9 +114,15 @@ public function reloadContent() {
         $summaries[$id] = $sum;
     }
 
+    $details = array();
+    $details[] = "Successfully parsed $url";
+    $details[] = sprintf("Found %d summaries to process", sizeof($summaries) );
+
     // finally got here, so we're good, dang that's a lot of validation; it'll pay off in the long run  ;)
     // take a moment and delete all of the old Events from this data source
+    $howmany_old = $this->event->count();
     foreach ($this->event as $old) $old->delete();
+    $details[] = "Clearing out: $howmany_old old Event records";
 
     // iterate over FULL entries and use them to construct our records
     // splicing onto them the $summaries entry from the Basic feed   so we can extract the Where: info from them
@@ -130,7 +136,6 @@ public function reloadContent() {
     $howmany     = 0;
     $no_geocode  = 0;
     $no_location = 0;
-    $details = array();
     foreach ($full_xml->entry as $entry) {
         $id             = basename( (string) $entry->id );
         $entry->summary = @$summaries[$id]; if (! $entry->summary) $entry->summary = "";

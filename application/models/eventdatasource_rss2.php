@@ -68,12 +68,16 @@ public function reloadContent() {
     $title   = (string) $xml->channel->title;
     if (!$title or !$link) throw new EventDataSourceErrorException( array('Feed is XML but lacks RSS 2.0 headers. Maybe this is an Atom feed?') );
 
+    $details = array();
+    $details[] = "Successfully parsed $url";
+
     // finally got here, so we're good, dang that's a lot of validation; it'll pay off in the long run  ;)
     // take a moment and delete all of the old Events from this data source
+    $howmany_old = $this->event->count();
     foreach ($this->event as $old) $old->delete();
+    $details[] = "Clearing out: $howmany_old old Event records";
 
     // iterate over entries
-    $details = array();
     $success = 0;
     $failed  = 0;
     foreach ($xml->channel->item as $entry) {

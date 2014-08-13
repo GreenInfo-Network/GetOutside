@@ -96,6 +96,8 @@ public function reloadContent() {
     $url = sprintf('http://api.amp.active.com/v2/search?api_key=%s&%s', $apikey, http_build_query($params) );
     //throw new EventDataSourceErrorException( array($url) );
 
+    $details = array();
+
     // make this first request, which is only to figure out how many records we will be fetching
     $content = @json_decode(@file_get_contents($url));
     if (!$content) throw new EventDataSourceErrorException( array("No result structure. Check that this API key is active for the Activity Search API v2") );
@@ -110,20 +112,26 @@ public function reloadContent() {
     for ($page=1; $page<=$pages; $page++) {
         $params['current_page'] = $page;
         $url     = sprintf('http://api.amp.active.com/v2/search?api_key=%s&%s', $apikey, http_build_query($params) );
+
+        $details[] = sprintf("Parsing %s", $url );
+
         $content = @json_decode(@file_get_contents($url));
         foreach ($content->results as $entry) $collected_events[] = $entry;
     }
     //throw new EventDataSourceErrorException(array( sprintf("Collected %d raw entries", sizeof($collected_events) ) ));
 
+    $details[] = sprintf("Found %d Event records to process", sizeof($collected_events) );
+
     // guess we're good! delete the existing Events in this source...
     // and also any EventLocations, cuz MySQL isn't smart enough to cacade-delete...
+    $howmany_old = $this->event->count();
     foreach ($this->event as $old) {
         foreach ($old->eventlocation as $l) $l->delete();
         $old->delete();
     }
+    $details[] = "Clearing out: $howmany_old old Event records";
 
     // ... then load the new ones
-    $details = array();
     $success      = 0;
     $failed       = 0;
     $nolocation   = 0;
