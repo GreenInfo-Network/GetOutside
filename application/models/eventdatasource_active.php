@@ -147,7 +147,6 @@ public function reloadContent() {
         $category = @$entry->assetCategories[0]->category->categoryName;
         if (! $include_classes  and array_key_exists($category,$categories_classes))   { $nocategory++; continue; }
         if (! $include_meetings and array_key_exists($category,$categories_meetings))  { $nocategory++; continue; }
-error_log("GDA keepcat: $category");
 
         // find an URL
         $url = @$entry->assetLegacyData->seoUrl;
