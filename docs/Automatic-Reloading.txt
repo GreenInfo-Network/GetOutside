@@ -46,3 +46,13 @@ How often you need to reload, is really up to you. Consider these points:
         with a brand-new park not showing up for a whole day (given that it took
         six months for it to be finalized and pushed into the data source)?
 
+Command-Line Only!
+
+If you're used to the style of programming used in this framework, you may be surprised to find
+that you cannot trigger the cronjobs via a browser. If you try an URL like this:
+    http://yourwebsite.org/getoutside/cronjobs/reload_places
+You will receive a message that the task can only be run from command-line interface.
+
+This is an intentional safety measure, to prevent random people on the Internet from triggering
+a full reload of your Places and Events. Imagine what would happen if a couple of computers
+thought it would be funny to have your site doing a full reload every minute...
