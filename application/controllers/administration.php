@@ -37,6 +37,9 @@ public function settings() {
         $data['themes'][$t] = $t;
     }
 
+    // all existing blobal site configs, cuz we use the large majority of them
+    $data['siteconfig'] = $this->siteconfig->all();
+
     // ready!
     $this->load->view('administration/settings.phtml', $data);
 }
@@ -47,19 +50,61 @@ public function ajax_save_settings() {
     if (! @$_POST['jquitheme'])     return print "The Web Site Theme must be filled in.";
     if (! @$_POST['title'])         return print "The Web Site Title must be filled in.";
 
+    // file uploads: markers and logos
+    // make sure these are PNG files, and load them in as base64-encoded data same as we'll be storing in the DB later
+    $image_uploads = array(
+        'mobile_logo'       => array(),
+        'mobile_marker'     => array(),
+        'mobile_marker_gps' => array(),
+    );
+    foreach ( array_keys($image_uploads) as $which_image) {
+        if (! is_uploaded_file(@$_FILES[$which_image]['tmp_name'])) continue; // not an upload, skip it
+
+        // try to open it as a PNG or else skip out; the errmsg can be a bit brusque here, as this should never happen
+        $ok = imagecreatefrompng($_FILES[$which_image]['tmp_name']);
+        if (! $ok) return print "Bad image upload: $which_image  Are you sure this is a PNG file?";
+
+        // we're good; populate some additional data for the siteconfig, including the base64-encoded content and the width & height
+        $image_uploads[$which_image]['content'] = base64_encode(file_get_contents($_FILES[$which_image]['tmp_name']));
+        $image_uploads[$which_image]['width']   = imagesx($ok);
+        $image_uploads[$which_image]['height']  = imagesy($ok);
+    }
+
     // guess we're golden
     $this->siteconfig->set('jquitheme', $_POST['jquitheme']);
     $this->siteconfig->set('title', $_POST['title']);
+
+    $this->siteconfig->set('company_name', $_POST['company_name']);
+    $this->siteconfig->set('company_url', $_POST['company_url']);
     $this->siteconfig->set('html_about', $_POST['html_about']);
     $this->siteconfig->set('html_frontpage', $_POST['html_frontpage']);
+
     $this->siteconfig->set('bbox_w', $_POST['bbox_w']);
     $this->siteconfig->set('bbox_s', $_POST['bbox_s']);
     $this->siteconfig->set('bbox_e', $_POST['bbox_e']);
     $this->siteconfig->set('bbox_n', $_POST['bbox_n']);
     $this->siteconfig->set('bing_api_key', $_POST['bing_api_key']);
     $this->siteconfig->set('metric_units', $_POST['metric_units']);
-    $this->siteconfig->set('company_name', $_POST['company_name']);
-    $this->siteconfig->set('company_url', $_POST['company_url']);
+
+    $this->siteconfig->set('mobile_bgcolor',         $_POST['mobile_bgcolor']);
+    $this->siteconfig->set('mobile_fgcolor',         $_POST['mobile_fgcolor']);
+    $this->siteconfig->set('mobile_buttonbgcolor1',  $_POST['mobile_buttonbgcolor1']);
+    $this->siteconfig->set('mobile_buttonfgcolor1',  $_POST['mobile_buttonfgcolor1']);
+    $this->siteconfig->set('mobile_buttonbgcolor2',  $_POST['mobile_buttonbgcolor2']);
+    $this->siteconfig->set('mobile_buttonfgcolor2',  $_POST['mobile_buttonfgcolor2']);
+    $this->siteconfig->set('mobile_alertbgcolor',    $_POST['mobile_alertbgcolor']);
+    $this->siteconfig->set('mobile_alertfgcolor',    $_POST['mobile_alertfgcolor']);
+    $this->siteconfig->set('mobile_markerglowcolor', $_POST['mobile_markerglowcolor']);
+
+    // now the upload content, which we vetted above but didn't actually update the siteconfig yet
+    foreach ( array_keys($image_uploads) as $which_image) {
+        if (! @$image_uploads[$which_image]['content']) continue; // no upload for this one, skip it
+
+        // save the content and size to the contrived-format keys
+        $this->siteconfig->set($which_image, $image_uploads[$which_image]['content'] );
+        $this->siteconfig->set("{$which_image}_width",  $image_uploads[$which_image]['width'] );
+        $this->siteconfig->set("{$which_image}_height", $image_uploads[$which_image]['height'] );
+    }
 
     // AJAX endpoint: just say OK
     print 'ok';

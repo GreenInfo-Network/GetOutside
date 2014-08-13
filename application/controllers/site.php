@@ -282,6 +282,10 @@ public function ajax_calendar_events($id=0) {
             if ($event->starts > $_GET['enddate']) continue; // not started yet
             if ($event->ends < $_GET['startdate']) continue; // ended already
 
+            // if the event is every weekday (implies also every single day) then skip it
+            // cuz it makes the calendar look jumbled
+            if ($event->mon and $event->tue and $event->wed and $event->thu and $event->fri) continue;
+
             $thisone = array();
             $thisone['id']      = $event->id;
             $thisone['title']   = $event->name;
