@@ -20,44 +20,10 @@
 
 <div class="tabs container" style="width:100%; padding:0;">
     <ul>
-        <li><a href="#tab_categories">Categories</a></li>
         <li><a href="#tab_sources">Sources</a></li>
+        <li><a href="#tab_categories">Categories</a></li>
         <li><a href="#tab_places">Places</a></li>
     </ul>
-    <div id="tab_categories">
-
-        <div class="btn-group btn-group-rightfloater">
-            <button type="button" class="btn ui-state-focus" id="button_new_category"><span class="glyphicon glyphicon-certificate"></span> New</button>
-        </div>
-
-        <p>
-            This defines the list of categories which will be displayed on the Map page. The <i>Enabled</i> categories will be displayed as a set of checkboxes, allowing visitors to filter the places shown on the map.
-            Places may belong to multiple categories, such as <i>Parks</i> and also <i>Basketball</i>.
-            Categories and sources are related: a source is used to load places into the database, and these places are categorized so they show up when filters are selected.
-        </p>
-
-        <table class="table table-condensed table-bordered sortable">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th># Places</th>
-            <th>Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($categories as $category) { ?>
-        <tr>
-            <td>
-                <a href="<?= site_url("administration/place_category/{$category->id}") ?>"><?= htmlspecialchars($category->name) ?></a>
-            </td>
-            <td><?= $category->howManyPlaces() ?></td>
-            <td><?= (integer) $category->enabled ? 'Enabled' : 'Disabled' ?></td>
-        </tr>
-        <?php } ?>
-        </tbody>
-        </table>
-
-    </div>
     <div id="tab_sources">
 
         <div class="btn-group btn-group-rightfloater">
@@ -98,6 +64,41 @@
         <div class="btn-group btn-group-rightfloater">
             <button type="button" class="btn ui-state-focus" id="button_reload_sources"><span class="glyphicon glyphicon-repeat"></span> Reload All</button>
         </div>
+
+    </div>
+
+    <div id="tab_categories">
+
+        <div class="btn-group btn-group-rightfloater">
+            <button type="button" class="btn ui-state-focus" id="button_new_category"><span class="glyphicon glyphicon-certificate"></span> New</button>
+        </div>
+
+        <p>
+            This defines the list of categories which will be displayed on the Map page. The <i>Enabled</i> categories will be displayed as a set of checkboxes, allowing visitors to filter the places shown on the map.
+            Places may belong to multiple categories, such as <i>Parks</i> and also <i>Basketball</i>.
+            Categories and sources are related: a source is used to load places into the database, and these places are categorized so they show up when filters are selected.
+        </p>
+
+        <table class="table table-condensed table-bordered sortable">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th># Places</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($categories as $category) { ?>
+        <tr>
+            <td>
+                <a href="<?= site_url("administration/place_category/{$category->id}") ?>"><?= htmlspecialchars($category->name) ?></a>
+            </td>
+            <td><?= $category->howManyPlaces() ?></td>
+            <td><?= (integer) $category->enabled ? 'Enabled' : 'Disabled' ?></td>
+        </tr>
+        <?php } ?>
+        </tbody>
+        </table>
 
     </div>
 
