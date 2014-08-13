@@ -1,0 +1,58 @@
+Get Outside! has a facility allowing you to run certain tasks on a schedule, most
+notably the automatic reloading of Place and/or Event data sources so you don't need
+to reload them yourself via the admin panel every day.
+
+Important: Scheduling Access
+
+To use this, you MUST have access to the scheduled task system on your server. This is highly
+dependent on your own system, and you will want to consult your web host's documentation and/or technical
+support. A few well-known support pages are here for your convenience.
+
+    Plesk, e.g. GoDaddy:
+        http://support.godaddy.com/help/article/8970/scheduling-tasks-with-plesk-shared-hosting
+    DreamHost:
+        http://wiki.dreamhost.com/Crontab#Executing_a_PHP_Script_with_Crontabs
+    Cron, on Linux / Ubuntu:
+        https://help.ubuntu.com/community/CronHowto
+    Windows Task Scheduler:
+        http://technet.microsoft.com/en-us/library/cc721931.aspx
+
+What To Execute
+
+The task to be executed, depends on whether you want to reload Events or Places.
+
+    To reload Events, execute this task:
+        cd /maps/knight/getoutside/stpaul2
+        php index.php cronjobs reload_events
+
+    To reload Places, execute this task:
+        cd /maps/knight/getoutside/stpaul2
+        php index.php cronjobs reload_places
+
+How often you need to reload, is really up to you. Consider these points:
+
+    - A reload will revisit every Place or Event data source, and could take
+        several minutes. It may generate significant web traffic as it downloads
+        spreadsheet data or queries WFS services, and may generate server load in
+        the form of database work.
+
+    - During a reload, there's a transitional state while the contents are still
+        loading. If it takes 3 minutes to reload the events calendar, and you do
+        this every hour, then you increase the chance that somebody will happen
+        to visit during the moment when the event calendar is still being refilled.
+
+    - Do you really have Events changing so quickly that you need to reload every
+        hour? Do you really need to update Places every single day, or can you live
+        with a brand-new park not showing up for a whole day (given that it took
+        six months for it to be finalized and pushed into the data source)?
+
+Command-Line Only!
+
+If you're used to the style of programming used in this framework, you may be surprised to find
+that you cannot trigger the cronjobs via a browser. If you try an URL like this:
+    http://yourwebsite.org/getoutside/cronjobs/reload_places
+You will receive a message that the task can only be run from command-line interface.
+
+This is an intentional safety measure, to prevent random people on the Internet from triggering
+a full reload of your Places and Events. Imagine what would happen if a couple of computers
+thought it would be funny to have your site doing a full reload every minute...

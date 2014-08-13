@@ -236,6 +236,25 @@ public function index() {
     $siteconfig->set('company_url', '');
     $siteconfig->set('company_name', '');
     $siteconfig->set('metric_units', 0);
+    $siteconfig->set('mobile_bgcolor',           Mobile::$DEFAULT_COLORS['bgcolor'] );
+    $siteconfig->set('mobile_fgcolor',           Mobile::$DEFAULT_COLORS['fgcolor'] );
+    $siteconfig->set('mobile_buttonfgcolor1',    Mobile::$DEFAULT_COLORS['buttonfgcolor1'] );
+    $siteconfig->set('mobile_buttonbgcolor1',    Mobile::$DEFAULT_COLORS['buttonbgcolor1'] );
+    $siteconfig->set('mobile_buttonfgcolor2',    Mobile::$DEFAULT_COLORS['buttonfgcolor2'] );
+    $siteconfig->set('mobile_buttonbgcolor2',    Mobile::$DEFAULT_COLORS['buttonbgcolor2'] );
+    $siteconfig->set('mobile_alertfgcolor',      Mobile::$DEFAULT_COLORS['alertfgcolor'] );
+    $siteconfig->set('mobile_alertbgcolor',      Mobile::$DEFAULT_COLORS['alertbgcolor'] );
+    $siteconfig->set('mobile_markerglowcolor',   Mobile::$DEFAULT_COLORS['markerglowcolor'] );
+    $siteconfig->set('mobile_logo',              Mobile::$DEFAULT_LOGO['content'] );
+    $siteconfig->set('mobile_logo_width',        Mobile::$DEFAULT_LOGO['width'] );
+    $siteconfig->set('mobile_logo_height',       Mobile::$DEFAULT_LOGO['height'] );
+    $siteconfig->set('mobile_marker',            Mobile::$DEFAULT_MARKER['content'] );
+    $siteconfig->set('mobile_marker_width',      Mobile::$DEFAULT_MARKER['width'] );
+    $siteconfig->set('mobile_marker_height',     Mobile::$DEFAULT_MARKER['height'] );
+    $siteconfig->set('mobile_marker_gps',        Mobile::$DEFAULT_MARKER_GPS['content'] );
+    $siteconfig->set('mobile_marker_gps_width',  Mobile::$DEFAULT_MARKER_GPS['width'] );
+    $siteconfig->set('mobile_marker_gps_height', Mobile::$DEFAULT_MARKER_GPS['height'] );
+
 
     /////
     ///// initial admin password

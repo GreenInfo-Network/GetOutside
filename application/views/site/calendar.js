@@ -19,11 +19,11 @@ $(document).ready(function () {
         },
         // no data sources; these are added by checkbox event handlers below
         eventSources: [ ],
-        // override the viewDisplay to show only 6 months into the future and none of the past; thank you, Joel Correa on StackOverflow
+        // override the viewDisplay to show only 3 months into the future and none of the past; thank you, Joel Correa on StackOverflow
         viewDisplay: function(view) {
             var now = new Date(); 
             var end = new Date();
-            end.setMonth(now.getMonth() + 6); //Adjust as needed
+            end.setMonth(now.getMonth() + 3); //Adjust as needed
 
             var cal_date_string = view.start.getMonth()+'/'+view.start.getFullYear();
             var cur_date_string = now.getMonth()+'/'+now.getFullYear();

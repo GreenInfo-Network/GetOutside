@@ -101,7 +101,7 @@ function resizeMap() {
 
 function switchToMap(callback) {
     $.mobile.changePage('#page-map');
-    if (callback) setTimeout(callback,500);
+    if (callback) setTimeout(callback,750);
     setTimeout(resizeMap,750);
 }
 
@@ -234,9 +234,10 @@ function initMap() {
     selectBasemap('terrain');
 
     // define the marker and circle for our location and accuracy
+    // the marker is loaded from a data endpoint and the width & height are in HTML, since these are dynamically set by the admin UI
     var icon = L.icon({
-        iconUrl: BASE_URL + 'application/views/mobile/images/marker-gps.png',
-        iconSize: [25, 41]
+        iconUrl: BASE_URL + 'mobile/image/marker_gps',
+        iconSize: [GPS_MARKER_WIDTH, GPS_MARKER_HEIGHT]
     });
     LOCATION  = L.marker([0,0], { clickable:false, draggable:false, icon:icon }).addTo(MAP);
     ACCURACY  = L.circle([0,0], 1000, { clickable:false }).addTo(MAP);
@@ -401,8 +402,8 @@ function performBrowseMap() {
     // zooming in on your own location, is against the spirit of Browse Map... and has some awful timing issues
     // if they have AUTO_RECENTER enabled, they'll zoom on their own location in a moment anyway when a locationfound event happens
     switchToMap(function () {
+        MAP.fitBounds(MAX_EXTENT);
         performSearchReally({ 'afterpage':'#page-map' });
-        zoomToPoint(L.latLng([START_Y,START_X]));
     });
 }
 
@@ -415,7 +416,7 @@ function getMarkerById(id) {
         if (id == lx[i].options.attributes.id) return lx[i];
 
         // a LocationEvent marker has the eventlocation-ID under the location sub-attribute
-        if (id == lx[i].options.attributes.location.id) return lx[i];
+        if (lx[i].options.attributes.location && id == lx[i].options.attributes.location.id) return lx[i];
     }
     return null;
 }
@@ -465,6 +466,8 @@ function performSearchReally(options) {
     $('#page-search-settings input[name="weekdays"]:checked').each(function () { params.weekdays.push($(this).prop('value')); });
     $('#page-search-settings input[name="gender"]:checked').each(function () { params.gender.push($(this).prop('value')); });
     $('#page-search-settings input[name="agegroup"]:checked').each(function () { params.agegroup.push($(this).prop('value')); });
+    if (params.agegroup.length == 1 && params.agegroup[0] == '0')   delete(params.agegroup);
+    if (params.gender.length   == 1 && params.gender[0] == '0')     delete(params.gender);
 
     // .. and send off
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
@@ -536,7 +539,12 @@ function renderPlacesMap() {
     var items = $('#page-search-results-places-list').data('rawresults');
 
     for (var i=0, l=items.length; i<l; i++) {
-        L.marker([items[i].lat,items[i].lng], { title:items[i].name, attributes:items[i] }).addTo(MARKERS).on('click',function () {
+        var icon = L.icon({
+            iconUrl: BASE_URL + 'mobile/image/marker',
+            iconSize: [MARKER_WIDTH, MARKER_HEIGHT]
+        });
+
+        L.marker([items[i].lat,items[i].lng], { icon:icon, title:items[i].name, attributes:items[i] }).addTo(MARKERS).on('click',function () {
           clickMarker_Place(this);
         });
     }
@@ -548,9 +556,14 @@ function renderEventsMap() {
     for (var ei=0, el=events.length; ei<el; ei++) {
         if (! events[ei].locations) continue; // an event with no Locations, doesn't need to be on the map
 
+        var icon = L.icon({
+            iconUrl: BASE_URL + 'mobile/image/marker',
+            iconSize: [MARKER_WIDTH, MARKER_HEIGHT]
+        });
+
         for (var li=0, ll=events[ei].locations.length; li<ll; li++) {
             var loc = events[ei].locations[li];
-            L.marker([loc.lat,loc.lng], { title:events[ei].name, attributes:{ event:events[ei], location:loc } }).addTo(MARKERS).on('click',function () {
+            L.marker([loc.lat,loc.lng], { icon:icon, title:events[ei].name, attributes:{ event:events[ei], location:loc } }).addTo(MARKERS).on('click',function () {
               clickMarker_EventLocation(this);
             });
         }
@@ -573,9 +586,10 @@ function renderPlacesList() {
         var li   = $('<li></li>').data('rawresult',item).appendTo($target);
 
         // if this Place has activities, create a inset listview
-        // aggregating the entries by the name, e.g. instead of listing "Open Swim Mon-Tue", "Open Swim Thu-Fri"
-        // they'd prefer to list "Open Swim Mon-Tue, Thu-Fri" with less vertical space consumed, and fewer insert breaks
         if (item.activities) {
+            // there are activities so this element is much more complex
+            // in that we need to make an inset panel for each type of activity,  which has a list of the days/times for that activity
+
             // make an assoc to guarantee uniqueness, each name having a list of days-and-times
             var activities = {};
             for (var ai=0, al=item.activities.length; ai<al; ai++) {
@@ -590,14 +604,32 @@ function renderPlacesList() {
             // make a list of the keys of the activities listing, and sort it; thus we can alphabetically iterate
             // remember, assocs are inherently unsorted and if they happen to come out alphabetically it was purely coincidental
             var activity_names = [];
-            for (var i in activities) activity_names.push(i);
+            for (var act in activities) activity_names.push(act);
             activity_names.sort();
 
             // finally, some content!
             var label = $('<h2></h2>').text(item.name).appendTo(li);
             $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
 
-            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(li);
+            var button = $('<div></div>').text('Show activities').addClass('placeactivities_toggle').appendTo(li);
+            button.click(function (event) {
+                // keep the click from falling through to the location itself, and thus triggering a switch over to the map
+                event.preventDefault();
+                event.stopPropagation();
+
+                // clicking ths link toggles the neighboring DIV that has the inset listview
+                var target = $(this).siblings('div.placeactivities');
+                if ( target.is(':visible') ) {
+                    target.hide();
+                    $(this).text('Show activities');
+                } else {
+                    target.show();
+                    $(this).text('Hide activities');
+                }
+            });
+
+            var div = $('<div></div>').addClass('placeactivities').appendTo(li);
+            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(div);
             for (var ai=0, al=activity_names.length; ai<al; ai++) {
                 var actname  = activity_names[ai];
                 var actlist  = activities[actname];
@@ -613,6 +645,8 @@ function renderPlacesList() {
                 }
             }
         } else {
+            // no activities so this element is much simpler,
+            // just a the text label and the distance readout placeholder
             var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
             $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
             $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
@@ -624,7 +658,9 @@ function renderPlacesList() {
             var markid = $(this).data('rawresult').id;
             switchToMap(function () {
                 zoomToPoint(latlng);
+console.log(markid);//gda
                 var marker = getMarkerById(markid);
+console.log(marker);//gda
                 if (marker) clickMarker_Place(marker);
             });
         });

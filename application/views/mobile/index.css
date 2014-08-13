@@ -34,6 +34,17 @@ a {
 }
 
 
+/*** SEARCH PAGE ***/
+
+#page-search {
+    margin: 0 5%;
+    width: 90%;
+}
+
+#page-search .ui-btn {
+    text-align: left;
+}
+
 /*** OUTSIDE AREA if the user is outside the supported area, these elements are visible ***/
 
 .outside_area {
@@ -69,22 +80,20 @@ a {
     
 }
 .search-results-navbar div {
+    /* colors are overridden in the mobile/css dynamic stylesheet *(admin-defined) */
     background-color:black;
+    border-right:1px solid white;
 
     height:2.5em;
 
     text-align:center;
     vertical-align:middle;
-
-    border-right:1px solid white;
 }
 .search-results-navbar div:last-child {
     border-right:0 none transparent;
 }
 .search-results-navbar a {
-    color:white !important;
-    text-shadow:none;
-
+    /* colors are defined in mobile/css dynamic stylesheet (admin-defined) */
     display:inline-block;
 }
 .search-results-navbar div:first-child {
@@ -113,17 +122,33 @@ a {
 }
 
 #map_infopanel > div {
-    width:40%;
-    margin:0 0 0 40%;
+    width:99%;
+    margin:0 10px 0 10px;
 }
 
-/*** GLOWING MARKERS ***/
-img.leaflet-marker-icon.leaflet-marker-highlight {
-    box-shadow: 0 0 8px 6px #ff8000 !important;
-    background-color: #ff8000 !important;
-    -webkit-box-shadow: 0 0 8px 6px #ff8000 !important;
-    border-radius:10px;
+
+/*** RESULT LISTINGS ***/
+
+#page-search-results-places-list li {
+    cursor:pointer;
 }
+
+#page-search-results-events-list li {
+    cursor:pointer;
+}
+
+#page-search-results-places-list div.placeactivities_toggle {
+    color:#6060FF;
+    font-weight:bold;
+}
+
+#page-search-results-places-list div.placeactivities {
+    display:none; /* there's a button to show it; see renderPlacesList() */
+}
+
+
+placeactivities
+
 
 /*** JQUERY FIXES ***/
 

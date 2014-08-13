@@ -14,6 +14,10 @@ public function __construct($id = NULL) {
     }
 }
 
+public function all() {
+    return @$this->loaded;
+}
+
 public function get($key) {
     return @$this->loaded[$key];
 }

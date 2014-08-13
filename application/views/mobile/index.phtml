@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?= $this->siteconfig->get('title') ?></title>
+    <title><?= $title ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- jQuery and jQuery Mobile -->
@@ -11,32 +11,40 @@
     <script type="text/javascript" src="<?= site_url() ?>/application/views/common/jquery.sort.js"></script>
 
     <!-- Leaflet map framework -->
-    <link rel="stylesheet" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
     <!--[if lte IE 8]>
-    <link rel="stylesheet" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
     <![endif]-->
     <script src="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
 
     <script src="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.js"></script>
-    <link rel="stylesheet" href="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.css" />
 
     <script src="<?=site_url()  ?>/application/views/common/leaflet.markercluster/leaflet.markercluster.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
 
+    <!-- the custom, admin-generated stylesheet -->
+    <link rel="stylesheet" type="text/css" href="<?=site_url() ?>mobile/css" />
+
     <script type="text/javascript">
     var BASE_URL = <?= json_encode(site_url()) ?>;
 
-    var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
+    var BING_API_KEY = <?= json_encode($bing_api_key) ?>;
 
     var DISTANCE_UNITS = <?= json_encode($metric ? 'km' : 'mi') ?>;
 
-    var START_W = <?= $this->siteconfig->get('bbox_w') ?>;
-    var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
-    var START_E = <?= $this->siteconfig->get('bbox_e') ?>;
-    var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
-    var START_X = <?= ( $this->siteconfig->get('bbox_w') + $this->siteconfig->get('bbox_e') ) /2 ?>;
-    var START_Y = <?= ( $this->siteconfig->get('bbox_s') + $this->siteconfig->get('bbox_n') ) /2 ?>;
+    var START_W = <?= $bbox_w ?>;
+    var START_S = <?= $bbox_s ?>;
+    var START_E = <?= $bbox_e ?>;
+    var START_N = <?= $bbox_n ?>;
+    var START_X = <?= $start_x ?>;
+    var START_Y = <?= $start_y ?>;
+
+    var MARKER_WIDTH      = <?= $marker_width ?>;
+    var MARKER_HEIGHT     = <?= $marker_height ?>;
+    var GPS_MARKER_WIDTH  = <?= $marker_gps_width ?>;
+    var GPS_MARKER_HEIGHT = <?= $marker_gps_height ?>;
     </script>
 
     <!-- remote debugging for mobile apps; please use your own weinre server! -->
@@ -54,7 +62,7 @@
 <div data-role="page" id="page-search">
     <form action="javascript:void(0);">
         <div class="center">
-            <img src="<?= site_url() ?>/application/views/mobile/mobile-logo.png" />
+            <img src="<?= site_url() ?>/mobile/image/logo" />
         </div>
 
         <div class="outside_area" id="search-outsidearea">
@@ -76,12 +84,18 @@
 
         <a data-role="button" href="#page-search-settings" data-icon="carat-d" data-iconpos="right">Find an activity (optional)</a>
 
-        <button name="search-go" data-icon="search" data-iconpos="right" data-theme="b">Search</button>
+        <!--  this button must be 1/3 the page width, but JQM doesn't have a way to do that... so tables -->
+        <table style="width:100%;">
+            <tr>
+                <td style="width:67%;"></td>
+                <td style="width:33%;"><button name="search-go" data-icon="search" data-iconpos="right" data-theme="b">Search</button></td>
+            </tr>
+        </table>
 
         <hr/>
 
         <h3 class="center">OR:</h3>
-        <button name="search-browse-map" data-icon="map" data-iconpos="right">Browse the Map</button>
+        <button name="search-browse-map" data-icon="map" data-iconpos="right" data-textpos="left" data-theme="b">Browse the Map</button>
     </form>
 </div>
 
@@ -101,6 +115,7 @@
                 <?php } ?>
             </div>
         </div>
+<span style="display:none;"><!-- argued against it, proved that nothing in fact can match these filters; overridden; client noticed, change their mind; can't remove cuz may want it back-->
         <div data-role="collapsible">
             <h2>Age</h2>
             <div data-role="controlgroup" data-mini="true">
@@ -120,6 +135,7 @@
                 <label><input type="checkbox" name="gender" value="0" /> Either/Both</label>
             </div>
         </div>
+</span>
         <div data-role="collapsible">
             <h2>When</h2>
             <div data-role="controlgroup" data-mini="true">

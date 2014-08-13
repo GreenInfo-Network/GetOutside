@@ -42,18 +42,20 @@ $(document).ready(function () {
     // pick the navbar entry to show where we are
     $('#navbar_settings').addClass('ui-state-focus');
 
-    // handle the editing form as AJAX, so we can get some nicer errror handling
-    // rather than ditching them at an error message
-    $('#settingsform').submit(function () {
-        // thank you, TinyMCE for the HTML editor; but first, save the content back to the textarea
-        tinyMCE.triggerSave();
-
-        var url    = BASE_URL + 'administration/ajax_save_settings';
-        var params = $(this).serialize();
-        $.post(url, params, function (reply) {
-            if (reply != 'ok') return alert(reply);
+    // the editing form is handled via AjaxForm, since we want to validate and barf on errors without losing the page
+    // but we also need file uploads, which exceeds what can be done with simple $.post
+    $('#settingsform').ajaxForm({
+        beforeSubmit: function (paramlist,$form,options) {
+            // thank you, TinyMCE for the HTML editor; but first, save the content back to the textarea
+            tinyMCE.triggerSave();
+        },
+        success: function (responseText, statusText, xhr, $form) {
+            if (responseText != 'ok') return alert(responseText);
             document.location.href = BASE_URL + 'administration';
-        });
+        },
+        error: function (error) {
+            return alert("Uncaught error?");
+        }
     });
 
     // when the Theme picker is picked, update the swatch
@@ -73,6 +75,21 @@ $(document).ready(function () {
         width:800,
         height:300
     });
+
+    // enable that snazzy color picker for all text inputs with class=color
+    $('input.color').ColorPicker({
+        color: $(this).val(),
+        onSubmit: function(hsb, hex, rgb, el) {
+            $(el).val('#'+hex).css({ 'background-color':'#'+hex });
+            $(el).ColorPickerHide();
+        }
+    }).keyup(function () {
+        $(this).ColorPickerSetColor(this.value);
+    }).each(function () {
+        var already = $(this).val();
+        $(this).css({ 'background-color':already });
+    });
+
 });
 
 
