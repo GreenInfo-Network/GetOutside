@@ -47,8 +47,8 @@ public function reloadContent() {
     // no API key, that's a problem; even if it's given we check below anyway cuz it may be revoked, expired, or just plain wrong
     $apikey = $this->option1;
     $orgid  = $this->option2;
-    if (! preg_match('/^\w+$/', $apikey)) throw new EventDataSourceErrorException('Active.com Event Search API v2 requires an API key.');
-    if ($orgid and !preg_match('/^[\w\-]+$/', $orgid)) throw new EventDataSourceErrorException('The specified Organization ID is not valid.');
+    if (! preg_match('/^\w+$/', $apikey)) throw new EventDataSourceErrorException( array('Active.com Event Search API v2 requires an API key.') );
+    if ($orgid and !preg_match('/^[\w\-]+$/', $orgid)) throw new EventDataSourceErrorException( array('The specified Organization ID is not valid.') );
 
     // compose the list of what Category names are classes and meetings, and whether we should include these
     // this is used to exclude some events by these broad category areas
@@ -94,12 +94,12 @@ public function reloadContent() {
         $params['radius']       = 50;
     }
     $url = sprintf('http://api.amp.active.com/v2/search?api_key=%s&%s', $apikey, http_build_query($params) );
-    //throw new EventDataSourceErrorException($url);
+    //throw new EventDataSourceErrorException( array($url) );
 
     // make this first request, which is only to figure out how many records we will be fetching
     $content = @json_decode(@file_get_contents($url));
-    if (!$content) throw new EventDataSourceErrorException("No result structure. Check that this API key is active for the Activity Search API v2");
-    if (!$content->total_results) throw new EventDataSourceErrorException("No results. Check that there are in fact activities in this area.");
+    if (!$content) throw new EventDataSourceErrorException( array("No result structure. Check that this API key is active for the Activity Search API v2") );
+    if (!$content->total_results) throw new EventDataSourceErrorException( array("No results. Check that there are in fact activities in this area.") );
 
     // now iterate in pages of 1000, but with a hard limit of 10,000 in all cuz 10 trips to their server is plenty of waiting
     // and collect a big ol' list of all of the event entries
@@ -113,7 +113,7 @@ public function reloadContent() {
         $content = @json_decode(@file_get_contents($url));
         foreach ($content->results as $entry) $collected_events[] = $entry;
     }
-    //throw new EventDataSourceErrorException(sprintf("Collected %d raw entries", sizeof($collected_events) ));
+    //throw new EventDataSourceErrorException(array( sprintf("Collected %d raw entries", sizeof($collected_events) ) ));
 
     // guess we're good! delete the existing Events in this source...
     // and also any EventLocations, cuz MySQL isn't smart enough to cacade-delete...
@@ -123,6 +123,7 @@ public function reloadContent() {
     }
 
     // ... then load the new ones
+    $details = array();
     $success      = 0;
     $failed       = 0;
     $nolocation   = 0;
@@ -132,10 +133,18 @@ public function reloadContent() {
         // if this Event lacks a location, bail
         // this is later used to generate an EventLocation
         // and we only want events which can be plotted onto the map
-        if ($exclude_place_guid and @$entry->place->placeGuid == $exclude_place_guid) { $skiplocation++; continue; }
+        if ($exclude_place_guid and @$entry->place->placeGuid == $exclude_place_guid) {
+            $skiplocation++;
+            $details[] = "Skipping event at specified Place GUID: {$entry->assetGuid}";
+            continue;
+        }
         $lat = (float) @$entry->place->geoPoint->lat;
         $lon = (float) @$entry->place->geoPoint->lon;
-        if (! $lat or ! $lon) { $nolocation++; continue; }
+        if (! $lat or ! $lon) {
+            $nolocation++;
+            $details[] = "Bad location: No lat/lon given for {$entry->assetGuid}";
+            continue;
+        }
 
         // if this event is in a subcategory not interesting to us, skip it
         // known list to date:
@@ -155,8 +164,8 @@ public function reloadContent() {
         // Tournaments
 
         $category = @$entry->assetCategories[0]->category->categoryName;
-        if (! $include_classes  and array_key_exists($category,$categories_classes))   { $nocategory++; continue; }
-        if (! $include_meetings and array_key_exists($category,$categories_meetings))  { $nocategory++; continue; }
+        if (! $include_classes  and array_key_exists($category,$categories_classes))   { $nocategory++; $details[] = "Skipping classes: {$event->name}";  continue; }
+        if (! $include_meetings and array_key_exists($category,$categories_meetings))  { $nocategory++; $details[] = "Skipping meetings: {$event->name}"; continue; }
 
         // find an URL
         $url = @$entry->assetLegacyData->seoUrl;
@@ -175,7 +184,7 @@ public function reloadContent() {
         //$event->description         = (string) @$entry->assetDescriptions[0]->description;
 
         // name is required
-        if (!$event->name) { $failed++; continue; }
+        if (!$event->name) { $failed++; $details[] = "Name missing: Event ID {$event->remoteid}"; continue; }
 
         // now, figure out what weekdays intersect this event's duration; sat  sun  mon  ...
         // these are used to quickly search for "events on a Saturday"
@@ -243,14 +252,20 @@ public function reloadContent() {
     $this->save();
 
     // guess we're done and happy; throw an error  (ha ha)
-    $message = array();
-    $message[] = "Successfully loaded $success events.";
-    if ($failed)        $message[] = "$failed events skipped due to blank/missing name.";
-    if ($nolocation)    $message[] = "$nolocation events skipped due to no location.";
-    if ($skiplocation)  $message[] = "$skiplocation events skipped due to location being excluded Place GUID.";
-    if ($nocategory)    $message[] = "$nocategory events excluded due to category filters.";
-    $message = implode("\n",$message);
-    throw new EventDataSourceSuccessException($message);
+    $messages = array();
+    $messages[] = "Successfully loaded $success events.";
+    if ($failed)        $messages[] = "$failed events skipped due to blank/missing name.";
+    if ($nolocation)    $messages[] = "$nolocation events skipped due to no location.";
+    if ($skiplocation)  $messages[] = "$skiplocation events skipped due to location specifically excluded by Place GUID.";
+    if ($nocategory)    $messages[] = "$nocategory events excluded due to category filters.";
+    $info = array(
+        'success'    => $success,
+        'malformed'  => $failed,
+        'badgeocode' => $nolocation,
+        'nocategory' => $nocategory,
+        'details'    => $details
+    );
+    throw new EventDataSourceSuccessException($messages,$info);
 }
 
 

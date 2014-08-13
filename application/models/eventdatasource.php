@@ -175,14 +175,54 @@ public function howManyEvents() {
 
 /**********************************************************************************************
  * EXCEPTIONS
- * exceptions are used internally to communicate both success and failure, as they can return 
- * more complex messages than a simple TRUE/FALSE return
+ * exceptions are used internally to communicate both success and failure, 
+ * as they can return more complex messages than a simple TRUE/FALSE return
+ * these deviate somewhat from SPL's normal exceptions:
+ * - first param is a LIST of message strings, not a single text string
+ *      this is joined with newlines to form the text for getMessage()
+ *      but does allow the caller to parse out individual messages, join with newlines, whatever
+ * - second param is an arbitrary assocarray, stored in the Exception's "extrainfo" attribute:  $e->extrainfo
+ *      this is suitable for whatever arbitrary driver-specific information you may want to stick into the exception,
+ *      be it number of successes and failures, specific codes for individual task failures, whatever
+ *      BUT there is a standard, as follows:
+ *          - for error exceptions, this is typically undefined (defaults to empty array)
+ *              the error message list has what we needed
+ *          - for success exceptions, the following attributes should be defined:
+ *              details         list of strings, any arbitrary "verbose debugging" output to include into the on-disk report
+ *              success         integer, number of events successfully loaded into the database
+ *              malformed       integer, number of events not imported due to some malformation (empty title, no location, ...)
+ *              badgeocode      integer, number of events which could not be geocoded
+ *              nocategory      integer, number of events which could not be categorized
  **********************************************************************************************/
 
 class EventDataSourceSuccessException extends Exception {
+    public function __construct($messages=null,$extrainfo=array()) {
+        // no messages? no way
+        if (! $messages) throw new Exception("Failed to throw EventDataSourceSuccessException: no messages given");
+        $this->messages = $messages;
+
+        // go ahead and construct a regular Exception
+        $message = implode("\n", $this->messages);
+        $code = 0;
+        parent::__construct($message,$code);
+
+        // then add the $extrainfo   driver-specific content, but useful for any driver-specific callers
+        $this->extrainfo = $extrainfo;
+    }
 }
 
 class EventDataSourceErrorException extends Exception {
+    public function __construct($messages=null,$extrainfo=array()) {
+        // no messages? no way
+        if (! $messages) throw new Exception("Failed to throw EventDataSourceErrorException: no messages given");
+        $this->messages = $messages;
+
+        // go ahead and construct a regular Exception
+        $message = implode("\n", $this->messages);
+        $code = 0;
+        parent::__construct($message,$code);
+
+        // then add the $extrainfo   driver-specific content, but useful for any driver-specific callers
+        $this->extrainfo = $extrainfo;
+    }
 }
-
-

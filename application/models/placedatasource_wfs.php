@@ -50,21 +50,21 @@ public function __construct() {
 public function reloadContent() {
     // any URL allowed and no hard standard on the term "wfs" being in the URL, so we can't do a lot of validation beyond it being HTTP/HTTPS
     $url = $this->url;
-    if (! preg_match('!^https?://[\w\-\.]+?/!i',$url)) throw new PlaceDataSourceErrorException('Check the WFS service URL. Only HTTP and HTTPS URLs are supported.');
+    if (! preg_match('!^https?://[\w\-\.]+?/!i',$url)) throw new PlaceDataSourceErrorException( array('Check the WFS service URL. Only HTTP and HTTPS URLs are supported.') );
 
     // layer names must be \w and : for namespaces
     $layer = $this->option1;
-    if (! $layer ) throw new PlaceDataSourceErrorException('No WFS layer specified.');
-    if (! preg_match('/^[\w\-\:\.]+$/', $layer) ) throw new PlaceDataSourceErrorException('Invalid layer name: invalid characters. Only letters and numbers and : are allowed.');
+    if (! $layer ) throw new PlaceDataSourceErrorException( array('No WFS layer specified.') );
+    if (! preg_match('/^[\w\-\:\.]+$/', $layer) ) throw new PlaceDataSourceErrorException( array('Invalid layer name: invalid characters. Only letters and numbers and : are allowed.') );
 
     // name field (required) and description field (optionsl) should be simple alphanumeric, then make sure they're on the list
     $namefield = $this->option2;
     $descfield = $this->option3;
-    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
-    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
+    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
+    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Description field') );
     $fields = $this->listFields();
-    if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException("Chosen Name field ($namefield) does not exist in this FeatureType.");
-    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException("Chosen Description field ($descfield) does not exist in this FeatureType.");
+    if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Name field ($namefield) does not exist in this FeatureType.") );
+    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Description field ($descfield) does not exist in this FeatureType.") );
 
     // Other URL Params isn't something we can sanitize, really   Just arbitrary text to add to the URL string
     $moreparams = $this->option4;
@@ -82,7 +82,7 @@ public function reloadContent() {
         'TYPENAME'  => $layer,
     );
     $url = sprintf("%s?%s&%s", $url, http_build_query($params), $moreparams );
-    //throw new PlaceDataSourceErrorException($url);
+    //throw new PlaceDataSourceErrorException( array($url) );
 
     // despite hours of StackOverflow and reading PHP bug reports, the XML parser just isn't coping with real-world GML output and namespaces
     // so we strip 'em out and treat it like normal XML
@@ -97,7 +97,7 @@ public function reloadContent() {
 
     // did we get any features? great, we're ready to rock! no, then we're ready to bail!
     $features = @$xml->featureMember;
-    if (! sizeof($features) ) throw new PlaceDataSourceErrorException('Got back no features.');
+    if (! sizeof($features) ) throw new PlaceDataSourceErrorException( array('Got back no features.') );
 
     // deletions prep work: a list of all Remote-ID currently in the database within this data source
     // as we go over the records we'll remove them from this list
@@ -211,15 +211,20 @@ public function reloadContent() {
     // success! update our last_fetch date then throw an exception
     $this->last_fetch = time();
     $this->save();
-    $message = array();
-    $message[] = "$records_new new locations added to database.";
-    $message[] = "$records_updated locations updated.";
-    if ($deletions)         $message[] = "$deletions outdated locations deleted.";
-    if ($warn_nounique)     $message[] = "$warn_nounique places had no unique ID field (tried fid, gid, and id) so random IDs were assigned.";
-    if ($warn_noname)       $message[] = "$warn_noname places had a blank name.";
-    if ($warn_badcoords)    $message[] = "$warn_badcoords skipped due to invalid location.";;
-    $message = implode("\n",$message);
-    throw new PlaceDataSourceSuccessException($message);
+    $messages = array();
+    $messages[] = "$records_new new locations added to database.";
+    $messages[] = "$records_updated locations updated.";
+    if ($deletions)         $messages[] = "$deletions outdated locations deleted.";
+    if ($warn_nounique)     $messages[] = "$warn_nounique places had no unique ID field (tried fid, gid, and id) so random IDs were assigned.";
+    if ($warn_noname)       $messages[] = "$warn_noname places had a blank name.";
+    if ($warn_badcoords)    $messages[] = "$warn_badcoords skipped due to invalid location.";
+    $info = array(
+        'added'   => $records_new,
+        'updated' => $records_updated,
+        'deleted' => $deletions,
+        'nogeom'  => $warn_badcoords,
+    );
+    throw new PlaceDataSourceSuccessException($messages,$info);
 }
 
 
@@ -231,12 +236,12 @@ public function reloadContent() {
 public function listFields() {
     // any URL allowed and no hard standard on the term "wfs" being in the URL, so we can't do a lot of validation beyond it being HTTP/HTTPS
     $url = $this->url;
-    if (! preg_match('!^https?://[\w\-\.]+?/!i',$url)) throw new PlaceDataSourceErrorException('Check the WFS service URL. Only HTTP and HTTPS URLs are supported.');
+    if (! preg_match('!^https?://[\w\-\.]+?/!i',$url)) throw new PlaceDataSourceErrorException( array('Check the WFS service URL. Only HTTP and HTTPS URLs are supported.') );
 
     // layer names must be \w and : for namespaces
     $layer = $this->option1;
-    if (! $layer ) throw new PlaceDataSourceErrorException('No WFS layer specified.');
-    if (! preg_match('/^[\w\-\:\.]+$/', $layer) ) throw new PlaceDataSourceErrorException('Invalid layer name: invalid characters. Only letters and numbers and : are allowed.');
+    if (! $layer ) throw new PlaceDataSourceErrorException( array('No WFS layer specified.') );
+    if (! preg_match('/^[\w\-\:\.]+$/', $layer) ) throw new PlaceDataSourceErrorException( array('Invalid layer name: invalid characters. Only letters and numbers and : are allowed.') );
 
     // Other URL Params isn't something we can sanitize, really   Just arbitrary text to add to the URL string
     $moreparams = $this->option4;
@@ -250,7 +255,7 @@ public function listFields() {
         'TYPENAME'  => $layer,
     );
     $url = sprintf("%s?%s&%s", $url, http_build_query($params), $moreparams );
-    //throw new PlaceDataSourceErrorException($url);
+    //throw new PlaceDataSourceErrorException( array($url) );
 
     $xml = @file_get_contents($url);
     $xml = @simplexml_load_string($xml);
@@ -258,7 +263,7 @@ public function listFields() {
     // go over the xsd:element tags and that's our field list
     // if it's not there, then we must have gotten non-XML, an error, or something other than good
     $elements = @$xml->xpath('//xsd:element');
-    if (! $elements) throw new PlaceDataSourceErrorException("Did not get a field list back for this data source. Check the layer name and WFS service URL. $url");
+    if (! $elements) throw new PlaceDataSourceErrorException( array("Did not get a field list back for this data source. Check the layer name and WFS service URL. $url") );
 
     $fields = array();
     foreach ($elements as $element) {

@@ -45,7 +45,7 @@ public function __construct() {
  */
 public function reloadContent() {
     // make sure no shenanigans: all RSS feeds http or https
-    if (! preg_match('/^https?:\/\//i', $this->url) ) throw new EventDataSourceErrorException('Not a valid web URL.');
+    if (! preg_match('/^https?:\/\//i', $this->url) ) throw new EventDataSourceErrorException( array('Not a valid web URL.') );
 
     // no other prep work here; the RSS URL is the RSS URL
     $url = $this->url;
@@ -53,26 +53,27 @@ public function reloadContent() {
     // fetch the XML, do the most basic check that a <?xml header is given
     // because some errors result in a HTML page or a brief text message
     $xml = @file_get_contents($url);
-    if (strpos($xml, '<?xml ') === FALSE) throw new EventDataSourceErrorException('Non-XML response from the given URL.');
-    if (strpos($xml, '<rss version="2.0"') === FALSE) throw new EventDataSourceErrorException('Feed is XML but not RSS 2.0 content. Maybe this is an Atom feed?');
+    if (strpos($xml, '<?xml ') === FALSE) throw new EventDataSourceErrorException( array('Non-XML response from the given URL.') );
+    if (strpos($xml, '<rss version="2.0"') === FALSE) throw new EventDataSourceErrorException( array('Feed is XML but not RSS 2.0 content. Maybe this is an Atom feed?') );
 
     // replace $xml from the XML string to a XML parser, or die trying
     try {
         $xml = @new SimpleXMLElement($xml);
     } catch (Exception $e) {
-        throw new EventDataSourceErrorException('Could not parse response from the given URL. Not a calendar feed?');
+        throw new EventDataSourceErrorException( array('Could not parse response from the given URL. Not a calendar feed?') );
     }
 
     // check for known must-have headers, and bail if we don't see them
     $link    = (string) $xml->channel->link;
     $title   = (string) $xml->channel->title;
-    if (!$title or !$link) throw new EventDataSourceErrorException('Feed is XML but lacks RSS 2.0 headers. Maybe this is an Atom feed?');
+    if (!$title or !$link) throw new EventDataSourceErrorException( array('Feed is XML but lacks RSS 2.0 headers. Maybe this is an Atom feed?') );
 
     // finally got here, so we're good, dang that's a lot of validation; it'll pay off in the long run  ;)
     // take a moment and delete all of the old Events from this data source
     foreach ($this->event as $old) $old->delete();
 
     // iterate over entries
+    $details = array();
     $success = 0;
     $failed  = 0;
     foreach ($xml->channel->item as $entry) {
@@ -97,6 +98,7 @@ public function reloadContent() {
         $when = @date_parse( (string) $entry->pubDate );
         if (! $when) { // can't figure out the date, it must be bad so give up
             $failed++;
+            $details[] = "Skipping: No date information found for {$event->name}";
             continue;
         }
         $month = $when['month'];
@@ -121,9 +123,16 @@ public function reloadContent() {
     $this->save();
 
     // guess we're done and happy; throw an error  (ha ha)
-    $message = "Successfully loaded $success events.";
-    if ($failed) $message .= " Failed to load $failed events due to missing date.";
-    throw new EventDataSourceSuccessException($message);
+    $messages = array("Successfully loaded $success events.");
+    if ($failed) $messages[] = " Failed to load $failed events due to missing date.";
+    $info = array(
+        'success'    => $success,
+        'malformed'  => $failed,
+        'badgeocode' => 0,
+        'nocategory' => 0,
+        'details'    => $details
+    );
+    throw new EventDataSourceSuccessException($messages,$info);
 }
 
 

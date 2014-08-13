@@ -44,15 +44,15 @@ public function __construct() {
 public function reloadContent() {
     // make sure no shenanigans: ArcGIS REST services fit a pattern, and field names must be on the list
     $url = $this->url;
-    if (! preg_match('!^https?://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException('That URL does not fit the format for a REST endpoint.');
+    if (! preg_match('!^https?://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException( array('That URL does not fit the format for a REST endpoint.') );
 
     $namefield = $this->option1;
     $descfield = $this->option2;
-    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
-    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
+    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
+    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Description field') );
     $fields = $this->listFields();
-    if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException("Chosen Name field ($namefield) does not exist in the ArcGIS service.");
-    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException("Chosen Description field ($descfield) does not exist in the ArcGIS service.");
+    if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Name field ($namefield) does not exist in the ArcGIS service.") );
+    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Description field ($descfield) does not exist in the ArcGIS service.") );
 
     // the filter clause; kinda free-form here, and high potential for them to mess it up
     // that's why we're so thorough on catching possible exceptions such as missing field names
@@ -73,9 +73,9 @@ public function reloadContent() {
 
     // try to fetch and decode it; check for some fields that should definitely be there: name, geometry type, and of course features
     $structure = @json_decode(file_get_contents($url));
-    if (@$structure->error->message) throw new PlaceDataSourceErrorException("ArcGIS server gave an error: {$structure->error->message}\nCommon cause is that a name or description field, or a filter, is not entered correctly.");
-    if (! @$structure->geometryType) throw new PlaceDataSourceErrorException('No data or invalid data received from server. No geometryType found.');
-    if (! sizeof(@$structure->features)) throw new PlaceDataSourceErrorException("ArcGIS server contacted, but no features were found.");
+    if (@$structure->error->message) throw new PlaceDataSourceErrorException( array("ArcGIS server gave an error: {$structure->error->message}\nCommon cause is that a name or description field, or a filter, is not entered correctly.") );
+    if (! @$structure->geometryType) throw new PlaceDataSourceErrorException( array('No data or invalid data received from server. No geometryType found.') );
+    if (! sizeof(@$structure->features)) throw new PlaceDataSourceErrorException( array("ArcGIS server contacted, but no features were found.") );
 
     // we need points, so we need to come up with a mangling method based on the actual data type
     switch ($structure->geometryType) {
@@ -88,7 +88,7 @@ public function reloadContent() {
             $geom_extractor = 'extractPointFromPolygon';
             break;
         default:
-            throw new PlaceDataSourceErrorException("Layer data type is {$structure->geometryType}, which is not a supported geometry type.");
+            throw new PlaceDataSourceErrorException( array("Layer data type is {$structure->geometryType}, which is not a supported geometry type.") );
     }
 
     // one last thing: the REST service accepts case-insensitive field names, e.g. ObjectID, but always returns them in proper case, e.g. OBJECTID
@@ -158,15 +158,20 @@ public function reloadContent() {
     // success! update our last_fetch date then throw an exception
     $this->last_fetch = time();
     $this->save();
-    $message = array();
-    $message[] = "$records_new new locations added to database.";
-    $message[] = "$records_updated locations updated.";
-    if ($deletions)   $message[] = "$deletions outdated locations deleted.";
-    if ($warn_noname) $message[] = "$warn_noname places had a blank name.";
-    if ($warn_nodesc) $message[] = "$warn_nodesc places had a blank description.";
-    if ($warn_geom)   $message[] = $warn_geom;
-    $message = implode("\n",$message);
-    throw new PlaceDataSourceSuccessException($message);
+    $messages = array();
+    $messages[] = "$records_new new locations added to database.";
+    $messages[] = "$records_updated locations updated.";
+    if ($deletions)   $messages[] = "$deletions outdated locations deleted.";
+    if ($warn_noname) $messages[] = "$warn_noname places had a blank name.";
+    if ($warn_nodesc) $messages[] = "$warn_nodesc places had a blank description.";
+    if ($warn_geom)   $messages[] = $warn_geom;
+    $info = array(
+        'added'   => $records_new,
+        'updated' => $records_updated,
+        'deleted' => $deletions,
+        'nogeom'  => $warn_geom,
+    );
+    throw new PlaceDataSourceSuccessException($messages,$info);
 }
 
 
@@ -178,7 +183,7 @@ public function reloadContent() {
 public function listFields() {
     // make sure no shenanigans: ArcGIS REST services fit a pattern
     $url = $this->url;
-    if (! preg_match('!^https?://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException('That URL does not fit the format for a REST endpoint.');
+    if (! preg_match('!^https?://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException( array('That URL does not fit the format for a REST endpoint.') );
 
     // the base URL plus only one param asking for JSON output
     $params = array(
@@ -188,7 +193,7 @@ public function listFields() {
 
     // fetch it, see if it looks right
     $fields = @json_decode(file_get_contents($url));
-    if (! @is_array($fields->fields) or ! @sizeof($fields->fields)) throw new PlaceDataSourceErrorException('Did not get a field list back for this data source.');
+    if (! @is_array($fields->fields) or ! @sizeof($fields->fields)) throw new PlaceDataSourceErrorException( array('Did not get a field list back for this data source.') );
 
     // generate the output, a flat list
     // a prior version accepted an $assoc=TRUE param to generate assoc arrays, but this got into "what would the caller want?" guesswork, and is best left to the caller

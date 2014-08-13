@@ -56,7 +56,7 @@ public function reloadContent() {
     // strip off any query params, and replace the default /basic "projection" component with a /full-noattendees so we get full info
     // but also take one that does end in /basic/ so we can get at the precious <summary> tags
     $url = $this->url;
-    if (strpos($url,'https://www.google.com/calendar/') !== 0) throw new EventDataSourceErrorException('Not a valid HTTPS URL at Google.');
+    if (strpos($url,'https://www.google.com/calendar/') !== 0) throw new EventDataSourceErrorException( array('Not a valid HTTPS URL at Google.') );
     $url = preg_replace('/\?.*/', '', $url);
     $url = preg_replace('/basic$/', '', $url);
     $url = preg_replace('/full$/', '', $url);
@@ -83,27 +83,27 @@ public function reloadContent() {
     // fetch the XML, do the most basic check that a <?xml header is given
     // because some errors result in a HTML page or a brief text message
     $full_xml = @file_get_contents($full_url);
-    if (substr($full_xml,0,6) != '<?xml ') throw new EventDataSourceErrorException('Non-XML response from the given URL (full). Not a calendar feed?');
+    if (substr($full_xml,0,6) != '<?xml ') throw new EventDataSourceErrorException( array('Non-XML response from the given URL (full). Not a calendar feed?') );
 
     $basic_xml = @file_get_contents($basic_url);
-    if (substr($basic_xml,0,6) != '<?xml ') throw new EventDataSourceErrorException('Non-XML response from the given URL (basic). Not a calendar feed?');
+    if (substr($basic_xml,0,6) != '<?xml ') throw new EventDataSourceErrorException( array('Non-XML response from the given URL (basic). Not a calendar feed?') );
 
     // replace the $xml variables with the parsed versions... or die trying
     try {
         $full_xml = @new SimpleXMLElement($full_xml);
     } catch (Exception $e) {
-        throw new EventDataSourceErrorException('Could not parse response from the given URL (full). Not a calendar feed?');
+        throw new EventDataSourceErrorException(array('Could not parse response from the given URL (full). Not a calendar feed?') );
     }
     try {
         $basic_xml = @new SimpleXMLElement($basic_xml);
     } catch (Exception $e) {
-        throw new EventDataSourceErrorException('Could not parse response from the given URL (basic). Not a calendar feed?');
+        throw new EventDataSourceErrorException( array('Could not parse response from the given URL (basic). Not a calendar feed?') );
     }
 
     // check for some known headers, and bail if we don't see them
     $updated = (string) $full_xml->updated;
     $title   = (string) $full_xml->title;
-    if (!$title or !$updated) throw new EventDataSourceErrorException('Got XML but no content.');
+    if (!$title or !$updated) throw new EventDataSourceErrorException( array('Got XML but no content.') );
 
     // the Basic feed, we really only want one thing: the <summary> tag for each event
     // build a struct of these summaries keyed by the event's ID, and we can attach it to the real $entry items when we iterate over $full_xml in a little bit
@@ -130,6 +130,7 @@ public function reloadContent() {
     $howmany     = 0;
     $no_geocode  = 0;
     $no_location = 0;
+    $details = array();
     foreach ($full_xml->entry as $entry) {
         $id             = basename( (string) $entry->id );
         $entry->summary = @$summaries[$id]; if (! $entry->summary) $entry->summary = "";
@@ -182,12 +183,20 @@ public function reloadContent() {
         // also, bail condition: if we don't have a Bing API key configured, we must skip this
         // WARNING: this does mean that the driver has intimate knowledge of the framework context (siteconfig) which violates MVC principles
         //          but I'm not coming up with another way to do it, without the Controller getting into the Model and violating MVC anyway...
-        if (!$bing_key) { $no_geocode++; continue; }
+        if (!$bing_key) {
+            $no_geocode++;
+            $details[] = "Bing API key not set; skipping address lookup for {$event->name}";
+            continue;
+        }
 
         $where = null;
         preg_match('/[\r\n]+(<br>|<br \/>)Where: (.+?)[\r\n]+/', $entry->summary, $where);
         $where = @$where[2];
-        if (! $where) { $no_location++; continue; }
+        if (! $where) {
+            $no_location++;
+            $details[] = "No 'Where:' text found: {$event->name}";
+            continue;
+        }
 
         if (array_key_exists($where,$geo_cache)) {
             // this address has previously been cached, so just load it from there
@@ -208,7 +217,11 @@ public function reloadContent() {
             // a 0,0 result is valid and specifically indicates that the address failed
             $geo_cache[$where] = array( 'lat'=>$lat, 'lng'=>$lng );
         }
-        if (!$lat or !$lng) { $no_geocode++; continue; }
+        if (!$lat or !$lng) {
+            $no_geocode++;
+            $details[] = "Address could not be found: {$where}";
+            continue;
+        }
 
         $loc = new EventLocation();
         $loc->event_id      = $event->id;
@@ -224,12 +237,18 @@ public function reloadContent() {
     $this->save();
 
     // guess we're done and happy; throw an error  (ha ha)
-    $message = array();
-    $message[] = "Successfully loaded $howmany events.";
-    if ($no_location) $message[] = "$no_location events had no location given.";
-    if ($no_geocode)  $message[] = "$no_geocode events had a location which could not be found. Check that complete addresses are used.";
-    $message = implode("\n", $message);
-    throw new EventDataSourceSuccessException($message);
+    $messages = array();
+    $messages[] = "Successfully loaded $howmany events.";
+    if ($no_location) $messages[] = "$no_location events had no location given.";
+    if ($no_geocode)  $messages[] = "$no_geocode events had a location which could not be found. Check that complete addresses are used.";
+    $info = array(
+        'success'    => $howmany,
+        'malformed'  => $no_location,
+        'badgeocode' => $no_geocode,
+        'nocategory' => 0,
+        'details'    => $details
+    );
+    throw new EventDataSourceSuccessException($messages,$info);
 }
 
 

@@ -46,18 +46,18 @@ public function reloadContent() {
     $username  = $this->option1;
     $apikey    = $this->option2;
     $tablename = $this->option3;
-    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException('Blank or invalid field: CartoDB Username');
-    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException('Blank or invalid field: CartoDB API Key');
-    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException('Blank or invalid field: CartoDB Table Name');
+    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB Username') );
+    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB API Key') );
+    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB Table Name') );
 
     // check the selected name field and description field (if applicable) as also being simple alphanumeric, then make sure they're on the list
     $namefield = $this->option4;
     $descfield = $this->option5;
-    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
-    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
+    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
+    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Description field') );
     $fields = $this->listFields();
-    if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException("Chosen Name field ($namefield) does not exist in the CartoDB table.");
-    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException("Chosen Description field ($descfield) does not exist in the CartoDB table.");
+    if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Name field ($namefield) does not exist in the CartoDB table.") );
+    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Description field ($descfield) does not exist in the CartoDB table.") );
 
     // the SQL clause, well, they can go bananas there, so no validation
     $whereclause = $this->option6;
@@ -91,9 +91,9 @@ public function reloadContent() {
     curl_close($curl);
 
     $records = @json_decode($records);
-    if (! $records) throw new PlaceDataSourceErrorException('CartoDB query failed: No content returned. Check your settings.');
-    if (@$records->error) throw new PlaceDataSourceErrorException('CartoDB query failed: No content returned. ' . $records->error[0] );
-    if (! sizeof($records->features) ) throw new PlaceDataSourceErrorException('CartoDB query failed: Content returned but no records have geometry.');
+    if (! $records) throw new PlaceDataSourceErrorException( array('CartoDB query failed: No content returned. Check your settings.') );
+    if (@$records->error) throw new PlaceDataSourceErrorException( array('CartoDB query failed: No content returned. ' . $records->error[0] ) );
+    if (! sizeof($records->features) ) throw new PlaceDataSourceErrorException( array('CartoDB query failed: Content returned but no records have geometry.') );
 
     // solid. we got records and they're in GeoJSON and the geometry is the centroid (in case the shapes are polygons)
     // processing can continue
@@ -176,14 +176,19 @@ public function reloadContent() {
     // success! update our last_fetch date then throw an exception
     $this->last_fetch = time();
     $this->save();
-    $message = array();
-    $message[] = "$records_new new locations added to database.";
-    $message[] = "$records_updated locations updated.";
-    if ($deletions)         $message[] = "$deletions outdated locations deleted.";
-    if ($records_noname)    $message[] = "$records_noname places had a blank name.";
-    if ($records_badcoords) $message[] = "$records_badcoords places skipped due to bad coordinates.";
-    $message = implode("\n",$message);
-    throw new PlaceDataSourceSuccessException($message);
+    $messages = array();
+    $messages[] = "$records_new new locations added to database.";
+    $messages[] = "$records_updated locations updated.";
+    if ($deletions)         $messages[] = "$deletions outdated locations deleted.";
+    if ($records_noname)    $messages[] = "$records_noname places had a blank name.";
+    if ($records_badcoords) $messages[] = "$records_badcoords places skipped due to bad coordinates.";
+    $info = array(
+        'added'   => $records_new,
+        'updated' => $records_updated,
+        'deleted' => $deletions,
+        'nogeom'  => $records_badcoords,
+    );
+    throw new PlaceDataSourceSuccessException($messages,$info);
 }
 
 
@@ -196,17 +201,17 @@ public function listFields() {
     $username  = $this->option1;
     $apikey    = $this->option2;
     $tablename = $this->option3;
-    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException('Blank or invalid field: CartoDB Username');
-    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException('Blank or invalid field: CartoDB API Key');
-    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException('Blank or invalid field: CartoDB Table Name');
+    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB Username') );
+    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB API Key') );
+    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB Table Name') );
 
     // compose the URL to fetch 1 row; we don't care which, as long as we get its field listing
     // uncertain about failure mode: via browser a bad table name gives an object with an error attribute (array of errmsgs) but via file_get_contents() gets a Bad Request HTTP code
     $query   = sprintf("SELECT * FROM %s LIMIT 1", $tablename );
     $url     = sprintf("http://%s.cartodb.com/api/v2/sql?api_key=%s&q=%s", $username, $apikey, urlencode($query) );
     $content = @json_decode(@file_get_contents($url));
-    if (! $content) throw new PlaceDataSourceErrorException('CartoDB query failed: No content returned. Check your settings.');
-    if (@$content->error) throw new PlaceDataSourceErrorException('CartoDB query failed: No content returned. ' . $content->error[0] );
+    if (! $content) throw new PlaceDataSourceErrorException( array('CartoDB query failed: No content returned. Check your settings.') );
+    if (@$content->error) throw new PlaceDataSourceErrorException( array('CartoDB query failed: No content returned. ' . $content->error[0] ) );
 
     // the fields attribute has everything we need; simply collect them
     // it's an object, so use get_object_vars() to treat it as an array so we can iterate

@@ -214,12 +214,11 @@ public function recategorizeAllPlaces() {
         }
     }
 
-    // done, hand back our message
-    $message = array();
-    if ($looked_good) $message[] = "$looked_good places assigned to categories OK.";
-    if ($had_none) $message[] = "$had_none places fit no categories.";
-    $message = implode("\n",$message);
-    throw new PlaceDataSourceSuccessException($message);
+    // done, hand back an exception with a list of our message components and potentially other metadata
+    $messages = array();
+    if ($looked_good) $messages[] = "$looked_good places assigned to categories OK.";
+    if ($had_none)    $messages[] = "$had_none places fit no categories.";
+    throw new PlaceDataSourceSuccessException($messages);
 }
 
 
@@ -259,14 +258,54 @@ public function calculateCategoryIDsFromAttributes($attribs) {
 
 /**********************************************************************************************
  * EXCEPTIONS
- * exceptions are used internally to communicate both success and failure, as they can return 
- * more complex messages than a simple TRUE/FALSE return
+ * exceptions are used internally to communicate both success and failure,
+ * as they can return more complex messages than a simple TRUE/FALSE return
+ * these deviate somewhat from SPL's normal exceptions:
+ * - first param is a LIST of message strings, not a single text string
+ *      this is joined with newlines to form the text for getMessage()
+ *      but does allow the caller to parse out individual messages, join with newlines, whatever
+ * - second param is an arbitrary assocarray, stored in the Exception's "extrainfo" attribute:  $e->extrainfo
+ *      this is suitable for whatever arbitrary driver-specific information you may want to stick into the exception,
+ *      be it number of successes and failures, specific codes for individual task failures, whatever
+ *      BUT there is a standard, as follows:
+ *          - for error exceptions, this is typically undefined (defaults to empty array)
+ *              the error message list has what we needed
+ *          - for success exceptions, the following attributes should be defined:
+ *              details     list of strings, any arbitrary "verbose debugging" output to include into the on-disk report
+ *              added       integer, number of new records created in the database
+ *              updated     integer, number of records updated in the database (ID in DB and remote, an update)
+ *              deleted     integer, number of records deleted (ID in DB but not in remote, so outdated)
+ *              nogeom      integer, number of records skipped due to bad geometry (coordinates missing, malformed)
  **********************************************************************************************/
 
 class PlaceDataSourceSuccessException extends Exception {
+    public function __construct($messages=null,$extrainfo=array()) {
+        // no messages? no way
+        if (! $messages) throw new Exception("Failed to throw PlaceDataSourceSuccessException: no messages given");
+        $this->messages = $messages;
+
+        // go ahead and construct a regular Exception
+        $message = implode("\n", $this->messages);
+        $code = 0;
+        parent::__construct($message,$code);
+
+        // then add the $extrainfo
+        $this->extrainfo = $extrainfo;
+    }
 }
 
 class PlaceDataSourceErrorException extends Exception {
+    public function __construct($messages=null,$extrainfo=array()) {
+        // no messages? no way
+        if (! $messages) throw new Exception("Failed to throw PlaceDataSourceErrorException: no messages given");
+        $this->messages = $messages;
+
+        // go ahead and construct a regular Exception
+        $message = implode("\n", $this->messages);
+        $code = 0;
+        parent::__construct($message,$code);
+
+        // then add the $extrainfo
+        $this->extrainfo = $extrainfo;
+    }
 }
-
-

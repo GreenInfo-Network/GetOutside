@@ -48,18 +48,19 @@ public function __construct() {
 public function reloadContent() {
     // make sure no shenanigans: all RSS feeds http or https
     // no other prep work here; the RSS URL is the RSS URL
-    if (! preg_match('/^https?:\/\//i', $this->url) ) throw new EventDataSourceErrorException('Not a valid web URL.');
+    if (! preg_match('/^https?:\/\//i', $this->url) ) throw new EventDataSourceErrorException( array('Not a valid web URL.') );
     $url = $this->url;
 
     require_once 'application/third_party/class.iCalReader.php';
     $ical = new ICal($url);
-    if (! @$ical->cal) throw new EventDataSourceErrorException('Content is not an iCal/ICS feed.');
+    if (! @$ical->cal) throw new EventDataSourceErrorException( array('Content is not an iCal/ICS feed.') );
 
     // finally got here, so we're good
     // take a moment and delete all of the old Events from this data source
     foreach ($this->event as $old) $old->delete();
 
     // start adding events!
+    $details = array();
     $success = 0;
     $failed  = 0;
     foreach ($ical->events() as $entry) {
@@ -72,10 +73,15 @@ public function reloadContent() {
         $url = substr(@$entry['URL'], 0, 250);
         if (! $url and strpos($uid,'http')!==FALSE) $url = $uid;
 
-
         // if it's lacking an URL or a title or a time, something's not right
         if (! $name or ! $url or ! $start) {
             $failed++;
+            $details[] = "Skipping: Name and/or website missing, {$event->name}";
+            continue;
+        }
+        if (! $name or ! $url or ! $start) {
+            $failed++;
+            $details[] = "Skipping: No date information found for {$event->name}";
             continue;
         }
 
@@ -116,9 +122,16 @@ public function reloadContent() {
     $this->save();
 
     // guess we're done and happy; throw an error  (ha ha)
-    $message = "Successfully loaded $success events.";
-    if ($failed) $message .= " Failed to load $failed events due to missing information.";
-    throw new EventDataSourceSuccessException($message);
+    $messages = array("Successfully loaded $success events.");
+    if ($failed) $messages[] = " Failed to load $failed events due to missing information.";
+    $info = array(
+        'success'    => $success,
+        'malformed'  => $failed,
+        'badgeocode' => 0,
+        'nocategory' => 0,
+        'details'    => $details
+    );
+    throw new EventDataSourceSuccessException($messages,$info);
 }
 
 

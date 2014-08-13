@@ -90,13 +90,16 @@ function saveAndFetch() {
         $('#dialog_fetching').dialog('open');
         var url    = BASE_URL + 'administration/ajax_load_event_source/';
         $.post(url, params, function (reply) {
+            // close the waiting spinner, then see if we found an error
             $('#dialog_fetching').dialog('close');
+            if (! reply.status) return alert("Invalid reply from the server. I don't know what to do!");
+            if (reply.status != 'ok') return alert(reply.text);
 
             // open the results dialog... so so carefully and in this order, cuz the varied-length text can throw off the position
             var dialog = $('#dialog_loadok');
-            dialog.children('div').text(reply);
+            dialog.children('div').html(reply.text);
             dialog.dialog('open').position({ my:'center', at:'center', of:window });
-        }).error(function () {
+        }, 'json').error(function () {
             $('#dialog_fetching').dialog('close');
             alert('There was a problem. To diagnose further, check your browser\'s debugging tools.');
         });

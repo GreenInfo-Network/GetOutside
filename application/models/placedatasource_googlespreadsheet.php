@@ -46,8 +46,7 @@ public function reloadContent() {
     $tablekey = null;
     preg_match('!https://docs.google.com/spreadsheet/ccc/?\?key=([\w\_\-]+)!i', $this->url, $tablekey );
     $tablekey = @$tablekey[1];
-    if (! $tablekey) throw new PlaceDataSourceErrorException("That URL does not appear to point to a Google Drive Spreadsheet.");
-
+    if (! $tablekey) throw new PlaceDataSourceErrorException( array("That URL does not appear to point to a Google Drive Spreadsheet.") );
 
     // check that the Name and Description and Lat & Lon fields, are all represented
     // why check when they had to pick from a list? cuz the spreadsheet may have changed since they set those options, or maybe they "hacked" and submitted some invalid field name
@@ -55,32 +54,32 @@ public function reloadContent() {
     $descfield = $this->option2;
     $latfield  = $this->option3;
     $lonfield  = $this->option4;
-    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Name field');
-    if (! preg_match('!^\w+$!', $latfield))  throw new PlaceDataSourceErrorException('Blank or invalid field: Latitude field');
-    if (! preg_match('!^\w+$!', $lonfield))  throw new PlaceDataSourceErrorException('Blank or invalid field: Longitude field');
-    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException('Blank or invalid field: Description field');
+    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
+    if (! preg_match('!^\w+$!', $latfield))  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Latitude field') );
+    if (! preg_match('!^\w+$!', $lonfield))  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Longitude field') );
+    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Description field') );
     $fields = $this->listFields(TRUE);
-    if (!in_array($namefield,$fields)) throw new PlaceDataSourceErrorException('Chosen Name field ($namefield) does not exist in the spreadsheet.');
-    if (!in_array($latfield,$fields))  throw new PlaceDataSourceErrorException('Chosen Latitude field ($latfield) does not exist in the spreadsheet.');
-    if (!in_array($lonfield,$fields))  throw new PlaceDataSourceErrorException('Chosen Longitude field ($lonfield) does not exist in the spreadsheet.');
-    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException('Chosen Description field ($descfield) does not exist in the spreadsheet.');
+    if (!in_array($namefield,$fields)) throw new PlaceDataSourceErrorException( array('Chosen Name field ($namefield) does not exist in the spreadsheet.') );
+    if (!in_array($latfield,$fields))  throw new PlaceDataSourceErrorException( array('Chosen Latitude field ($latfield) does not exist in the spreadsheet.') );
+    if (!in_array($lonfield,$fields))  throw new PlaceDataSourceErrorException( array('Chosen Longitude field ($lonfield) does not exist in the spreadsheet.') );
+    if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException( array('Chosen Description field ($descfield) does not exist in the spreadsheet.') );
 
     // compose the URL and fetch the spreadsheet content
     // then check for nonsense: no data, non-XML data
     $url = sprintf('https://spreadsheets.google.com/feeds/cells/%s/%d/public/basic', $tablekey, 1 );
     $xml = @file_get_contents($url);
-    if (! $xml) throw new PlaceDataSourceErrorException("No data found. Check the URL, and make sure that it is \"Published to the web\".");
-    if (substr($xml,0,5) != '<?xml') throw new PlaceDataSourceErrorException("No data found. Check the URL, and make sure that it is \"Published to the web\".");
+    if (! $xml) throw new PlaceDataSourceErrorException( array("No data found. Check the URL, and make sure that it is \"Published to the web\".") );
+    if (substr($xml,0,5) != '<?xml') throw new PlaceDataSourceErrorException( array("No data found. Check the URL, and make sure that it is \"Published to the web\".") );
 
     // replace $xml from the XML string to a XML parser, or die trying
     try {
         $xml = @new SimpleXMLElement($xml);
     } catch (Exception $e) {
-        throw new PlaceDataSourceErrorException('Invalid data found. Identifies as XML, but could not be processed.');
+        throw new PlaceDataSourceErrorException( array('Invalid data found. Identifies as XML, but could not be processed.') );
     }
 
     // guess we got it; final checks
-    if (! sizeof($xml->entry) ) throw new PlaceDataSourceErrorException('No rows found in the spreadsheet.');
+    if (! sizeof($xml->entry) ) throw new PlaceDataSourceErrorException( array('No rows found in the spreadsheet.') );
 
     // crunch it
     // load the spreadsheet and create several side effects:
@@ -118,10 +117,10 @@ public function reloadContent() {
         // load the cells registry; a mdoest accomplishment, but one which will pay off in a moment
         $cells[$cellid] = $value;
     }
-    if (! $column_name) throw new PlaceDataSourceErrorException("Parsing error: Couldn't figure out column letter for Name");
-    if (! $column_desc) throw new PlaceDataSourceErrorException("Parsing error: Couldn't figure out column letter for Desc");
-    if (! $column_lat ) throw new PlaceDataSourceErrorException("Parsing error: Couldn't figure out column letter for Latitude");
-    if (! $column_lon ) throw new PlaceDataSourceErrorException("Parsing error: Couldn't figure out column letter for Longitude");
+    if (! $column_name) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for Name") );
+    if (! $column_desc) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for Desc") );
+    if (! $column_lat ) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for Latitude") );
+    if (! $column_lon ) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for Longitude") );
 
     // prep work: deletions
     // compose a list of all Remote-ID currently in the database within this data source
@@ -200,14 +199,19 @@ public function reloadContent() {
     // success! update our last_fetch date then throw an exception
     $this->last_fetch = time();
     $this->save();
-    $message = array();
-    $message[] = "$records_new new locations added to database.";
-    $message[] = "$records_updated locations updated.";
-    if ($deletions)   $message[] = "$deletions outdated locations deleted.";
-    if ($records_noname)    $message[] = "$records_noname places had a blank name.";
-    if ($records_badcoords) $message[] = "$records_badcoords places skipped due to bad coordinates.";
-    $message = implode("\n",$message);
-    throw new PlaceDataSourceSuccessException($message);
+    $messages = array();
+    $messages[] = "$records_new new locations added to database.";
+    $messages[] = "$records_updated locations updated.";
+    if ($deletions)         $messages[] = "$deletions outdated locations deleted.";
+    if ($records_noname)    $messages[] = "$records_noname places had a blank name.";
+    if ($records_badcoords) $messages[] = "$records_badcoords places skipped due to bad coordinates.";
+    $info = array(
+        'added'   => $records_new,
+        'updated' => $records_updated,
+        'deleted' => $deletions,
+        'nogeom'  => $records_badcoords,
+    );
+    throw new PlaceDataSourceSuccessException($messages,$info);
 }
 
 
@@ -220,24 +224,24 @@ public function listFields() {
     $tablekey = null;
     preg_match('!https://docs.google.com/spreadsheet/ccc/?\?key=([\w\_\-]+)!i', $this->url, $tablekey );
     $tablekey = @$tablekey[1];
-    if (! $tablekey) throw new PlaceDataSourceErrorException("That URL does not appear to point to a Google Drive Spreadsheet.");
+    if (! $tablekey) throw new PlaceDataSourceErrorException( array("That URL does not appear to point to a Google Drive Spreadsheet.") );
 
     // compose the URL and fetch the spreadsheet content
     // then check for nonsense: no data, non-XML data
     $url = sprintf('https://spreadsheets.google.com/feeds/cells/%s/%d/public/basic', $tablekey, 1 );
     $xml = @file_get_contents($url);
-    if (! $xml) throw new PlaceDataSourceErrorException("No data found. Check the URL, and make sure that it is \"Published to the web\".");
-    if (substr($xml,0,5) != '<?xml') throw new PlaceDataSourceErrorException("No data found. Check the URL, and make sure that it is \"Published to the web\".");
+    if (! $xml) throw new PlaceDataSourceErrorException( array("No data found. Check the URL, and make sure that it is \"Published to the web\".") );
+    if (substr($xml,0,5) != '<?xml') throw new PlaceDataSourceErrorException( array("No data found. Check the URL, and make sure that it is \"Published to the web\".") );
 
     // replace $xml from the XML string to a XML parser, or die trying
     try {
         $xml = @new SimpleXMLElement($xml);
     } catch (Exception $e) {
-        throw new PlaceDataSourceErrorException('Invalid data found. Identifies as XML, but could not be processed.');
+        throw new PlaceDataSourceErrorException( array('Invalid data found. Identifies as XML, but could not be processed.') );
     }
 
     // guess we got it; final checks
-    if (! sizeof($xml->entry) ) throw new PlaceDataSourceErrorException('No rows found in the spreadsheet.');
+    if (! sizeof($xml->entry) ) throw new PlaceDataSourceErrorException( array('No rows found in the spreadsheet.') );
 
     // generate the output, a flat list
     // a prior version accepted an $assoc=TRUE param to generate assoc arrays, but this got into "what would the caller want?" guesswork, and is best left to the caller

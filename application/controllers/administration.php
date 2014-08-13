@@ -272,10 +272,19 @@ public function ajax_load_event_source() {
         $source->siteconfig = $this->siteconfig;
         $source->reloadContent();
     } catch (EventDataSourceSuccessException $e) {
-        return print "SUCCESS\n" . $e->getMessage();
+        $output = array(
+            'status'    => 'ok',
+            'text'      => "SUCCESS\n" . $e->getMessage(),
+            'info'      => $e->extrainfo,
+        );
     } catch (EventDataSourceErrorException $e) {
-        return print "ERROR\n" . $e->getMessage();
+        $output = array(
+            'status'    => 'error',
+            'text'      => "ERROR\n" . $e->getMessage(),
+            'info'      => $e->extrainfo,
+        );
     }
+    print json_encode($output);
 }
 
 
@@ -464,10 +473,18 @@ public function ajax_load_place_source() {
         $driver = $source->convertToDriver();
         $driver->siteconfig = $this->siteconfig;
         $driver->reloadContent();
-    } catch (PlaceDataSourceErrorException $e) {
-        return print "ERROR\n" . $e->getMessage();
     } catch (PlaceDataSourceSuccessException $e) {
-        $message = "SUCCESS\n" . $e->getMessage();
+        $output = array(
+            'status'    => 'ok',
+            'text'      => "SUCCESS\n" . $e->getMessage(),
+            'info'      => $e->extrainfo,
+        );
+    } catch (PlaceDataSourceErrorException $e) {
+        $output = array(
+            'status'    => 'error',
+            'text'      => "ERROR\n" . $e->getMessage(),
+            'info'      => $e->extrainfo,
+        );
     }
 
     // if we got here then it was successful and we already have a message to hand back to the client
@@ -475,11 +492,14 @@ public function ajax_load_place_source() {
     try {
         $source->recategorizeAllPlaces();
     } catch (PlaceDataSourceErrorException $e) {
-        return print "ERROR\n" . $e->getMessage();
+        $output['status'] = 'error';
+        $output['text'] .= "\n\n" . $e->getMessage();
     } catch (PlaceDataSourceSuccessException $e) {
-        $message .= "\n\n" . $e->getMessage();
-        return print $message;
+        $output['text'] .= "\n\n" . $e->getMessage();
     }
+
+    // send it off: all of the exception resultsd concatenated into one
+    print json_encode($output);
 }
 
 public function ajax_save_place_source() {
