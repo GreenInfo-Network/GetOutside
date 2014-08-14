@@ -36,7 +36,7 @@ $config['BBOX_S'] =  -89.0000;
 $config['BBOX_E'] =  179.0000;
 $config['BBOX_N'] =   89.0000;
 
-$config['BING_API_KEY'] = '';
+$config['BING_API_KEY'] = 'AiecIf8cAgrFbHnHLpNfNIAmSqk9wo89f1yDtEMLJJdGpPJPa6G9-WpF3WC8EvTn';
 $config['METRIC']       = 0;
 
 $config['BASEMAP_TYPE']     = 'googleterrain';
