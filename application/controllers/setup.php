@@ -219,41 +219,45 @@ public function index() {
     $this->load->model('SiteConfig');
     $data = array();
 
+    /////
+    ///// default config loaded from config/defaultsiteconfig.php
+    ///// note that the CodeIgniter "Config" class documentation is not accurate here; this is what works
+    /////
+    $this->load->config('defaultsiteconfig',TRUE);
+    $defaults = $this->config->config['defaultsiteconfig'];
 
-    /////
-    ///// default config
-    /////
     $siteconfig = new SiteConfig();
-    $siteconfig->set('title','Get Outside!');
-    $siteconfig->set('jquitheme','pepper-grinder');
-    $siteconfig->set('html_frontpage', '<h1>GetOutside!</h1>\n<p>Your new installation is up and running. To fill in this page, visit the <a href="administration">administration panel.</a></p>');
-    $siteconfig->set('html_about', 'GetOutside! is a project of <a target="_blank" href="http://www.greeninfo.org/">GreenInfo Network</a> made possible by a grant for <a target="_blank" href="http://www.knightfoundation.org/">The Knight Foundation</a>.');
-    $siteconfig->set('bbox_w', -179.0000);
-    $siteconfig->set('bbox_s',  -89.0000);
-    $siteconfig->set('bbox_e',  179.0000);
-    $siteconfig->set('bbox_n',   89.0000);
-    $siteconfig->set('bing_api_key', '');
-    $siteconfig->set('company_url', '');
-    $siteconfig->set('company_name', '');
-    $siteconfig->set('metric_units', 0);
-    $siteconfig->set('mobile_bgcolor',           Mobile::$DEFAULT_COLORS['bgcolor'] );
-    $siteconfig->set('mobile_fgcolor',           Mobile::$DEFAULT_COLORS['fgcolor'] );
-    $siteconfig->set('mobile_buttonfgcolor1',    Mobile::$DEFAULT_COLORS['buttonfgcolor1'] );
-    $siteconfig->set('mobile_buttonbgcolor1',    Mobile::$DEFAULT_COLORS['buttonbgcolor1'] );
-    $siteconfig->set('mobile_buttonfgcolor2',    Mobile::$DEFAULT_COLORS['buttonfgcolor2'] );
-    $siteconfig->set('mobile_buttonbgcolor2',    Mobile::$DEFAULT_COLORS['buttonbgcolor2'] );
-    $siteconfig->set('mobile_alertfgcolor',      Mobile::$DEFAULT_COLORS['alertfgcolor'] );
-    $siteconfig->set('mobile_alertbgcolor',      Mobile::$DEFAULT_COLORS['alertbgcolor'] );
-    $siteconfig->set('mobile_markerglowcolor',   Mobile::$DEFAULT_COLORS['markerglowcolor'] );
-    $siteconfig->set('mobile_logo',              Mobile::$DEFAULT_LOGO['content'] );
-    $siteconfig->set('mobile_logo_width',        Mobile::$DEFAULT_LOGO['width'] );
-    $siteconfig->set('mobile_logo_height',       Mobile::$DEFAULT_LOGO['height'] );
-    $siteconfig->set('mobile_marker',            Mobile::$DEFAULT_MARKER['content'] );
-    $siteconfig->set('mobile_marker_width',      Mobile::$DEFAULT_MARKER['width'] );
-    $siteconfig->set('mobile_marker_height',     Mobile::$DEFAULT_MARKER['height'] );
-    $siteconfig->set('mobile_marker_gps',        Mobile::$DEFAULT_MARKER_GPS['content'] );
-    $siteconfig->set('mobile_marker_gps_width',  Mobile::$DEFAULT_MARKER_GPS['width'] );
-    $siteconfig->set('mobile_marker_gps_height', Mobile::$DEFAULT_MARKER_GPS['height'] );
+    $siteconfig->set('title',                    $defaults['TITLE'] );
+    $siteconfig->set('company_name',             $defaults['COMPANY_NAME'] );
+    $siteconfig->set('company_url',              $defaults['COMPANY_URL'] );
+    $siteconfig->set('jquitheme',                $defaults['JQUITHEME'] );
+    $siteconfig->set('html_frontpage',           $defaults['FRONTPAGE_TEXT'] );
+    $siteconfig->set('html_about',               $defaults['ABOUTPAGE_TEXT'] );
+    $siteconfig->set('bbox_w',                   $defaults['BBOX_W'] );
+    $siteconfig->set('bbox_s',                   $defaults['BBOX_S'] );
+    $siteconfig->set('bbox_e',                   $defaults['BBOX_E'] );
+    $siteconfig->set('bbox_n',                   $defaults['BBOX_N'] );
+    $siteconfig->set('bing_api_key',             $defaults['BING_API_KEY']);
+    $siteconfig->set('metric_units',             $defaults['METRIC'] );
+    $siteconfig->set('mobile_bgcolor',           $defaults['MOBILE_COLORS']['bgcolor'] );
+    $siteconfig->set('mobile_fgcolor',           $defaults['MOBILE_COLORS']['fgcolor'] );
+    $siteconfig->set('mobile_buttonfgcolor1',    $defaults['MOBILE_COLORS']['buttonfgcolor1'] );
+    $siteconfig->set('mobile_buttonbgcolor1',    $defaults['MOBILE_COLORS']['buttonbgcolor1'] );
+    $siteconfig->set('mobile_buttonfgcolor2',    $defaults['MOBILE_COLORS']['buttonfgcolor2'] );
+    $siteconfig->set('mobile_buttonbgcolor2',    $defaults['MOBILE_COLORS']['buttonbgcolor2'] );
+    $siteconfig->set('mobile_alertfgcolor',      $defaults['MOBILE_COLORS']['alertfgcolor'] );
+    $siteconfig->set('mobile_alertbgcolor',      $defaults['MOBILE_COLORS']['alertbgcolor'] );
+    $siteconfig->set('mobile_markerglowcolor',   $defaults['MOBILE_COLORS']['markerglowcolor'] );
+    $siteconfig->set('mobile_logo',              $defaults['MOBILE_LOGO']['content'] );
+    $siteconfig->set('mobile_logo_width',        $defaults['MOBILE_LOGO']['width'] );
+    $siteconfig->set('mobile_logo_height',       $defaults['MOBILE_LOGO']['height'] );
+    $siteconfig->set('mobile_marker',            $defaults['MOBILE_MARKER']['content'] );
+    $siteconfig->set('mobile_marker_width',      $defaults['MOBILE_MARKER']['width'] );
+    $siteconfig->set('mobile_marker_height',     $defaults['MOBILE_MARKER']['height'] );
+    $siteconfig->set('mobile_marker_gps',        $defaults['MOBILE_MARKER_GPS']['content'] );
+    $siteconfig->set('mobile_marker_gps_width',  $defaults['MOBILE_MARKER_GPS']['width'] );
+    $siteconfig->set('mobile_marker_gps_height', $defaults['MOBILE_MARKER_GPS']['height'] );
+
 
 
     /////
