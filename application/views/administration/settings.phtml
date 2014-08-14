@@ -21,6 +21,9 @@
 <script type="text/javascript" src="<?= site_url() ?>/application/views/administration/settings.js"></script>
 <script type="text/javascript">
 var BING_API_KEY = <?= json_encode( $siteconfig['bing_api_key'] ) ?>;
+
+var BASEMAP_TYPE   = <?= json_encode( $siteconfig['basemap_type'] ) ?>;
+var BASEMAP_XYZURL = <?= json_encode( $siteconfig['basemap_xyzurl'] ) ?>;
 </script>
 
 <style type="text/css">
@@ -111,6 +114,28 @@ th {
             <tr>
                 <td>Bing Maps API Key <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Address searching and directions are courtesy of Bing Maps. To use these, you need a Bing Maps API Key."></div></td>
                 <td><input type="text" name="bing_api_key" size="80" maxlength="100" value="<?= htmlspecialchars( $siteconfig['bing_api_key'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Basemap <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="The underlying map can be your choice of Google Maps, Bing Maps, or any publicly-accessible tile service using XYZ-compatible format (TMS, WMS-T, Mapbox)."></div></td>
+                <td>
+                    <!-- the radiobox values are connected to the basemap_option boxes below; see the basemap_type event handler setup in settings.js -->
+                    <!-- these are also used here on the admin panel for the map; see settings.js where MAP is set up, and top of settings.phtml where some JS vars are exposed -->
+                    <label><input type="radio" name="basemap_type" value="googlestreets"     <?= $siteconfig['basemap_type'] == 'googlestreets'   ? 'checked' : '' ?> /> Google Maps, Streets</label><br/>
+                    <label><input type="radio" name="basemap_type" value="googleterrain"     <?= $siteconfig['basemap_type'] == 'googleterrain'   ? 'checked' : '' ?> /> Google Maps, Terrain</label><br/>
+                    <label><input type="radio" name="basemap_type" value="googlesatellite"   <?= $siteconfig['basemap_type'] == 'googlesatellite' ? 'checked' : '' ?> /> Google Maps, Satellite</label><br/>
+                    <label><input type="radio" name="basemap_type" value="bingstreets"       <?= $siteconfig['basemap_type'] == 'bingstreets'     ? 'checked' : '' ?> /> Bing Maps, Streets</label><br/>
+                    <label><input type="radio" name="basemap_type" value="bingsatellite"     <?= $siteconfig['basemap_type'] == 'bingsatellite'   ? 'checked' : '' ?> /> Bing Maps, Satellite</label><br/>
+                    <label><input type="radio" name="basemap_type" value="xyz"               <?= $siteconfig['basemap_type'] == 'xyz'             ? 'checked' : '' ?> /> XYZ Tiles (TMS, WMS-T, Mapbox)</label><br/>
+
+                    <div class="basemap_option" data-basemaptype="xyz">
+                        <input type="text" name="basemap_xyzurl" value="<?= $siteconfig['basemap_xyzurl'] ?>" size="80" maxlength="150" />
+                        <br/>
+                        The &quot;URL template&quot; used by Leaflet to load XYZ tiles.<br/>
+                        Use {x} {y} and {z} as placeholders for the tile ordinates.<br/>
+                        Use {s} as a placeholder for a random selection of subdomains 'a', 'b', 'c', and 'd' (optional).<br/>
+                        Example and default: &nbsp; <i>http://{s}.tiles.mapbox.com/v3/greeninfo.map-fdff5ykx/{z}/{x}/{y}.jpg</i>
+                    </div>
+                </td>
             </tr>
             <tr>
                 <td>Starting Map View <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Pan and zoom the map to define the area displayed when a visitor first visits the Map page."></div></td>

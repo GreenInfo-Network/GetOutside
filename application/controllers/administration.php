@@ -84,6 +84,9 @@ public function ajax_save_settings() {
     $this->siteconfig->set('bbox_e', $_POST['bbox_e']);
     $this->siteconfig->set('bbox_n', $_POST['bbox_n']);
     $this->siteconfig->set('bing_api_key', $_POST['bing_api_key']);
+    $this->siteconfig->set('basemap_type',   $_POST['basemap_type']);
+    $this->siteconfig->set('basemap_xyzurl', $_POST['basemap_xyzurl']);
+
     $this->siteconfig->set('metric_units', $_POST['metric_units']);
 
     $this->siteconfig->set('mobile_bgcolor',         $_POST['mobile_bgcolor']);
