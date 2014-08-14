@@ -238,6 +238,8 @@ public function index() {
     $siteconfig->set('bbox_e',                   $defaults['BBOX_E'] );
     $siteconfig->set('bbox_n',                   $defaults['BBOX_N'] );
     $siteconfig->set('bing_api_key',             $defaults['BING_API_KEY']);
+    $siteconfig->set('basemap_type',             $defaults['BASEMAP_TYPE'] );
+    $siteconfig->set('basemap_xyzurl',           $defaults['BASEMAP_XYZURL'] );
     $siteconfig->set('metric_units',             $defaults['METRIC'] );
     $siteconfig->set('mobile_bgcolor',           $defaults['MOBILE_COLORS']['bgcolor'] );
     $siteconfig->set('mobile_fgcolor',           $defaults['MOBILE_COLORS']['fgcolor'] );

@@ -24,6 +24,13 @@ $config['COMPANY_URL']    = '';
 
 $config['JQUITHEME'] = 'pepper-grinder';
 
+
+/*
+|--------------------------------------------------------------------------
+| Starting Text for HTML Pages
+|--------------------------------------------------------------------------
+*/
+
 $config['BBOX_W'] = -179.0000;
 $config['BBOX_S'] =  -89.0000;
 $config['BBOX_E'] =  179.0000;
@@ -31,6 +38,9 @@ $config['BBOX_N'] =   89.0000;
 
 $config['BING_API_KEY'] = '';
 $config['METRIC']       = 0;
+
+$config['BASEMAP_TYPE']     = 'xyz';
+$config['BASEMAP_XYZURL']   = 'http://{s}.tiles.mapbox.com/v3/greeninfo.map-fdff5ykx/{z}/{x}/{y}.jpg';
 
 
 /*
