@@ -73,7 +73,7 @@ public function place($id=0) {
     // do we have any PlaceActivities at all? if not, then no point in showing that useless checkbox
     $data['has_activities'] = $data['place']->placeactivity->count();
 
-    // send the siteconfig into the template too; we use this to define JavaScript for default bounding box, miles vs kilometers, basemap option, ...
+    // directions UI: use metric or imperial?
     $siteconfig = new SiteConfig();
     $data['metric'] = (integer) $siteconfig->get('metric_units');
 
@@ -100,7 +100,7 @@ public function map() {
     $data['has_event_locations'] = new EventLocation();
     $data['has_event_locations'] = $data['has_event_locations']->count();
 
-    // directions UI: use metric or imperial?
+    // assign the siteconfig to the template too; we use this for JavaScript definitions: starting bbox, basemap choice, and so on
     $siteconfig = new SiteConfig();
     $data['siteconfig'] = $siteconfig->all();
 
