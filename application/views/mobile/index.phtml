@@ -37,9 +37,9 @@
     <script type="text/javascript">
     var BASE_URL = <?= json_encode(site_url()) ?>;
 
-    // see also the #panel-map-settings which has checkboxes, but Bing ones only if Bing is enabled
+    // see also the #panel-map-settings which has checkboxes,
+    // but Bing ones only if Bing is enabled and XYZ/CUstom only if that layer is in fact the default
     var BING_API_KEY = <?= json_encode( $siteconfig['bing_api_key'] ) ?>;
-
     var BASEMAP_TYPE   = <?= json_encode( $siteconfig['basemap_type'] ) ?>;
     var BASEMAP_XYZURL = <?= json_encode( $siteconfig['basemap_xyzurl'] ) ?>;
 
@@ -253,7 +253,9 @@
                 <?php if ($siteconfig['bing_api_key']) { ?>
                 <label><input type="radio" name="basemap" value="bingsatellite" /> Bing Satellite</label>
                 <?php } ?>
+                <?php if ($siteconfig['basemap_type'] == 'xyz') { ?>
                 <label><input type="radio" name="basemap" value="xyz" /> Custom</label>
+                <?php } ?>
             </div>
         </div>
     </div>

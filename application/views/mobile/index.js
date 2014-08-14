@@ -224,7 +224,7 @@ function initMap() {
     BASEMAPS['googlesatellite']   = new L.Google('HYBRID', { zIndex:-1 });
     if (BING_API_KEY) BASEMAPS['bingstreets']       = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'Road' });
     if (BING_API_KEY) BASEMAPS['bingsatellite']     = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'AerialWithLabels' });
-    BASEMAPS['xyz']               = L.tileLayer(BASEMAP_XYZURL, { zIndex:-1 });
+    if (BASEMAP_TYPE == 'xyz') BASEMAPS['xyz']               = L.tileLayer(BASEMAP_XYZURL, { zIndex:-1 });
 
     // load the map and its initial view
     MAP = new L.Map('map_canvas', {
