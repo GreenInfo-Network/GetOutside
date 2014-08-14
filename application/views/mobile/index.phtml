@@ -37,6 +37,7 @@
     <script type="text/javascript">
     var BASE_URL = <?= json_encode(site_url()) ?>;
 
+    // see also the #panel-map-settings which has checkboxes, but Bing ones only if Bing is enabled
     var BING_API_KEY = <?= json_encode( $siteconfig['bing_api_key'] ) ?>;
 
     var BASEMAP_TYPE   = <?= json_encode( $siteconfig['basemap_type'] ) ?>;
@@ -246,8 +247,12 @@
                 <label><input type="radio" name="basemap" value="googleterrain" /> Google Terrain</label>
                 <label><input type="radio" name="basemap" value="googlestreets" /> Google Streets</label>
                 <label><input type="radio" name="basemap" value="googlesatellite" /> Google Satellite</label>
+                <?php if ($siteconfig['bing_api_key']) { ?>
                 <label><input type="radio" name="basemap" value="bingstreets" /> Bing Streets</label>
+                <?php } ?>
+                <?php if ($siteconfig['bing_api_key']) { ?>
                 <label><input type="radio" name="basemap" value="bingsatellite" /> Bing Satellite</label>
+                <?php } ?>
                 <label><input type="radio" name="basemap" value="xyz" /> Custom</label>
             </div>
         </div>

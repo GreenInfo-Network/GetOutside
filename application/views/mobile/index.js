@@ -222,8 +222,8 @@ function initMap() {
     BASEMAPS['googleterrain']     = new L.Google('TERRAIN', { zIndex:-1 });
     BASEMAPS['googlestreets']     = new L.Google('ROADMAP', { zIndex:-1 });
     BASEMAPS['googlesatellite']   = new L.Google('HYBRID', { zIndex:-1 });
-    BASEMAPS['bingstreets']       = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'Road' });
-    BASEMAPS['bingsatellite']     = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'AerialWithLabels' });
+    if (BING_API_KEY) BASEMAPS['bingstreets']       = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'Road' });
+    if (BING_API_KEY) BASEMAPS['bingsatellite']     = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'AerialWithLabels' });
     BASEMAPS['xyz']               = L.tileLayer(BASEMAP_XYZURL, { zIndex:-1 });
 
     // load the map and its initial view
