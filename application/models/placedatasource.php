@@ -216,9 +216,13 @@ public function recategorizeAllPlaces() {
 
     // done, hand back an exception with a list of our message components and potentially other metadata
     $messages = array();
-    if ($looked_good) $messages[] = "$looked_good places assigned to categories OK.";
-    if ($had_none)    $messages[] = "$had_none places fit no categories.";
-    throw new PlaceDataSourceSuccessException($messages);
+    $messages[] = "$looked_good places assigned to categories OK.";
+    $messages[] = "$had_none places fit no categories.";
+    $info = array(
+        'assigned'   => $looked_good,
+        'nocategory' => $had_none,
+    );
+    throw new PlaceDataSourceSuccessException($messages,$info);
 }
 
 
