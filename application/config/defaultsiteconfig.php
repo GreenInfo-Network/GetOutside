@@ -39,7 +39,7 @@ $config['BBOX_N'] =   89.0000;
 $config['BING_API_KEY'] = '';
 $config['METRIC']       = 0;
 
-$config['BASEMAP_TYPE']     = 'xyz';
+$config['BASEMAP_TYPE']     = 'google';
 $config['BASEMAP_XYZURL']   = 'http://{s}.tiles.mapbox.com/v3/greeninfo.map-fdff5ykx/{z}/{x}/{y}.jpg';
 
 
