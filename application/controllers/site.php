@@ -102,7 +102,7 @@ public function map() {
 
     // directions UI: use metric or imperial?
     $siteconfig = new SiteConfig();
-    $data['metric'] = (integer) $siteconfig->get('metric_units');
+    $data['siteconfig'] = $siteconfig->all();
 
     // ready!
     $this->load->view('site/map.phtml',$data);

@@ -23,9 +23,33 @@ $(document).ready(function () {
         collapsible: true
     });
 
-    // start the map at the default bbox, add the basic layer
+    // start the map at the default bbox, add the basemap layer
+    // but which basemap layer... is why we have a switch
     MAP = L.map('map_canvas').fitBounds([[START_S,START_W],[START_N,START_E]]);
-    L.tileLayer('http://{s}.tiles.mapbox.com/v3/greeninfo.map-fdff5ykx/{z}/{x}/{y}.jpg', {}).addTo(MAP);
+    switch (BASEMAP_TYPE) {
+        case 'xyz':
+            // a simple XYZ layer, and they provided the URL template too; sounds simple
+            L.tileLayer(BASEMAP_XYZURL, {}).addTo(MAP);
+            break;
+        case 'googlestreets':
+            MAP.addLayer( new L.Google('ROADMAP') );
+            break;
+        case 'googlesatellite':
+            MAP.addLayer( new L.Google('HYBRID') );
+            break;
+        case 'googleterrain':
+            MAP.addLayer( new L.Google('TERRAIN') );
+            break;
+        case 'bingstreets':
+            new L.BingLayer(BING_API_KEY, { type:'Road' }).addTo(MAP);
+            break;
+        case 'bingsatellite':
+            new L.BingLayer(BING_API_KEY, { type:'AerialWithLabels' }).addTo(MAP);
+            break;
+        default:
+            return alert("Invalid basemap choice? How did that happen?");
+            break;
+    }
 
     // add the marker clusterer, though with no markers just yet
     VISIBLE_MARKERS = L.markerClusterGroup({

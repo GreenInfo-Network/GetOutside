@@ -7,6 +7,12 @@
 <![endif]-->
 <script src="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
 
+<!-- a whole mess of basemap options for Leaflet: Google, Bing -->
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script>
+<script type="text/javascript" src="<?= site_url('application/views/common/leaflet.google.js') ?>"></script>
+<script type="text/javascript" src="<?= site_url('application/views/common/leaflet.bing.js') ?>"></script>
+
+<!-- marker clustering add-on for Leaflet -->
 <script src="<?= site_url() ?>/application/views/common/leaflet.markercluster/leaflet.markercluster.min.js"></script>
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
@@ -15,9 +21,13 @@
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/site/map.css" />
 <script type="text/javascript" src="<?= site_url() ?>/application/views/site/map.js"></script>
 <script type="text/javascript">
-var BING_API_KEY = <?= json_encode( $this->siteconfig->get('bing_api_key') ) ?>;
+var BING_API_KEY = <?= json_encode( $siteconfig['bing_api_key'] ) ?>;
 
-var DISTANCE_UNITS = <?= json_encode($metric ? 'km' : 'mi') ?>;
+var BASEMAP_TYPE   = <?= json_encode( $siteconfig['basemap_type'] ) ?>;
+var BASEMAP_XYZURL = <?= json_encode( $siteconfig['basemap_xyzurl'] ) ?>;
+var BASEMAP_TYPE   = 'googlestreets';
+
+var DISTANCE_UNITS = <?= json_encode( (integer) $siteconfig['metric_units'] ? 'km' : 'mi') ?>;
 
 var START_W = <?= $this->siteconfig->get('bbox_w') ?>;
 var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
