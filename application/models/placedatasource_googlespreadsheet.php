@@ -7,7 +7,7 @@ var $has_one          = array();
 var $has_many         = array('place',);
 
 var $option_fields = array(
-    'url'     => array('required'=>TRUE, 'name'=>"Spreadsheet URL", 'help'=>"The URL of the Google Drive spreadsheet.<br/>Example: https://docs.google.com/spreadsheet/ccc?key=ABCDEFG<br/>The spreadsheet must be <i>Published to the web</i>. Note that &quot;Published to the web&quot; and &quot;Public on the web&quot; are not the same thing."),
+    'url'     => array('required'=>TRUE, 'name'=>"Spreadsheet URL", 'help'=>'The URL of the Google Drive spreadsheet.<br/>Example: <a target="_blank" href="https://docs.google.com/spreadsheets/d/1e4rbpYv8KNAKrsCilHcxjaqhtpx4osgfYRAtqNCp0fI/pubhtml">https://docs.google.com/spreadsheets/d/1e4rbpYv8KNAKrsCilHcxjaqhtpx4osgfYRAtqNCp0fI/pubhtml</a><br/>The spreadsheet must be <i>Published to the web</i>. Note that &quot;Published to the web&quot; and &quot;Public on the web&quot; are not the same thing.'),
     'option1' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
     'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option3' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Latitude Field", 'help'=>"Which field has the latitude of this location?"),
@@ -43,10 +43,15 @@ public function __construct() {
  */
 public function reloadContent() {
     // grok the table key from the URL given; be strict about the URL, making sure it's really over at Google Docs
+    // but also handle the ever-growing variety of URLs; the beauty of standards, right?  :)
     $tablekey = null;
-    preg_match('!https://docs.google.com/spreadsheet/ccc/?\?key=([\w\_\-]+)!i', $this->url, $tablekey );
+    preg_match('!https://docs.google.com/spreadsheet/\w+/?\?key=([\w\_\-]+)!i', $this->url, $tablekey );
+    if (! $tablekey) {
+        preg_match('!https://docs.google.com/spreadsheets/\w+/([\w\_\-]+)/pubhtml!i', $this->url, $tablekey );
+    }
     $tablekey = @$tablekey[1];
-    if (! $tablekey) throw new PlaceDataSourceErrorException( array("That URL does not appear to point to a Google Drive Spreadsheet.") );
+
+    //gda//if (! $tablekey) throw new PlaceDataSourceErrorException( array("That URL does not appear to point to a Google Drive Spreadsheet.") );
 
     // check that the Name and Description and Lat & Lon fields, are all represented
     // why check when they had to pick from a list? cuz the spreadsheet may have changed since they set those options, or maybe they "hacked" and submitted some invalid field name
@@ -238,8 +243,10 @@ public function listFields() {
     // grok the table key from the URL given; be strict about the URL, making sure it's really over at Google Docs
     $tablekey = null;
     preg_match('!https://docs.google.com/spreadsheet/ccc/?\?key=([\w\_\-]+)!i', $this->url, $tablekey );
+    if (! $tablekey) {
+        preg_match('!https://docs.google.com/spreadsheets/\w+/([\w\_\-]+)/pubhtml!i', $this->url, $tablekey );
+    }
     $tablekey = @$tablekey[1];
-    if (! $tablekey) throw new PlaceDataSourceErrorException( array("That URL does not appear to point to a Google Drive Spreadsheet.") );
 
     // compose the URL and fetch the spreadsheet content
     // then check for nonsense: no data, non-XML data
