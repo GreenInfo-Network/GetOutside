@@ -27,14 +27,16 @@ $config['JQUITHEME'] = 'pepper-grinder';
 
 /*
 |--------------------------------------------------------------------------
-| Starting Text for HTML Pages
+| Starting Map Config
+| starting bounding box seems Amerocentric; sorry about that
+| for compatibility with all APIs, can't use -179,-89,179,89 as the bounding box of the whole world
 |--------------------------------------------------------------------------
 */
 
-$config['BBOX_W'] = -179.0000;
-$config['BBOX_S'] =  -89.0000;
-$config['BBOX_E'] =  179.0000;
-$config['BBOX_N'] =   89.0000;
+$config['BBOX_W'] = -146.95312;
+$config['BBOX_S'] =    9.10210;
+$config['BBOX_E'] =  -45.70312;
+$config['BBOX_N'] =   64.47279;
 
 $config['BING_API_KEY'] = 'AiecIf8cAgrFbHnHLpNfNIAmSqk9wo89f1yDtEMLJJdGpPJPa6G9-WpF3WC8EvTn';
 $config['METRIC']       = 0;
