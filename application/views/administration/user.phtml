@@ -19,12 +19,12 @@
         </tr>
 
         <?php if ($user->isSuper()) { ?>
-        <tr>
+        <tr style="display:none;"><!-- hack: hide this because nobody's decided what they want to do with user levels yet, and are confused as to what this is -->
             <td>Status</td>
             <td><?= $levels[USER_LEVEL_ADMIN] ?></td>
         </tr>
         <?php } else { ?>
-        <tr>
+        <tr style="display:none;">
             <td>Status</td>
             <td><?= form_dropdown('level', $levels, $user->level) ?></td>
         </tr>
