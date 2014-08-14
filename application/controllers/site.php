@@ -73,7 +73,7 @@ public function place($id=0) {
     // do we have any PlaceActivities at all? if not, then no point in showing that useless checkbox
     $data['has_activities'] = $data['place']->placeactivity->count();
 
-    // directions UI: use metric or imperial?
+    // send the siteconfig into the template too; we use this to define JavaScript for default bounding box, miles vs kilometers, basemap option, ...
     $siteconfig = new SiteConfig();
     $data['metric'] = (integer) $siteconfig->get('metric_units');
 
