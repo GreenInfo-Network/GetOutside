@@ -13,6 +13,18 @@ var SOURCE_TYPE = <?= json_encode($source->type) ?>;
 em {
     font-size:75%;
 }
+
+#dialog_loadok div {
+    white-space:pre;
+}
+#dialog_loadok_details {
+    display:none;
+}
+#dialog_loadok_details_toggle {
+    font-weight:bold;
+    cursor:pointer;
+    text-decoration:underline;
+}
 </style>
 
 
@@ -256,7 +268,11 @@ em {
 
 
 <div class="dialog" id="dialog_loadok">
-    <div style="white-space:pre;"></div>
+    <div id="dialog_loadok_summary"></div>
+    <br/>
+
+    <span id="dialog_loadok_details_toggle">Show details</span><br/>
+    <div id="dialog_loadok_details"></div>
     <br/>
 </div>
 

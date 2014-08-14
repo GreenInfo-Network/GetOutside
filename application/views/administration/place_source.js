@@ -39,7 +39,8 @@ $(document).ready(function () {
 
     // enable the "Loaded OK, now what?" dialog
     $('#dialog_loadok').dialog({
-        modal:true, closeOnEsc:false, autoOpen:false, width:'auto', height:'auto',
+        modal:true, closeOnEsc:false, autoOpen:false,
+        width:600, height:300,
         title: 'Loaded',
         buttons: {
             'Close and Continue': function () {
@@ -49,6 +50,19 @@ $(document).ready(function () {
                 $(this).dialog('close');
                 document.location.href = BASE_URL + 'administration/place_sources';
             }
+        }
+    });
+
+    // this button will toggle the Details in the "Loaded OK" popup
+    $('#dialog_loadok_details_toggle').click(function () {
+        var button = $(this);
+        var target = $('#dialog_loadok_details');
+        if ( target.is(':visible') ) {
+            target.hide();
+            button.text('Show details');
+        } else {
+            target.show();
+            button.text('Hide details');
         }
     });
 });
@@ -89,8 +103,9 @@ function saveAndFetch() {
 
             // open the results dialog... so so carefully and in this order, cuz the varied-length text can throw off the position
             var dialog = $('#dialog_loadok');
-            dialog.children('div').html(reply.text);
-            dialog.dialog('open').position({ my:'center', at:'center', of:window });
+            $('#dialog_loadok_summary').html(reply.text);
+            $('#dialog_loadok_details').html( reply.info.details.join("\n") ).hide();
+            dialog.dialog('open').position({ my:'center', at:'center', of:window }).dialog('option', 'width', $(window).width() * 0.9).dialog('option', 'height', $(window).height() * 0.8);
         }, 'json').error(function () {
             $('#dialog_fetching').dialog('close');
             alert('There was a problem. To diagnose further, check your browser\'s debugging tools.');
