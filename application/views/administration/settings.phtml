@@ -7,6 +7,11 @@
 <![endif]-->
 <script src="<?= site_url() ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
 
+<!-- a whole mess of basemap options for Leaflet: Google, Bing -->
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script>
+<script type="text/javascript" src="<?= site_url('application/views/common/leaflet.google.js') ?>"></script>
+<script type="text/javascript" src="<?= site_url('application/views/common/leaflet.bing.js') ?>"></script>
+
 <!-- TinyMCE HTML editor -->
 <script type="text/javascript" src="<?= site_url() ?>/application/views/common/tinymce/js/tinymce/tinymce.min.js"></script>
 
@@ -125,10 +130,16 @@ div.basemap_option {
                     <!-- the radiobox values are connected to the basemap_option boxes below; see the basemap_type event handler setup in settings.js -->
                     <!-- these are also used here on the admin panel for the map; see settings.js where MAP is set up, and top of settings.phtml where some JS vars are exposed -->
                     <label><input type="radio" name="basemap_type" value="googlestreets"     <?= $siteconfig['basemap_type'] == 'googlestreets'   ? 'checked' : '' ?> /> Google Maps, Streets</label><br/>
+                    <div class="basemap_option" data-basemaptype="googlestreets">
+                    </div>
 
                     <label><input type="radio" name="basemap_type" value="googleterrain"     <?= $siteconfig['basemap_type'] == 'googleterrain'   ? 'checked' : '' ?> /> Google Maps, Terrain</label><br/>
+                    <div class="basemap_option" data-basemaptype="googleterrain">
+                    </div>
 
                     <label><input type="radio" name="basemap_type" value="googlesatellite"   <?= $siteconfig['basemap_type'] == 'googlesatellite' ? 'checked' : '' ?> /> Google Maps, Satellite</label><br/>
+                    <div class="basemap_option" data-basemaptype="googlesatellite">
+                    </div>
 
                     <label><input type="radio" name="basemap_type" value="bingstreets"       <?= $siteconfig['basemap_type'] == 'bingstreets'     ? 'checked' : '' ?> /> Bing Maps, Streets</label><br/>
                     <div class="basemap_option" data-basemaptype="bingstreets">

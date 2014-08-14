@@ -1,21 +1,9 @@
 var MAP;
 
 $(document).ready(function () {
-    // enable the map for setting the Map view
-    // this uses a moveend handler to update the bbox_X text boxes when the map is moved, which will be saved along with the rest of the form
-    var w = parseFloat( $('input[name="bbox_w"]').val() );
-    var s = parseFloat( $('input[name="bbox_s"]').val() );
-    var e = parseFloat( $('input[name="bbox_e"]').val() );
-    var n = parseFloat( $('input[name="bbox_n"]').val() );
-    MAP = L.map('bbox_map_canvas').fitBounds([[s,w],[n,e]]);
-    L.tileLayer('http://{s}.tiles.mapbox.com/v3/greeninfo.map-fdff5ykx/{z}/{x}/{y}.jpg', {}).addTo(MAP);
-    MAP.on('moveend', function () {
-        var wsen = this.getBounds();
-        $('input[name="bbox_w"]').val( wsen.getWest() );
-        $('input[name="bbox_s"]').val( wsen.getSouth() );
-        $('input[name="bbox_e"]').val( wsen.getEast() );
-        $('input[name="bbox_n"]').val( wsen.getNorth() );
-    });
+    // start the map
+    // No! this is done when a basemap option is selected, and one will be selected and event handlers added below
+    //startMap();
 
     // pertaining to the MAP, is a geocoder so they can find their city
     $('#geocode_go').click(function () {
@@ -90,8 +78,77 @@ $(document).ready(function () {
         $(this).css({ 'background-color':already });
     });
 
+    // enable special effects in the editing forms
+    // when a basemap_type is selected
+    // - toggle the corresponding div.basemap_option to show extended help/options specific to that option
+    //      be sure to trigger it now (it'll be checked in the UI already) to show/hide the appropriate options
+    // - reload the map with the given option
+    $('input[type="radio"][name="basemap_type"]').change(function () {
+        var which = $(this).val();
+
+        // show the appropriate help text
+        $(this).closest('td').children('div.basemap_option').hide().filter('[data-basemaptype="'+which+'"]').show();
+
+        // then restart the Map with this specific basemap option
+        startMap(which);
+    }).filter(':checked').trigger('change');
+
 });
 
+
+// initializing the map would normally go into the document.ready handler above,
+// but then we couldn't throw out and re-initialize the map with a new basemap option!
+function startMap(specific_basemap_choice) {
+    // start by destroying the MAP if it exists
+    // this global MAP handle will be recreated in a moment
+    // some of this is kinda a hack to work around the Google layer not properly behaving with MAP.remove() events; the tiles stick around, etc.
+    if (MAP) { MAP.remove(); MAP = null; $('#bbox_map_canvas').empty(); }
+
+    // enable the map for setting the Map view
+    // this uses a moveend handler to update the bbox_X text boxes when the map is moved, which will be saved along with the rest of the form
+    var w = parseFloat( $('input[name="bbox_w"]').val() );
+    var s = parseFloat( $('input[name="bbox_s"]').val() );
+    var e = parseFloat( $('input[name="bbox_e"]').val() );
+    var n = parseFloat( $('input[name="bbox_n"]').val() );
+    MAP = L.map('bbox_map_canvas').fitBounds([[s,w],[n,e]]);
+
+    // add the basemap
+    // which basemap choice to use? well, use what we're told... or else the global sitewide default
+    if (! specific_basemap_choice) specific_basemap_choice = BASEMAP_TYPE;
+    switch (specific_basemap_choice) {
+        case 'xyz':
+            // a simple XYZ layer, and they provided the URL template too; sounds simple
+            L.tileLayer(BASEMAP_XYZURL, {}).addTo(MAP);
+            break;
+        case 'googlestreets':
+            MAP.addLayer( new L.Google('ROADMAP') );
+            break;
+        case 'googlesatellite':
+            MAP.addLayer( new L.Google('HYBRID') );
+            break;
+        case 'googleterrain':
+            MAP.addLayer( new L.Google('TERRAIN') );
+            break;
+        case 'bingstreets':
+            new L.BingLayer(BING_API_KEY, { type:'Road' }).addTo(MAP);
+            break;
+        case 'bingsatellite':
+            new L.BingLayer(BING_API_KEY, { type:'AerialWithLabels' }).addTo(MAP);
+            break;
+        default:
+            return alert("Invalid basemap choice? How did that happen?");
+            break;
+    }
+
+    // the point of the mini map: when they pan or zoom, update the input boxes with the new bounding box ordinates
+    MAP.on('moveend', function () {
+        var wsen = this.getBounds();
+        $('input[name="bbox_w"]').val( wsen.getWest() );
+        $('input[name="bbox_s"]').val( wsen.getSouth() );
+        $('input[name="bbox_e"]').val( wsen.getEast() );
+        $('input[name="bbox_n"]').val( wsen.getNorth() );
+    });
+}
 
 
 function geocodeAndZoom(address) {
