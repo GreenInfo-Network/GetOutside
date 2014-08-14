@@ -31,21 +31,9 @@ public function index() {
     $dsx->where('enabled',1)->get();
     foreach ($dsx as $ds) $data['place_categories'][ $ds->id ] = $ds->name;
 
-    // various site config stuff, e.g. metric or imperial units for distance, starting bbox, etc.
+    // assign the siteconfig to the template too; we use this for JavaScript definitions: starting bbox, basemap choice, and so on
     $siteconfig = new SiteConfig();
-    $data['metric']             = (integer) $siteconfig->get('metric_units');
-    $data['title']              = $this->siteconfig->get('title');
-    $data['bing_api_key']       = $this->siteconfig->get('bing_api_key');
-    $data['bbox_w']             = $this->siteconfig->get('bbox_w');
-    $data['bbox_s']             = $this->siteconfig->get('bbox_s');
-    $data['bbox_e']             = $this->siteconfig->get('bbox_e');
-    $data['bbox_n']             = $this->siteconfig->get('bbox_n');
-    $data['start_x']            = ( $data['bbox_w'] + $data['bbox_e'] ) /2;
-    $data['start_y']            = ( $data['bbox_s'] + $data['bbox_n'] ) /2;
-    $data['marker_width']       = $this->siteconfig->get('mobile_marker_width');
-    $data['marker_height']      = $this->siteconfig->get('mobile_marker_height');
-    $data['marker_gps_width']   = $this->siteconfig->get('mobile_marker_gps_width');
-    $data['marker_gps_height']  = $this->siteconfig->get('mobile_marker_gps_height');
+    $data['siteconfig'] = $siteconfig->all();
 
     // ready, display!
     $this->load->view('mobile/index.phtml',$data);

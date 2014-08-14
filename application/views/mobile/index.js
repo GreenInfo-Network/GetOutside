@@ -219,9 +219,12 @@ function initMap() {
     MAX_EXTENT = L.latLngBounds([[START_N,START_E],[START_S,START_W]]);
 
     // define the basemaps
-    BASEMAPS['terrain'] = L.tileLayer("http://{s}.tiles.mapbox.com/v3/greeninfo.map-3x7sb5iq/{z}/{x}/{y}.jpg", { name:'Terrain', subdomains:['a','b','c','d'] });
-    BASEMAPS['photo']   = L.tileLayer("http://{s}.tiles.mapbox.com/v3/greeninfo.map-zudfckcw/{z}/{x}/{y}.jpg", { name:'Photo', subdomains:['a','b','c','d'] });
-    BASEMAPS['topo']    = L.tileLayer("http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}.jpg", { name:'Topo' });
+    BASEMAPS['googleterrain']     = new L.Google('TERRAIN', { zIndex:-1 });
+    BASEMAPS['googlestreets']     = new L.Google('ROADMAP', { zIndex:-1 });
+    BASEMAPS['googlesatellite']   = new L.Google('HYBRID', { zIndex:-1 });
+    BASEMAPS['bingstreets']       = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'Road' });
+    BASEMAPS['bingsatellite']     = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'AerialWithLabels' });
+    BASEMAPS['xyz']               = L.tileLayer(BASEMAP_XYZURL, { zIndex:-1 });
 
     // load the map and its initial view
     MAP = new L.Map('map_canvas', {
@@ -231,7 +234,7 @@ function initMap() {
         closePopupOnClick: false,
         crs: L.CRS.EPSG3857
     }).fitBounds(MAX_EXTENT);
-    selectBasemap('terrain');
+    selectBasemap(BASEMAP_TYPE);
 
     // define the marker and circle for our location and accuracy
     // the marker is loaded from a data endpoint and the width & height are in HTML, since these are dynamically set by the admin UI
@@ -258,10 +261,12 @@ function initMap() {
 
     // now the Map Settings panel
     // this is relatively simple, in that there's no tile caching, seeding, database download, ...
-    $('#panel-map-settings input[type="radio"][name="basemap"]').change(function () {
+    // then, go ahead and "check" the default basemap option
+    var cbs = $('#panel-map-settings input[type="radio"][name="basemap"]').change(function () {
         var which = $('#panel-map-settings input[type="radio"][name="basemap"]:checked').prop('value');
         selectBasemap(which);
     });
+    cbs.removeAttr('checked').filter('[value="'+BASEMAP_TYPE+'"]').prop('checked','checked').checkboxradio('refresh');
 
     // on the Results pages, the Map buttons; these should go to the map but also center on the best location
     // that being either LOCATION or else the search coordinates
@@ -308,9 +313,11 @@ function is_android() {
     return -1 != navigator.userAgent.indexOf('Android');
 }
 
+//gda
 function selectBasemap(which) {
+    // tip: can't use .addTo() nor .bringToBack() with these non0standard layer types (Google); instead, z-indexes are used, etc
     for (var i in BASEMAPS) MAP.removeLayer(BASEMAPS[i]);
-    BASEMAPS[which].addTo(MAP).bringToBack();
+    MAP.addLayer( BASEMAPS[which] );
 }
 
 function setSearchFiltersToDefault() {

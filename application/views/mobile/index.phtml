@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?= $title ?></title>
+    <title><?= $siteconfig['title'] ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- jQuery and jQuery Mobile -->
@@ -17,9 +17,16 @@
     <![endif]-->
     <script src="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
 
+    <!-- a whole mess of basemap options for Leaflet: Google, Bing -->
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false"></script>
+    <script type="text/javascript" src="<?= site_url('application/views/common/leaflet.google.js') ?>"></script>
+    <script type="text/javascript" src="<?= site_url('application/views/common/leaflet.bing.js') ?>"></script>
+
+    <!-- the control panel in the corner, has custom controls -->
     <script src="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.js"></script>
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.css" />
 
+    <!-- marker clustering for Leaflet -->
     <script src="<?=site_url()  ?>/application/views/common/leaflet.markercluster/leaflet.markercluster.min.js"></script>
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
@@ -30,21 +37,24 @@
     <script type="text/javascript">
     var BASE_URL = <?= json_encode(site_url()) ?>;
 
-    var BING_API_KEY = <?= json_encode($bing_api_key) ?>;
+    var BING_API_KEY = <?= json_encode( $siteconfig['bing_api_key'] ) ?>;
 
-    var DISTANCE_UNITS = <?= json_encode($metric ? 'km' : 'mi') ?>;
+    var BASEMAP_TYPE   = <?= json_encode( $siteconfig['basemap_type'] ) ?>;
+    var BASEMAP_XYZURL = <?= json_encode( $siteconfig['basemap_xyzurl'] ) ?>;
 
-    var START_W = <?= $bbox_w ?>;
-    var START_S = <?= $bbox_s ?>;
-    var START_E = <?= $bbox_e ?>;
-    var START_N = <?= $bbox_n ?>;
-    var START_X = <?= $start_x ?>;
-    var START_Y = <?= $start_y ?>;
+    var DISTANCE_UNITS = <?= json_encode( (integer) $siteconfig['metric_units'] ? 'km' : 'mi') ?>;
 
-    var MARKER_WIDTH      = <?= $marker_width ?>;
-    var MARKER_HEIGHT     = <?= $marker_height ?>;
-    var GPS_MARKER_WIDTH  = <?= $marker_gps_width ?>;
-    var GPS_MARKER_HEIGHT = <?= $marker_gps_height ?>;
+    var START_W = <?= $siteconfig['bbox_w'] ?>;
+    var START_S = <?= $siteconfig['bbox_s'] ?>;
+    var START_E = <?= $siteconfig['bbox_e'] ?>;
+    var START_N = <?= $siteconfig['bbox_n'] ?>;
+    var START_X = 0.5 * (START_W + START_E);
+    var START_Y = 0.5 * (START_S + START_N);
+
+    var MARKER_WIDTH      = <?= $siteconfig['mobile_marker_width'] ?>;
+    var MARKER_HEIGHT     = <?= $siteconfig['mobile_marker_height'] ?>;
+    var GPS_MARKER_WIDTH  = <?= $siteconfig['mobile_marker_gps_width'] ?>;
+    var GPS_MARKER_HEIGHT = <?= $siteconfig['mobile_marker_gps_height'] ?>;
     </script>
 
     <!-- remote debugging for mobile apps; please use your own weinre server! -->
@@ -231,10 +241,14 @@
                 <a href="#page-map" data-rel="close" data-role="button" data-icon="delete" data-iconpos="notext" data-inline="true" data-mini="true"></a> Map Settings
             </h2>
 
-            <div data-role="controlgroup" data-type="horizontal" data-mini="true">
-                <label><input type="radio" name="basemap" value="terrain" checked /> Terrain</label>
-                <label><input type="radio" name="basemap" value="photo" /> Satellite</label>
-                <label><input type="radio" name="basemap" value="topo" /> Topo</label>
+            <!-- these correspond to the BASEMAPS entries; see initMap() for details -->
+            <div data-role="controlgroup" data-mini="true">
+                <label><input type="radio" name="basemap" value="googleterrain" /> Google Terrain</label>
+                <label><input type="radio" name="basemap" value="googlestreets" /> Google Streets</label>
+                <label><input type="radio" name="basemap" value="googlesatellite" /> Google Satellite</label>
+                <label><input type="radio" name="basemap" value="bingstreets" /> Bing Streets</label>
+                <label><input type="radio" name="basemap" value="bingsatellite" /> Bing Satellite</label>
+                <label><input type="radio" name="basemap" value="xyz" /> Custom</label>
             </div>
         </div>
     </div>
