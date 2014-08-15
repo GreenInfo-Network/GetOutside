@@ -40,6 +40,15 @@ L.controlCustomButtonPanel = L.Control.extend({
         }, this);
 
         // sub-control 4
+        // Settings: open the slide-in panel with a legend
+        var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-legend', container);
+        L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)
+            .on(subcontainer, 'click', function (event) {
+                // open the Map Legend panel (not a page, a slideout)
+                $('#panel-map-legend').panel('open');
+        }, this);
+
+        // sub-control 5
         // Settings: open the slide-in panel with Map settings such as basemap
         var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-settings', container);
         L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)

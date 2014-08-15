@@ -106,7 +106,22 @@ a {
 .search-results-navbar div.active a {
 }
 
-/*** INFO PANEL on the bottom of the #map_canvas ***/
+
+/*** LEGEND PANEL on the map ***/
+
+#panel-map-legend {
+}
+
+#panel-map-legend label {
+}
+
+#panel-map-legend label img {
+    vertical-align:middle;
+}
+
+
+/*** INFO PANEL on the map ***/
+
 #map_infopanel {
     position:absolute; bottom:0; left:0;
     width:100%;
