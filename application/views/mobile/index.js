@@ -547,8 +547,8 @@ function renderPlacesMap() {
 
     for (var i=0, l=items.length; i<l; i++) {
         var icon = L.icon({
-            iconUrl: BASE_URL + 'mobile/image/marker',
-            iconSize: [MARKER_WIDTH, MARKER_HEIGHT]
+            iconUrl: BASE_URL + 'mobile/image/marker_place',
+            iconSize: [PLACE_MARKER_WIDTH, PLACE_MARKER_HEIGHT]
         });
 
         L.marker([items[i].lat,items[i].lng], { icon:icon, title:items[i].name, attributes:items[i] }).addTo(MARKERS).on('click',function () {
@@ -564,8 +564,8 @@ function renderEventsMap() {
         if (! events[ei].locations) continue; // an event with no Locations, doesn't need to be on the map
 
         var icon = L.icon({
-            iconUrl: BASE_URL + 'mobile/image/marker',
-            iconSize: [MARKER_WIDTH, MARKER_HEIGHT]
+            iconUrl: BASE_URL + 'mobile/image/marker_event',
+            iconSize: [EVENT_MARKER_WIDTH, EVENT_MARKER_HEIGHT]
         });
 
         for (var li=0, ll=events[ei].locations.length; li<ll; li++) {
