@@ -274,6 +274,7 @@ public function listFields() {
 
     $xml = @file_get_contents($url);
     $xml = @simplexml_load_string($xml);
+    if (! $xml) throw new PlaceDataSourceErrorException( array("Did not get an XML response from this data source. $url") );
 
     // go over the xsd:element tags and that's our field list
     // if it's not there, then we must have gotten non-XML, an error, or something other than good
