@@ -61,8 +61,13 @@ $config['ABOUTPAGE_TEXT'] = 'GetOutside! is a project of <a target="_blank" href
 |--------------------------------------------------------------------------
 */
 
-$config['MOBILE_MARKER'] = array(
+$config['MOBILE_PLACE_MARKER'] = array(
     'content' => "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",
+    'width'   => 25,
+    'height'  => 41,
+);
+$config['MOBILE_EVENT_MARKER'] = array(
+    'content' => "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",
     'width'   => 25,
     'height'  => 41,
 );
@@ -77,14 +82,15 @@ $config['MOBILE_LOGO'] = array(
     'height'  => 119,
 );
 $config['MOBILE_COLORS'] = array(
-    'bgcolor'          => '#FFFFFF', // global background color
-    'fgcolor'          => '#333333', // global background color
-    'buttonfgcolor1'   => '#000000', // normal buttons
-    'buttonbgcolor1'   => '#FFFFFF', // normal buttons
-    'buttonfgcolor2'   => '#000000', // alternate buttons, e.g. search panel
-    'buttonbgcolor2'   => '#CCCCCC', // alternate buttons, e.g. search panel
-    'alertfgcolor'     => '#FFFFFF', // alert/highlight buttons, e.g. results panel selected item
-    'alertbgcolor'     => '#3388cc', // alert/highlight buttons, e.g. results panel selected item
-    'markerglowcolor'  => '#ff8000', // icons glow when highlighted
+    'bgcolor'                   => '#FFFFFF', // global background color
+    'fgcolor'                   => '#333333', // global background color
+    'buttonfgcolor1'            => '#000000', // normal buttons
+    'buttonbgcolor1'            => '#FFFFFF', // normal buttons
+    'buttonfgcolor2'            => '#000000', // alternate buttons, e.g. search panel
+    'buttonbgcolor2'            => '#CCCCCC', // alternate buttons, e.g. search panel
+    'alertfgcolor'              => '#FFFFFF', // alert/highlight buttons, e.g. results panel selected item
+    'alertbgcolor'              => '#3388cc', // alert/highlight buttons, e.g. results panel selected item
+    'marker_place_glowcolor'    => '#ff8000', // icons glow when highlighted
+    'marker_event_glowcolor'    => '#ff8000', // icons glow when highlighted
 );
 

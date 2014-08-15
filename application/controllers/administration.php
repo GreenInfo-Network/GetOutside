@@ -53,9 +53,10 @@ public function ajax_save_settings() {
     // file uploads: markers and logos
     // make sure these are PNG files, and load them in as base64-encoded data same as we'll be storing in the DB later
     $image_uploads = array(
-        'mobile_logo'       => array(),
-        'mobile_marker'     => array(),
-        'mobile_marker_gps' => array(),
+        'mobile_logo'          => array(),
+        'mobile_event_marker'  => array(),
+        'mobile_place_marker'  => array(),
+        'mobile_marker_gps'    => array(),
     );
     foreach ( array_keys($image_uploads) as $which_image) {
         if (! is_uploaded_file(@$_FILES[$which_image]['tmp_name'])) continue; // not an upload, skip it
@@ -97,7 +98,8 @@ public function ajax_save_settings() {
     $this->siteconfig->set('mobile_buttonfgcolor2',  $_POST['mobile_buttonfgcolor2']);
     $this->siteconfig->set('mobile_alertbgcolor',    $_POST['mobile_alertbgcolor']);
     $this->siteconfig->set('mobile_alertfgcolor',    $_POST['mobile_alertfgcolor']);
-    $this->siteconfig->set('mobile_markerglowcolor', $_POST['mobile_markerglowcolor']);
+    $this->siteconfig->set('mobile_place_markerglowcolor', $_POST['mobile_place_markerglowcolor']);
+    $this->siteconfig->set('mobile_event_markerglowcolor', $_POST['mobile_event_markerglowcolor']);
 
     // now the upload content, which we vetted above but didn't actually update the siteconfig yet
     foreach ( array_keys($image_uploads) as $which_image) {
