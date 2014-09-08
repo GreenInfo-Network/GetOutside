@@ -25,31 +25,36 @@ $(document).ready(function () {
 
     // start the map at the default bbox, add the basemap layer
     // but which basemap layer... is why we have a switch
-    MAP = L.map('map_canvas').fitBounds([[START_S,START_W],[START_N,START_E]]);
+    // important: googleterrain has a max of 15, as opposed to Leaflet's default maxZoom of 18; so artificially change the maxZoom to suit the basemap
+    var maxZoom = 18, minZoom = 6;
+    var basemap;
     switch (BASEMAP_TYPE) {
         case 'xyz':
             // a simple XYZ layer, and they provided the URL template too; sounds simple
-            L.tileLayer(BASEMAP_XYZURL, {}).addTo(MAP);
+            basemap = L.tileLayer(BASEMAP_XYZURL, {});
             break;
         case 'googlestreets':
-            MAP.addLayer( new L.Google('ROADMAP') );
+            basemap = new L.Google('ROADMAP');
             break;
         case 'googlesatellite':
-            MAP.addLayer( new L.Google('HYBRID') );
+            basemap = new L.Google('HYBRID');
             break;
         case 'googleterrain':
-            MAP.addLayer( new L.Google('TERRAIN') );
+            basemap = new L.Google('TERRAIN');
+            maxZoom = 15;
             break;
         case 'bingstreets':
-            new L.BingLayer(BING_API_KEY, { type:'Road' }).addTo(MAP);
+            basemap = new L.BingLayer(BING_API_KEY, { type:'Road' });
             break;
         case 'bingsatellite':
-            new L.BingLayer(BING_API_KEY, { type:'AerialWithLabels' }).addTo(MAP);
+            basemap = new L.BingLayer(BING_API_KEY, { type:'AerialWithLabels' });
             break;
         default:
             return alert("Invalid basemap choice? How did that happen?");
             break;
     }
+    MAP = L.map('map_canvas',{ minZoom:minZoom, maxZoom:maxZoom }).fitBounds([[START_S,START_W],[START_N,START_E]]);
+    MAP.addLayer(basemap);
 
     // add the marker clusterer, though with no markers just yet
     VISIBLE_MARKERS = L.markerClusterGroup({
