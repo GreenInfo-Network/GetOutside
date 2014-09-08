@@ -289,6 +289,13 @@ public function ajax_load_event_source() {
             'info'      => $e->extrainfo,
         );
     }
+
+    // hack: for some reason events are being left behind with event_id 0
+    // thank you, MySQL for not being able to handle foreign key constraints and cascading deletes...
+    $delete = new EventLocation();
+    $delete->where('event_id',0)->get();
+    foreach ($delete as $d) $d->delete();
+
     print json_encode($output);
 }
 
