@@ -303,9 +303,8 @@ function extractGeometryFromPoint($point) {
     $coords = explode(',', $coords);
     if (sizeof($coords) < 2) return NULL;
 
-    // take only first 2 elements, in case there's a 3rd element for Z
-    // and force them to be numeric
-    // tip: WFS 1.1.0 is lat,lon and not lon,lat
+    // take only first 2 elements, in case there's a 3rd element for Z and force them to be numeric
+    // tip: WFS 1.1.0 is lat,lon and not lon,lat   and we want to return lat-lon
     $coords = array( (float) $coords[0] , (float) $coords[1] );
 
     // that was it! let the caller decide whether the coordinate is valid in whatever SRS
@@ -321,8 +320,7 @@ function extractGeometryFromPolygon($ring) {
 }
 
 function extractGMLRingToVertices($ring) {
-    // trim extra whitespace, then split on whitespace to get vertices
-    // split vertices on comma to get X and Y ordinates
+    // trim extra whitespace, then split on whitespace to get vertices; split vertices on comma to get X and Y ordinates
     // explicitly cast to float "just in case"
     $vertices = array();
     $vx = preg_split('/\s+/', trim($ring) );
@@ -333,6 +331,7 @@ function extractGMLRingToVertices($ring) {
 // calculate the centroid of a single-ring polygon, as given by $vertices
 // rings don't overlap, non-self-intersecting and no donuts holes
 // the design goal of this project, is not requiring GEOS or PostGIS so we gotta keep it simple
+// tip: WFS 1.1.0 returns ordinates as lat-lon (y/x) thus the X being 1 and Y being 0
 public function getCentroidOfPolygon($vertices) {
     // first off get the area: it may come back 0 due to rounding in the WFS server  (rounding to 2 decimals, in degrees? ouch)
     // in which case we must confess ignorance
@@ -344,10 +343,10 @@ public function getCentroidOfPolygon($vertices) {
     $cy = 0;
 
     for ($vi=0, $vl=sizeof($vertices); $vi<$vl; $vi++) {
-        $thisx = $vertices[ $vi ][0];
-        $thisy = $vertices[ $vi ][1];
-        $nextx = $vertices[ ($vi+1) % $vl ][0];
-        $nexty = $vertices[ ($vi+1) % $vl ][1];
+        $thisx = $vertices[ $vi ][1];
+        $thisy = $vertices[ $vi ][0];
+        $nextx = $vertices[ ($vi+1) % $vl ][1];
+        $nexty = $vertices[ ($vi+1) % $vl ][0];
 
         $p = ($thisx * $nexty) - ($thisy * $nextx);
         $cx += ($thisx + $nextx) * $p;
@@ -365,14 +364,15 @@ public function getCentroidOfPolygon($vertices) {
 // calculate the area of a single-ring polygon, with some assumptions: not self-intersecting, convex and no donut holes, and that multiple rings don't overlap
 // this should closely fit the use case for realistic areas for park boundaries and the like
 // the design goal of this project, is not requiring GEOS or PostGIS
+// tip: WFS 1.1.0 returns ordinates as lat-lon (y/x) thus the X being 1 and Y being 0
 public function getAreaOfPolygon($vertices) {
     $area = 0;
 
     for ($vi=0, $vl=sizeof($vertices); $vi<$vl; $vi++) {
-        $thisx = $vertices[ $vi ][0];
-        $thisy = $vertices[ $vi ][1];
-        $nextx = $vertices[ ($vi+1) % $vl ][0];
-        $nexty = $vertices[ ($vi+1) % $vl ][1];
+        $thisx = $vertices[ $vi ][1];
+        $thisy = $vertices[ $vi ][0];
+        $nextx = $vertices[ ($vi+1) % $vl ][1];
+        $nexty = $vertices[ ($vi+1) % $vl ][0];
         $area += ($thisx * $nexty) - ($thisy * $nextx);
     }
 
