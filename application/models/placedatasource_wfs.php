@@ -358,7 +358,7 @@ public function getCentroidOfPolygon($vertices) {
     $cy = -$cy / ( 6 * $area);
 
     // done!
-    return array($cx,$cy);
+    return array($cy,$cx);
 }
 
 // calculate the area of a single-ring polygon, with some assumptions: not self-intersecting, convex and no donut holes, and that multiple rings don't overlap
