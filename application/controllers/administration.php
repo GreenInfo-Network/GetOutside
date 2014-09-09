@@ -40,6 +40,24 @@ public function settings() {
     // all existing blobal site configs, cuz we use the large majority of them
     $data['siteconfig'] = $this->siteconfig->all();
 
+    // build a list of timezone options
+    // but override some of the USA time zones which have much-more-familiar names, and put them at the top
+    // it sounds Amerocentric, but the USA time zones are the ones most likely to be used by our clients thus far
+    $data['timezones'] = array(
+        'America/New_York'      => 'USA Eastern',
+        'America/Chicago'       => 'USA Central',
+        'America/Denver'        => 'USA Mountain',
+        'America/Phoenix'       => 'USA Mountain no DST',
+        'America/Los_Angeles'   => 'USA Pacific',
+        'America/Anchorage'     => 'USA Alaska',
+        'America/Adak'          => 'Hawaii',
+        'Pacific/Honolulu'      => 'USA Hawaii no DST',
+    );
+    foreach (timezone_identifiers_list() as $e) {
+        if ( array_key_exists($e,$data['timezones'])) continue;
+        $data['timezones'][$e] = $e;
+    }
+
     // ready!
     $this->load->view('administration/settings.phtml', $data);
 }
@@ -74,6 +92,8 @@ public function ajax_save_settings() {
     // guess we're golden
     $this->siteconfig->set('jquitheme', $_POST['jquitheme']);
     $this->siteconfig->set('title', $_POST['title']);
+
+    $this->siteconfig->set('timezone', $_POST['timezone']);
 
     $this->siteconfig->set('company_name', $_POST['company_name']);
     $this->siteconfig->set('company_url', $_POST['company_url']);

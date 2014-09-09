@@ -95,6 +95,10 @@ div.basemap_option {
                 <td>Organization Web Site URL<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="In the bottom-left of pages, this hyperlink will be shown so visitors can get to your main website."></div></td>
                 <td><input type="text" name="company_url" size="50" maxlength="50" value="<?= htmlspecialchars( $siteconfig['company_url'] ) ?>" /></td>
             </tr>
+            <tr>
+                <td>Time Zone<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="What time zone should be used to report dates and times? This is particularly important for events."></div></td>
+                <td><?= form_dropdown('timezone', $timezones, $siteconfig['timezone'] ) ?></td>
+            </tr>
             </table>
         </div>
         <div id="settingsform_tab_html" style="display:none;"><!-- hack they decided there's no website anymore! trivial details, right? but they'll want it back! -->
