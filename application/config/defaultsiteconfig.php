@@ -24,6 +24,8 @@ $config['COMPANY_URL']    = '';
 
 $config['JQUITHEME'] = 'pepper-grinder';
 
+$config['TIMEZONE'] = "America/Los_Angeles"; // aka Pacific time
+
 
 /*
 |--------------------------------------------------------------------------

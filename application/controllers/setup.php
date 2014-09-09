@@ -262,6 +262,8 @@ public function index() {
     $siteconfig->set('mobile_marker_gps',           $defaults['MOBILE_MARKER_GPS']['content'] );
     $siteconfig->set('mobile_marker_gps_width',     $defaults['MOBILE_MARKER_GPS']['width'] );
     $siteconfig->set('mobile_marker_gps_height',    $defaults['MOBILE_MARKER_GPS']['height'] );
+    $siteconfig->set('timezone',                    $defaults['TIMEZONE'] );
+
 
 
     /////
