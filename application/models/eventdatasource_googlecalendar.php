@@ -71,7 +71,7 @@ public function reloadContent() {
     $year  = (integer) date('Y');
     $params = array(
         'singleevents' => 'true',
-        'start-min' => date(DATE_ATOM, mktime(0, 0, 0, $month, $date, $year) ),
+        'start-min' => date(DATE_ATOM, mktime(0, 0, 0, $month, 1, $year) ),
         'start-max' => date(DATE_ATOM, mktime(0, 0, 0, $month+6, $date, $year) ),
         //'prettyprint' => 'true',
         'max-results' => 250,
