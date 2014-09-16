@@ -226,7 +226,6 @@ function initMap() {
     if (BING_API_KEY) BASEMAPS['bingsatellite']     = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'AerialWithLabels' });
     if (BASEMAP_TYPE == 'xyz') BASEMAPS['xyz']               = L.tileLayer(BASEMAP_XYZURL, { zIndex:-1 });
 
-//GDA TO-DO add patch for maxZoom calculation when using Google Terrain basemap; see site/map.js
     // load the map and its initial view
     // tip: the minZoom is hardcoded here, but the maxZoom of the map is changed in selectBasemap() to suit Google Terrain's idiosyncracies
     MAP = new L.Map('map_canvas', {
