@@ -180,32 +180,32 @@ function reloadMapPoints(points) {
     // start by clearing the existing markers
     VISIBLE_MARKERS.RemoveMarkers();
 
-//gda
     // override the factory method so we can assign popups and all; the PruneCluster docs are dead wrong about assigning marker.data.popup
-    // kinda goofy to override it here in the function every time we load new points, but this places it where we'll be in the code
+    // and override the factory method for the cluster icon itself, to use event/place/both
+    // kinda goofy to override these functions here every time we load new points, but this places it where we'll be in the code, keeps it in-sight and in-mind
     VISIBLE_MARKERS.PrepareLeafletMarker = function(leafletMarker, data){
         leafletMarker.setIcon(data.icon);
         leafletMarker.bindPopup(data.html);
     }
-VISIBLE_MARKERS.BuildLeafletClusterIcon = function(cluster) {
-    // use the built-in categories facility to generate an icon
-    // see the "category" switch below for the assignment of these integer codes; we only use 2 of these codes at this time
-    var stats = cluster.stats;
+    VISIBLE_MARKERS.BuildLeafletClusterIcon = function(cluster) {
+        // use the built-in categories facility to generate an icon
+        // see the "category" switch below for the assignment of these integer codes; we only use 2 of these codes at this time
+        var stats = cluster.stats;
 
-    var icon;
-    if (stats[0] && stats[1]) {
-        // both places and events
-        icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_both', iconSize: [BOTH_MARKER_WIDTH, BOTH_MARKER_HEIGHT] });
-    } else if (stats[0]) {
-        // places only
-        icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_place', iconSize: [PLACE_MARKER_WIDTH, PLACE_MARKER_HEIGHT] });
-    } else {
-        // events only   (got here and it can't both be 0)
-        icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_event', iconSize: [EVENT_MARKER_WIDTH, EVENT_MARKER_HEIGHT] });
-    }
+        var icon;
+        if (stats[0] && stats[1]) {
+            // both places and events
+            icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_both', iconSize: [BOTH_MARKER_WIDTH, BOTH_MARKER_HEIGHT] });
+        } else if (stats[0]) {
+            // places only
+            icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_place', iconSize: [PLACE_MARKER_WIDTH, PLACE_MARKER_HEIGHT] });
+        } else {
+            // events only   (got here and it can't both be 0)
+            icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_event', iconSize: [EVENT_MARKER_WIDTH, EVENT_MARKER_HEIGHT] });
+        }
 
-    return icon;
-};
+        return icon;
+    };
 
     // and load up the new ones; note that we refresh at the end  (slightly different from old clusterer, where we add markers en masse, and that triggers a redraw)
     for (var i=0, l=points.length; i<l; i++) {
