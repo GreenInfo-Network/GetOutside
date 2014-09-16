@@ -69,6 +69,7 @@ div.basemap_option {
             <li><a href="#settingsform_tab_basic">Web Site Title &amp; Theme</a></li>
             <li style="display:none;"><a href="#settingsform_tab_html">HTML Web Pages</a></li><!-- hack they decided there's no website anymore! trivial details, right? but they'll want it back! -->
             <li><a href="#settingsform_tab_extent">Map Services</a></li>
+            <li><a href="#settingsform_tab_icons">Map Icons</a></li>
             <li><a href="#settingsform_tab_mobile">Mobile Site</a></li>
         </ul>
         <div id="settingsform_tab_basic">
@@ -187,6 +188,71 @@ div.basemap_option {
             </tr>
             </table>
         </div>
+        <div id="settingsform_tab_icons">
+            <table class="table-condensed">
+            <tr>
+                <td>Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate places on the map. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_place" />
+                    <br/>
+                    <?= $siteconfig['place_marker_width'] ?> x <?= $siteconfig['place_marker_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="place_marker" size="50" />
+                    <br/>
+                    Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for a place, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="place_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['place_markerglowcolor'] ) ?>" />
+                </td>
+            </tr>
+            <tr>
+                <td>Event Location Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate event locations on the map. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_event" />
+                    <br/>
+                    <?= $siteconfig['event_marker_width'] ?> x <?= $siteconfig['event_marker_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="event_marker" size="50" />
+                    <br/>
+                    Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for an event, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="event_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['event_markerglowcolor'] ) ?>" />
+                </td>
+            </tr>
+            <tr>
+                <td>Event &amp; Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate a location with both EVents and Places. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_both" />
+                    <br/>
+                    <?= $siteconfig['both_marker_width'] ?> x <?= $siteconfig['both_marker_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="both_marker" size="50" />
+                </td>
+            </tr>
+            <tr>
+                <td>GPS Marker<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to show the user's location. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_gps" />
+                    <br/>
+                    <?= $siteconfig['marker_gps_width'] ?> x <?= $siteconfig['marker_gps_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="mobile_marker_gps" size="50" />
+                    <br/>
+                </td>
+            </tr>
+            </table>
+        </div>
         <div id="settingsform_tab_mobile">
             <p>Users on mobile devices will automatically be redirected to <a target="_blank" href="<?= site_url() ?>/mobile">the mobile site</a>. Use this panel to set colors and other options for the mobile site.</p>
 
@@ -228,71 +294,6 @@ div.basemap_option {
             <tr>
                 <td>Highlight FG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Highlight: Foreground (text) color. Highlights include special alert buttons, as well as the currently-selected tab."></div></td>
                 <td><input type="text" class="color" style="color:white;" name="mobile_alertfgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_alertfgcolor'] ) ?>" /></td>
-            </tr>
-
-            <tr>
-                <td colspan="2"><h3>Map Markers</h3></td>
-            </tr>
-            <tr>
-                <td>Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate places on the map. This should be a PNG file, no more than 25 x 45 in size."></div></td>
-                <td>
-                    <img src="<?= site_url() ?>/mobile/image/marker_place" />
-                    <br/>
-                    <?= $siteconfig['place_marker_width'] ?> x <?= $siteconfig['place_marker_height'] ?>
-                    <br/>
-                    <br/>
-                    If you want to replace the current marker, select the file here.<br/>
-                    This should be a PNG file, no more than 25 x 45 in size.<br/>
-                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="place_marker" size="50" />
-                    <br/>
-                    Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for a place, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="mobile_place_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_place_markerglowcolor'] ) ?>" />
-                </td>
-            </tr>
-            <tr>
-                <td>Event Location Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate event locations on the map. This should be a PNG file, no more than 25 x 45 in size."></div></td>
-                <td>
-                    <img src="<?= site_url() ?>/mobile/image/marker_event" />
-                    <br/>
-                    <?= $siteconfig['event_marker_width'] ?> x <?= $siteconfig['event_marker_height'] ?>
-                    <br/>
-                    <br/>
-                    If you want to replace the current marker, select the file here.<br/>
-                    This should be a PNG file, no more than 25 x 45 in size.<br/>
-                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="event_marker" size="50" />
-                    <br/>
-                    Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for an event, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="mobile_event_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_event_markerglowcolor'] ) ?>" />
-                </td>
-            </tr>
-            <tr>
-                <td>Event &amp; Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate a location with both EVents and Places. This should be a PNG file, no more than 25 x 45 in size."></div></td>
-                <td>
-                    <img src="<?= site_url() ?>/mobile/image/marker_both" />
-                    <br/>
-                    <?= $siteconfig['both_marker_width'] ?> x <?= $siteconfig['both_marker_height'] ?>
-                    <br/>
-                    <br/>
-                    If you want to replace the current marker, select the file here.<br/>
-                    This should be a PNG file, no more than 25 x 45 in size.<br/>
-                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="both_marker" size="50" />
-                </td>
-            </tr>
-            <tr>
-                <td>GPS Marker<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to show the user's location. This should be a PNG file, no more than 25 x 45 in size."></div></td>
-                <td>
-                    <img src="<?= site_url() ?>/mobile/image/marker_gps" />
-                    <br/>
-                    <?= $siteconfig['marker_gps_width'] ?> x <?= $siteconfig['marker_gps_height'] ?>
-                    <br/>
-                    <br/>
-                    If you want to replace the current marker, select the file here.<br/>
-                    This should be a PNG file, no more than 25 x 45 in size.<br/>
-                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="mobile_marker_gps" size="50" />
-                    <br/>
-                </td>
             </tr>
 
             <tr>

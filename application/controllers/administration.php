@@ -119,8 +119,8 @@ public function ajax_save_settings() {
     $this->siteconfig->set('mobile_buttonfgcolor2',  $_POST['mobile_buttonfgcolor2']);
     $this->siteconfig->set('mobile_alertbgcolor',    $_POST['mobile_alertbgcolor']);
     $this->siteconfig->set('mobile_alertfgcolor',    $_POST['mobile_alertfgcolor']);
-    $this->siteconfig->set('mobile_place_markerglowcolor', $_POST['mobile_place_markerglowcolor']);
-    $this->siteconfig->set('mobile_event_markerglowcolor', $_POST['mobile_event_markerglowcolor']);
+    $this->siteconfig->set('place_markerglowcolor',  $_POST['place_markerglowcolor']);
+    $this->siteconfig->set('event_markerglowcolor',  $_POST['event_markerglowcolor']);
 
     // now the upload content, which we vetted above but didn't actually update the siteconfig yet
     foreach ( array_keys($image_uploads) as $which_image) {

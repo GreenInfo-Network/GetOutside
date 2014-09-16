@@ -249,7 +249,11 @@ public function index() {
     $siteconfig->set('mobile_buttonbgcolor2',       $defaults['MOBILE_COLORS']['buttonbgcolor2'] );
     $siteconfig->set('mobile_alertfgcolor',         $defaults['MOBILE_COLORS']['alertfgcolor'] );
     $siteconfig->set('mobile_alertbgcolor',         $defaults['MOBILE_COLORS']['alertbgcolor'] );
+//gda
     $siteconfig->set('mobile_markerglowcolor',      $defaults['MOBILE_COLORS']['markerglowcolor'] );
+
+    $siteconfig->set('place_markerglowcolor',       $defaults['PLACE_MARKERGLOWCOLOR'] );
+    $siteconfig->set('event_markerglowcolor',       $defaults['EVENT_MARKERGLOWCOLOR'] );
     $siteconfig->set('mobile_logo',                 $defaults['MOBILE_LOGO']['content'] );
     $siteconfig->set('mobile_logo_width',           $defaults['MOBILE_LOGO']['width'] );
     $siteconfig->set('mobile_logo_height',          $defaults['MOBILE_LOGO']['height'] );
