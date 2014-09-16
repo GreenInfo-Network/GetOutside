@@ -6,7 +6,7 @@
 var MAP;            // L.Map
 var BASEMAPS = {};  // dict mapping a name onto a L.tileLayer instance; keys will be:   terrain   topo   photo
 var MAX_EXTENT;     // L.latLngBounds; used for geocode biasing and as our starting extent
-var MARKERS;        // L.LayerGroup; empty but gets filled with markers when they search
+var MARKERS;        // PruneClusterForLeaflet marker cluster system; empty but gets filled with markers when the user searches, see performSearchHandleResults()
 var LOCATION;       // L.Marker indicating their current location
 var ACCURACY;       // L.Circle showing the accuracy of their location
 
@@ -226,6 +226,7 @@ function initMap() {
     if (BING_API_KEY) BASEMAPS['bingsatellite']     = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'AerialWithLabels' });
     if (BASEMAP_TYPE == 'xyz') BASEMAPS['xyz']               = L.tileLayer(BASEMAP_XYZURL, { zIndex:-1 });
 
+//GDA TO-DO add patch for maxZoom calculation when using Google Terrain basemap; see site/map.js
     // load the map and its initial view
     MAP = new L.Map('map_canvas', {
         attributionControl: false,
@@ -257,7 +258,8 @@ function initMap() {
 
     // now add the empty MARKERS LayerGroup
     // this will be loaded with markers when a search is performed or when they pick Browse The Map
-    MARKERS = L.layerGroup([]).addTo(MAP);
+    MARKERS = new PruneClusterForLeaflet();
+    MAP.addLayer(MARKERS);
 
     // now the Map Settings panel
     // this is relatively simple, in that there's no tile caching, seeding, database download, ...
@@ -313,7 +315,6 @@ function is_android() {
     return -1 != navigator.userAgent.indexOf('Android');
 }
 
-//gda
 function selectBasemap(which) {
     // tip: can't use .addTo() nor .bringToBack() with these non0standard layer types (Google); instead, z-indexes are used, etc
     for (var i in BASEMAPS) MAP.removeLayer(BASEMAPS[i]);
@@ -532,49 +533,94 @@ function performSearchHandleResults(reply) {
     // .. then have them re-render
     // the listing renderers check for 0 length and create a dummy "Nothing Found" item in the lists
     // tip: show and hide don't work with JQM tab content; it makes the element actually visible despite the tab selection
-    MARKERS.clearLayers();
     renderEventsList();
-    renderEventsMap();
-    renderPlacesMap();
     renderPlacesList();
+    renderResultsToMap();
 
     // epimetheus: same as onLocationFound() does, update distance and bearing listings for Places and Events
     updateEventsAndPlacesDistanceReadouts();
 }
 
-function renderPlacesMap() {
-    var items = $('#page-search-results-places-list').data('rawresults');
-
-    for (var i=0, l=items.length; i<l; i++) {
-        var icon = L.icon({
-            iconUrl: BASE_URL + 'mobile/image/marker_place',
-            iconSize: [PLACE_MARKER_WIDTH, PLACE_MARKER_HEIGHT]
-        });
-
-        L.marker([items[i].lat,items[i].lng], { icon:icon, title:items[i].name, attributes:items[i] }).addTo(MARKERS).on('click',function () {
-          clickMarker_Place(this);
+function renderResultsToMap() {
+    // the factory method to generate the markers; required for any click or popup handling (despite the shorter syntax documented at https://github.com/SINTEF-9012/PruneCluster)
+    // these PruneCluster.Marker instances use PrepareLeafletMarker to generate click event handlers; the default behavior supports only popups and even that requires PrepareLeafletMarker
+    // kinda goofy to override these functions here every time we load new points, but this places it where we'll be in the code, keeps it in-sight and in-mind
+    MARKERS.PrepareLeafletMarker = function(leafletMarker, data){
+        leafletMarker.setIcon(data.icon);
+        leafletMarker.attributes = data.attributes;
+        leafletMarker.clicker    = data.clicker;
+        leafletMarker.on('click',function () {
+            this.clicker(this);
         });
     }
-}
+    MARKERS.BuildLeafletClusterIcon = function(cluster) {
+        // use the built-in categories facility to generate an icon
+        // see the "category" switch below for the assignment of these integer codes; we only use 2 of these codes at this time
+        var stats = cluster.stats;
 
-function renderEventsMap() {
-    var events = $('#page-search-results-events-list').data('rawresults');
-
-    for (var ei=0, el=events.length; ei<el; ei++) {
-        if (! events[ei].locations) continue; // an event with no Locations, doesn't need to be on the map
-
-        var icon = L.icon({
-            iconUrl: BASE_URL + 'mobile/image/marker_event',
-            iconSize: [EVENT_MARKER_WIDTH, EVENT_MARKER_HEIGHT]
-        });
-
-        for (var li=0, ll=events[ei].locations.length; li<ll; li++) {
-            var loc = events[ei].locations[li];
-            L.marker([loc.lat,loc.lng], { icon:icon, title:events[ei].name, attributes:{ event:events[ei], location:loc } }).addTo(MARKERS).on('click',function () {
-              clickMarker_EventLocation(this);
-            });
+        var icon;
+        if (stats[0] && stats[1]) {
+            // both places and events
+            icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_both', iconSize: [BOTH_MARKER_WIDTH, BOTH_MARKER_HEIGHT] });
+        } else if (stats[0]) {
+            // places only
+            icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_place', iconSize: [PLACE_MARKER_WIDTH, PLACE_MARKER_HEIGHT] });
+        } else {
+            // events only   (got here and it can't both be 0)
+            icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_event', iconSize: [EVENT_MARKER_WIDTH, EVENT_MARKER_HEIGHT] });
         }
-    }
+
+        return icon;
+    };
+
+    // start by emptying the markers from the map
+    MARKERS.RemoveMarkers();
+
+    // now loop over Places and Events in the result lists, generating these icons to be massaged using the methods above
+    // note the hardcoded category numbers when generating the markers; used in BuildLeafletClusterIcon() to count up place/event/both; arbitrary, as long as it's consistent
+    $.each( $('#page-search-results-places-list').data('rawresults') , function () {
+        // "this" really is just attributes, so here we are
+        var attributes = this;
+
+        // make up the icon
+        var icon = L.icon({ iconUrl:BASE_URL+'mobile/image/marker_place', iconSize:[PLACE_MARKER_WIDTH,PLACE_MARKER_HEIGHT] });
+
+        // which callback would we use for a click?  this is why we use named functions for even seemingly-simple behaviors, allows us to abstract this stuff from ad-hoc factory methods
+        var clicker = clickMarker_Place;
+
+        // finally
+        // create the marker and add it to the clusterer
+        var marker = new PruneCluster.Marker(attributes.lat, attributes.lng, { icon:icon, clicker:clicker, attributes:attributes });
+        marker.category = 0;
+        MARKERS.RegisterMarker(marker);
+    });
+
+    $.each( $('#page-search-results-events-list').data('rawresults') , function () {
+        if (! this.locations) return; // an event with no Locations, doesn't need to be on the map
+        var event = this;
+
+        // now go over locations, these are the real markers
+        // they have attributes indicating BOTH the event details and their own location details
+        $.each(this.locations, function () {
+            var location   = this;
+            var attributes = { location:location, event:event };
+
+            // make up the icon
+            var icon = L.icon({ iconUrl:BASE_URL+'mobile/image/marker_event', iconSize:[EVENT_MARKER_WIDTH,EVENT_MARKER_HEIGHT] });
+
+            // which callback would we use for a click?  this is why we use named functions for even seemingly-simple behaviors, allows us to abstract this stuff from ad-hoc factory methods
+            var clicker = clickMarker_EventLocation;
+
+            // finally
+            // create the marker and add it to the clusterer
+            var marker = new PruneCluster.Marker(location.lat, location.lng, { icon:icon, clicker:clicker, attributes:attributes });
+            marker.category = 1;
+            MARKERS.RegisterMarker(marker);
+        });
+    });
+
+    // done, refresh the marker rendering  (though it may nnot in fact be visible if the map is hidden)
+    MARKERS.RedrawIcons();
 }
 
 function renderPlacesList() {
@@ -665,9 +711,7 @@ function renderPlacesList() {
             var markid = $(this).data('rawresult').id;
             switchToMap(function () {
                 zoomToPoint(latlng);
-console.log(markid);//gda
                 var marker = getMarkerById(markid);
-console.log(marker);//gda
                 if (marker) clickMarker_Place(marker);
             });
         });
@@ -801,6 +845,7 @@ function updateEventsAndPlacesDistanceReadouts() {
 }
 
 function clickMarker_EventLocation(marker) {
+console.log('gda click event');
     // start by highlighting, why not?
     highlightMarker(marker);
 
@@ -819,9 +864,9 @@ function clickMarker_EventLocation(marker) {
     for (var i=0, l=components.length; i<l; i++) {
         var component = components[i];
 
-        for (var field in marker.options.attributes[component]) {
+        for (var field in marker.attributes[component]) {
             var target = subpanel.find('[data-field="'+component+'.'+field+'"]');
-            var value  = marker.options.attributes[component][field];
+            var value  = marker.attributes[component][field];
 
             switch ( target.prop("tagName") ) {
                 case 'A':
@@ -854,9 +899,9 @@ function clickMarker_Place(marker) {
 
     // go over attributes, load them into the tagged field (if one exists)
     // note the switch for the tag type: A tags assign an URL, everything else gets text filled in, ... thus we have self-expanding code simply by adding fields whose data-field=FIELDNAME
-    for (var field in marker.options.attributes) {
+    for (var field in marker.attributes) {
         var target = subpanel.find('[data-field="'+field+'"]');
-        var value  = marker.options.attributes[field];
+        var value  = marker.attributes[field];
         switch ( target.prop("tagName") ) {
             case 'A':
                 // A anchor: insert the URL as the HREF, and if that's blank then hide this link
@@ -880,14 +925,6 @@ function highlightMarker(marker) {
     // add the highlight CSS class to this marker image
     // WARNING: _icon is not a Leaflet API, so this may break in the future
     $(marker._icon).addClass('leaflet-marker-highlight');
-
-    // afterthought: now re-stack the markers so this one gets a very high zIndex and displays above other markers
-    // a lot more involved than just highlighting, and more time-consuming
-    var ms = MARKERS.getLayers();
-    for (var i=0, l=ms.length; i<l; i++) {
-        ms[i].setZIndexOffset(0);
-    }
-    marker.setZIndexOffset(10000);
 }
 
 function updateNavigationLinkFromMarker(marker) {
