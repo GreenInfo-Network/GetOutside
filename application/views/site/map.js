@@ -186,6 +186,10 @@ function reloadMapPoints(points) {
     VISIBLE_MARKERS.PrepareLeafletMarker = function(leafletMarker, data){
         leafletMarker.setIcon(data.icon);
         leafletMarker.bindPopup(data.html);
+        leafletMarker.attributes = data.attributes;
+        leafletMarker.on('click', function () {
+            highlightMarker(this);
+        });
     }
     VISIBLE_MARKERS.BuildLeafletClusterIcon = function(cluster) {
         // use the built-in categories facility to generate an icon
@@ -209,17 +213,19 @@ function reloadMapPoints(points) {
 
     // and load up the new ones; note that we refresh at the end  (slightly different from old clusterer, where we add markers en masse, and that triggers a redraw)
     for (var i=0, l=points.length; i<l; i++) {
-        // choose the icon and the type
+        // choose the icon and the type, and compose the attributes
         // the category is just some integer 0-7, used by the clusterer's internal "stats" calculation and thus by BuildLeafletClusterIcon()
-        var icon, category;
+        var icon, category, attributes;
         switch (points[i].type) {
             case 'place':
-                icon     = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_place', iconSize: [PLACE_MARKER_WIDTH, PLACE_MARKER_HEIGHT] });
-                category = 0;
+                icon       = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_place', iconSize: [PLACE_MARKER_WIDTH, PLACE_MARKER_HEIGHT] });
+                category   = 0;
+                attributes = points[i];
                 break;
             case 'event':
-                icon     = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_event', iconSize: [EVENT_MARKER_WIDTH, EVENT_MARKER_HEIGHT] });
-                category = 1;
+                icon       = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_event', iconSize: [EVENT_MARKER_WIDTH, EVENT_MARKER_HEIGHT] });
+                category   = 1;
+                attributes = points[i];
                 break;
             default:
                 throw "Weird: unknown type of marker?";
@@ -254,7 +260,7 @@ function reloadMapPoints(points) {
 
         // and we're set; make up the marker
         // start by fetching coordinates, creating the bare marker, adding it to the clusterer
-        var marker = new PruneCluster.Marker(points[i].lat, points[i].lng, { title:name, html:html, icon:icon });
+        var marker = new PruneCluster.Marker(points[i].lat, points[i].lng, { attributes:attributes, title:name, html:html, icon:icon });
         marker.category = category;
         VISIBLE_MARKERS.RegisterMarker(marker);
     }
@@ -471,3 +477,17 @@ function RouteCallback(response) {
     $('#dialog_directions').dialog('option', 'position', DIRECTIONS_DIALOG_POSITION);
 }
 
+
+function highlightMarker(marker) {
+    // remove the highlight CSS class from all marker images
+    $('#map_canvas img.leaflet-marker-icon').removeClass('leaflet-marker-highlight');
+
+    // add the highlight CSS class to this marker image
+    // WARNING: _icon is not a Leaflet API, so this may break in the future
+    var icondiv = $(marker._icon).addClass('leaflet-marker-highlight');
+    if (marker.attributes.type == 'event') {
+        icondiv.addClass('leaflet-marker-event').removeClass('leaflet-marker-place');
+    } else {
+        icondiv.removeClass('leaflet-marker-event').addClass('leaflet-marker-place');
+    }
+}

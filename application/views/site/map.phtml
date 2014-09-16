@@ -40,6 +40,22 @@ var EVENT_MARKER_WIDTH      = <?= $siteconfig['event_marker_width'] ?>;
 var EVENT_MARKER_HEIGHT     = <?= $siteconfig['event_marker_height'] ?>;
 </script>
 
+<!-- GLOWING MARKERS if this gets more involved, probably best to put it into a separate CSS file -->
+<style type="text/css">
+img.leaflet-marker-icon.leaflet-marker-place.leaflet-marker-highlight {
+    box-shadow: 0 0 8px 6px <?= $siteconfig['place_markerglowcolor'] ?> !important;
+    background-color: <?= $siteconfig['place_markerglowcolor'] ?> !important;
+    -webkit-box-shadow: 0 0 8px 6px <?= $siteconfig['place_markerglowcolor'] ?> !important;
+    border-radius:10px;
+}
+img.leaflet-marker-icon.leaflet-marker-event.leaflet-marker-highlight {
+    box-shadow: 0 0 8px 6px <?= $siteconfig['event_markerglowcolor'] ?> !important;
+    background-color: <?= $siteconfig['event_markerglowcolor'] ?> !important;
+    -webkit-box-shadow: 0 0 8px 6px <?= $siteconfig['event_markerglowcolor'] ?> !important;
+    border-radius:10px;
+}
+</style>
+
 
 
 <div class="container" style="padding: 0 15px 0 0; width:100%;">
