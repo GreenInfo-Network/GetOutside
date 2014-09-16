@@ -60,6 +60,16 @@ $(document).ready(function () {
     VISIBLE_MARKERS = new PruneClusterForLeaflet();
     MAP.addLayer(VISIBLE_MARKERS);
 
+//gda
+    // map event: when a popup is opened highlight the corresponding marker; when a popup is closed un-highlight them
+    // the popupopen event has an undocumentedc (non-API! DANGER) _source attribute to connect to the marker, so huzzah!
+    MAP.on('popupopen', function (event) {
+console.log(event.popup._source);
+        highlightMarker(event.popup._source);
+    }).on('popupclose', function (event) {
+        highlightMarker(null);
+    });
+
     // enable the geocoder so they can find their address. well, only if there's a Bing key given
     if (BING_API_KEY) {
         $('#geocode_go').click(function () {
@@ -183,13 +193,11 @@ function reloadMapPoints(points) {
     // override the factory method so we can assign popups and all; the PruneCluster docs are dead wrong about assigning marker.data.popup
     // and override the factory method for the cluster icon itself, to use event/place/both
     // kinda goofy to override these functions here every time we load new points, but this places it where we'll be in the code, keeps it in-sight and in-mind
+    // tip: highlighting of markers is handled by popupclose and popupopen event handlers on the map, see the L.map() constructor for the connections to highlightMarker()
     VISIBLE_MARKERS.PrepareLeafletMarker = function(leafletMarker, data){
         leafletMarker.setIcon(data.icon);
         leafletMarker.bindPopup(data.html);
         leafletMarker.attributes = data.attributes;
-        leafletMarker.on('click', function () {
-            highlightMarker(this);
-        });
     }
     VISIBLE_MARKERS.BuildLeafletClusterIcon = function(cluster) {
         // use the built-in categories facility to generate an icon
@@ -481,6 +489,9 @@ function RouteCallback(response) {
 function highlightMarker(marker) {
     // remove the highlight CSS class from all marker images
     $('#map_canvas img.leaflet-marker-icon').removeClass('leaflet-marker-highlight');
+
+    // bail: if the marker we're to highlight is a null, it means we don't want to highlight anything
+    if (! marker ) return;
 
     // add the highlight CSS class to this marker image
     // WARNING: _icon is not a Leaflet API, so this may break in the future
