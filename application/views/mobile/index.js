@@ -294,8 +294,11 @@ function initMapInfoPanel() {
     // this is primarily opened and populated by the clickMarker_ family of functions, so see them for more info
 
     // buttons in the info panel: close this slideout
+    // this should also mean to unhighlight all markers, since we're not focusing them anymore
+    // this may prove unreliable some day if we invent some other way to cause the panel to become hidden, e.g. swipe event, tap on map, ...
     $('#map_infopanel > a[data-icon="delete"]').click(function () {
         $('#map_infopanel').hide();
+        highlightMarker(null);
     });
 
     // buttons in the info panel: open navigation to the given location
@@ -936,6 +939,9 @@ function clickMarker_Place(marker) {
 function highlightMarker(marker) {
     // remove the highlight CSS class from all marker images
     $('#map_canvas img.leaflet-marker-icon').removeClass('leaflet-marker-highlight');
+
+    // bail: if the marker we're to highlight is a null, it means we don't want to highlight anything
+    if (! marker ) return;
 
     // add the highlight CSS class to this marker image
     // WARNING: _icon is not a Leaflet API, so this may break in the future
