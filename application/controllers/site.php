@@ -177,6 +177,7 @@ public function ajax_map_points() {
         if (! (float) $place->longitude or ! (float) $place->latitude) continue;
 
         $thisone = array();
+        $thisone['type']    = 'place';
         $thisone['id']      = (integer) $place->id;
         $thisone['name']    = $place->name;
         $thisone['desc']    = $place->description;
@@ -219,6 +220,7 @@ public function ajax_map_points() {
             }
 
             $thisone = array();
+            $thisone['type']    = 'event';
             $thisone['id']      = (integer) $el->id;
             $thisone['name']    = $el->event->name;
             $thisone['lat']     = (float) $el->latitude;

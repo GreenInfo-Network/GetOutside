@@ -71,10 +71,11 @@ public function ajax_save_settings() {
     // file uploads: markers and logos
     // make sure these are PNG files, and load them in as base64-encoded data same as we'll be storing in the DB later
     $image_uploads = array(
-        'mobile_logo'          => array(),
-        'mobile_event_marker'  => array(),
-        'mobile_place_marker'  => array(),
-        'mobile_marker_gps'    => array(),
+        'mobile_logo'   => array(),
+        'event_marker'  => array(),
+        'place_marker'  => array(),
+        'both_marker'   => array(),
+        'marker_gps'    => array(),
     );
     foreach ( array_keys($image_uploads) as $which_image) {
         if (! is_uploaded_file(@$_FILES[$which_image]['tmp_name'])) continue; // not an upload, skip it

@@ -238,13 +238,13 @@ div.basemap_option {
                 <td>
                     <img src="<?= site_url() ?>/mobile/image/marker_place" />
                     <br/>
-                    <?= $siteconfig['mobile_place_marker_width'] ?> x <?= $siteconfig['mobile_place_marker_height'] ?>
+                    <?= $siteconfig['place_marker_width'] ?> x <?= $siteconfig['place_marker_height'] ?>
                     <br/>
                     <br/>
                     If you want to replace the current marker, select the file here.<br/>
                     This should be a PNG file, no more than 25 x 45 in size.<br/>
                     Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="mobile_place_marker" size="50" />
+                    <input type="file" name="place_marker" size="50" />
                     <br/>
                     Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for a place, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="mobile_place_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_place_markerglowcolor'] ) ?>" />
                 </td>
@@ -254,15 +254,29 @@ div.basemap_option {
                 <td>
                     <img src="<?= site_url() ?>/mobile/image/marker_event" />
                     <br/>
-                    <?= $siteconfig['mobile_event_marker_width'] ?> x <?= $siteconfig['mobile_event_marker_height'] ?>
+                    <?= $siteconfig['event_marker_width'] ?> x <?= $siteconfig['event_marker_height'] ?>
                     <br/>
                     <br/>
                     If you want to replace the current marker, select the file here.<br/>
                     This should be a PNG file, no more than 25 x 45 in size.<br/>
                     Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="mobile_event_marker" size="50" />
+                    <input type="file" name="event_marker" size="50" />
                     <br/>
                     Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for an event, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="mobile_event_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_event_markerglowcolor'] ) ?>" />
+                </td>
+            </tr>
+            <tr>
+                <td>Event &amp; Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate a location with both EVents and Places. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_both" />
+                    <br/>
+                    <?= $siteconfig['both_marker_width'] ?> x <?= $siteconfig['both_marker_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="both_marker" size="50" />
                 </td>
             </tr>
             <tr>
@@ -270,7 +284,7 @@ div.basemap_option {
                 <td>
                     <img src="<?= site_url() ?>/mobile/image/marker_gps" />
                     <br/>
-                    <?= $siteconfig['mobile_marker_gps_width'] ?> x <?= $siteconfig['mobile_marker_gps_height'] ?>
+                    <?= $siteconfig['marker_gps_width'] ?> x <?= $siteconfig['marker_gps_height'] ?>
                     <br/>
                     <br/>
                     If you want to replace the current marker, select the file here.<br/>

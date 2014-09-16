@@ -1,5 +1,5 @@
 var MAP; // the Leaflet Map object
-var VISIBLE_MARKERS; // L.markerClustergroup; the set of all markers currently displaying on the map via a clusterer; a subset of ALL_MARKERS
+var VISIBLE_MARKERS; // PruneClusterForLeaflet marker cluster system; the set of all markers currently displaying on the map via a clusterer
 var DIRECTIONS_LINE, DIRECTIONS_MARKER1, DIRECTIONS_MARKER2; // for directions: the origin & destination markers, and the overlaid line
 var DIRECTIONS_LINE_STYLE = {
     color: 'red'
@@ -57,11 +57,8 @@ $(document).ready(function () {
     MAP.addLayer(basemap);
 
     // add the marker clusterer, though with no markers just yet
-    VISIBLE_MARKERS = L.markerClusterGroup({
-        showCoverageOnHover:false,
-        maxClusterRadius: 36,
-        iconCreateFunction: createClusterDiv
-    }).addTo(MAP);
+    VISIBLE_MARKERS = new PruneClusterForLeaflet();
+    MAP.addLayer(VISIBLE_MARKERS);
 
     // enable the geocoder so they can find their address. well, only if there's a Bing key given
     if (BING_API_KEY) {
@@ -181,41 +178,89 @@ function submitFilters() {
 
 function reloadMapPoints(points) {
     // start by clearing the existing markers
-    VISIBLE_MARKERS.clearLayers();
+    VISIBLE_MARKERS.RemoveMarkers();
 
-    // and load up the new ones; for performance, build them in memory before clustering, so we don't recluster for every single marker
-    var markers = [];
+//gda
+    // override the factory method so we can assign popups and all; the PruneCluster docs are dead wrong about assigning marker.data.popup
+    // kinda goofy to override it here in the function every time we load new points, but this places it where we'll be in the code
+    VISIBLE_MARKERS.PrepareLeafletMarker = function(leafletMarker, data){
+        leafletMarker.setIcon(data.icon);
+        leafletMarker.bindPopup(data.html);
+    }
+VISIBLE_MARKERS.BuildLeafletClusterIcon = function(cluster) {
+    // use the built-in categories facility to generate an icon
+    // see the "category" switch below for the assignment of these integer codes; we only use 2 of these codes at this time
+    var stats = cluster.stats;
+
+    var icon;
+    if (stats[0] && stats[1]) {
+        // both places and events
+        icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_both', iconSize: [BOTH_MARKER_WIDTH, BOTH_MARKER_HEIGHT] });
+    } else if (stats[0]) {
+        // places only
+        icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_place', iconSize: [PLACE_MARKER_WIDTH, PLACE_MARKER_HEIGHT] });
+    } else {
+        // events only   (got here and it can't both be 0)
+        icon = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_event', iconSize: [EVENT_MARKER_WIDTH, EVENT_MARKER_HEIGHT] });
+    }
+
+    return icon;
+};
+
+    // and load up the new ones; note that we refresh at the end  (slightly different from old clusterer, where we add markers en masse, and that triggers a redraw)
     for (var i=0, l=points.length; i<l; i++) {
-        // generate a simple DIV icon, using the selected color
-        var icon = new L.DivIcon({ className:'marker-icon', iconAnchor:L.point(10,10), iconSize:L.point(20,20) });
+        // choose the icon and the type
+        // the category is just some integer 0-7, used by the clusterer's internal "stats" calculation and thus by BuildLeafletClusterIcon()
+        var icon, category;
+        switch (points[i].type) {
+            case 'place':
+                icon     = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_place', iconSize: [PLACE_MARKER_WIDTH, PLACE_MARKER_HEIGHT] });
+                category = 0;
+                break;
+            case 'event':
+                icon     = L.icon({ iconUrl: BASE_URL + 'mobile/image/marker_event', iconSize: [EVENT_MARKER_WIDTH, EVENT_MARKER_HEIGHT] });
+                category = 1;
+                break;
+            default:
+                throw "Weird: unknown type of marker?";
+        }
 
-        // hack: if the description has any hyperlinks, add a target to them so they open in a new window
-        points[i].desc = points[i].desc.replace(/<a /g, '<a target="_blank" ');
+        // choose a hover title
+        var name = points[i].name;
 
-        // if this point has an URL create a link,and include it into the title
+        // HTML prep
+        // data fix: if the description has any hyperlinks, add a target to them so they open in a new window
+        var description = points[i].desc.replace(/<a /g, '<a target="_blank" ');
+
+        // HTML prep
+        // if this point has an URL create a link
         var weblink = '';
         if (points[i].url) weblink = '<a target="_blank" href="' + points[i].url + '">more info</a>';
 
+        // HTML prep
         // create the directions link but only if we're Bing enabled
         var dirlink = '';
         if (BING_API_KEY) dirlink = '<a href="javascript:void(0);" onClick="clickDirectionsLink(this);" data-lat="'+points[i].lat+'" data-lon="'+points[i].lng+'" data-title="'+ htmlEntities(points[i].name) +'">directions</a>';
 
+        // finally
         // compose the HTML for the popup
         var html = '';
         html += '<h5>' + points[i].name + '</h5>';
         if (weblink || dirlink) {
             html += '<div>' + weblink + ' &nbsp; &nbsp; ' + dirlink + '</div>';
         }
-        html += points[i].desc;
+        html += description;
         html += '<p>' + 'Categories: ' + points[i].category_names.join(', ') + '</p>';
 
-        // assign the attributes into a marker, and bind it to a HTML popup with implicit click handler
-        var marker = L.marker([points[i].lat,points[i].lng], { icon:icon, attributes:points[i], keyboard:false, title:points[i].name }).bindPopup(html);
-        markers.push(marker);
+        // and we're set; make up the marker
+        // start by fetching coordinates, creating the bare marker, adding it to the clusterer
+        var marker = new PruneCluster.Marker(points[i].lat, points[i].lng, { title:name, html:html, icon:icon });
+        marker.category = category;
+        VISIBLE_MARKERS.RegisterMarker(marker);
     }
 
-    // all set, cluster it!
-    VISIBLE_MARKERS.addLayers(markers);
+    // now the refresh
+    VISIBLE_MARKERS.RedrawIcons();
 }
 
 

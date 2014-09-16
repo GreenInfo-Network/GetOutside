@@ -253,15 +253,18 @@ public function index() {
     $siteconfig->set('mobile_logo',                 $defaults['MOBILE_LOGO']['content'] );
     $siteconfig->set('mobile_logo_width',           $defaults['MOBILE_LOGO']['width'] );
     $siteconfig->set('mobile_logo_height',          $defaults['MOBILE_LOGO']['height'] );
-    $siteconfig->set('mobile_place_marker',         $defaults['MOBILE_PLACE_MARKER']['content'] );
-    $siteconfig->set('mobile_place_marker_width',   $defaults['MOBILE_PLACE_MARKER']['width'] );
-    $siteconfig->set('mobile_place_marker_height',  $defaults['MOBILE_PLACE_MARKER']['height'] );
-    $siteconfig->set('mobile_event_marker',         $defaults['MOBILE_EVENT_MARKER']['content'] );
-    $siteconfig->set('mobile_event_marker_width',   $defaults['MOBILE_EVENT_MARKER']['width'] );
-    $siteconfig->set('mobile_event_marker_height',  $defaults['MOBILE_EVENT_MARKER']['height'] );
-    $siteconfig->set('mobile_marker_gps',           $defaults['MOBILE_MARKER_GPS']['content'] );
-    $siteconfig->set('mobile_marker_gps_width',     $defaults['MOBILE_MARKER_GPS']['width'] );
-    $siteconfig->set('mobile_marker_gps_height',    $defaults['MOBILE_MARKER_GPS']['height'] );
+    $siteconfig->set('place_marker',                $defaults['PLACE_MARKER']['content'] );
+    $siteconfig->set('place_marker_width',          $defaults['PLACE_MARKER']['width'] );
+    $siteconfig->set('place_marker_height',         $defaults['PLACE_MARKER']['height'] );
+    $siteconfig->set('event_marker',                $defaults['EVENT_MARKER']['content'] );
+    $siteconfig->set('event_marker_width',          $defaults['EVENT_MARKER']['width'] );
+    $siteconfig->set('event_marker_height',         $defaults['EVENT_MARKER']['height'] );
+    $siteconfig->set('both_marker',                 $defaults['BOTH_MARKER']['content'] );
+    $siteconfig->set('both_marker_width',           $defaults['BOTH_MARKER']['width'] );
+    $siteconfig->set('both_marker_height',          $defaults['BOTH_MARKER']['height'] );
+    $siteconfig->set('marker_gps',                  $defaults['MARKER_GPS']['content'] );
+    $siteconfig->set('marker_gps_width',            $defaults['MARKER_GPS']['width'] );
+    $siteconfig->set('marker_gps_height',           $defaults['MARKER_GPS']['height'] );
     $siteconfig->set('timezone',                    $defaults['TIMEZONE'] );
 
 

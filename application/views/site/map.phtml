@@ -13,9 +13,8 @@
 <script type="text/javascript" src="<?= site_url('application/views/common/leaflet.bing.js') ?>"></script>
 
 <!-- marker clustering add-on for Leaflet -->
-<script src="<?= site_url() ?>/application/views/common/leaflet.markercluster/leaflet.markercluster.min.js"></script>
-<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.css" />
-<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.markercluster/MarkerCluster.Default.css" />
+<script src="<?= site_url() ?>/application/views/common/leaflet.prunecluster/PruneCluster.min.js"></script>
+<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.prunecluster/LeafletStyleSheet.css" />
 
 <!-- other code specific to this page -->
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/site/map.css" />
@@ -32,6 +31,13 @@ var START_W = <?= $this->siteconfig->get('bbox_w') ?>;
 var START_S = <?= $this->siteconfig->get('bbox_s') ?>;
 var START_E = <?= $this->siteconfig->get('bbox_e') ?>;
 var START_N = <?= $this->siteconfig->get('bbox_n') ?>;
+
+var BOTH_MARKER_WIDTH       = <?= $siteconfig['both_marker_width'] ?>;
+var BOTH_MARKER_HEIGHT      = <?= $siteconfig['both_marker_height'] ?>;
+var PLACE_MARKER_WIDTH      = <?= $siteconfig['place_marker_width'] ?>;
+var PLACE_MARKER_HEIGHT     = <?= $siteconfig['place_marker_height'] ?>;
+var EVENT_MARKER_WIDTH      = <?= $siteconfig['event_marker_width'] ?>;
+var EVENT_MARKER_HEIGHT     = <?= $siteconfig['event_marker_height'] ?>;
 </script>
 
 

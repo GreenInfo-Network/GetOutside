@@ -64,13 +64,16 @@ public function image($which='') {
     // not as seamless as simply allowing any ol' SiteConfig key, but let's prevent any possible shenanigans involved if we decode any arbitrary user-supplied data for any arbitrary config key
     switch ($which) {
         case 'marker_event':
-            $key = 'mobile_event_marker';
+            $key = 'event_marker';
             break;
         case 'marker_place':
-            $key = 'mobile_place_marker';
+            $key = 'place_marker';
+            break;
+        case 'marker_both':
+            $key = 'both_marker';
             break;
         case 'marker_gps':
-            $key = 'mobile_marker_gps';
+            $key = 'marker_gps';
             break;
         case 'logo':
             $key = 'mobile_logo';
