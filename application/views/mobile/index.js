@@ -228,12 +228,14 @@ function initMap() {
 
 //GDA TO-DO add patch for maxZoom calculation when using Google Terrain basemap; see site/map.js
     // load the map and its initial view
+    // tip: the minZoom is hardcoded here, but the maxZoom of the map is changed in selectBasemap() to suit Google Terrain's idiosyncracies
     MAP = new L.Map('map_canvas', {
         attributionControl: false,
         zoomControl: true,
         dragging: true,
         closePopupOnClick: false,
-        crs: L.CRS.EPSG3857
+        crs: L.CRS.EPSG3857,
+        minZoom: 6
     }).fitBounds(MAX_EXTENT);
     selectBasemap(BASEMAP_TYPE);
 
@@ -319,6 +321,21 @@ function selectBasemap(which) {
     // tip: can't use .addTo() nor .bringToBack() with these non0standard layer types (Google); instead, z-indexes are used, etc
     for (var i in BASEMAPS) MAP.removeLayer(BASEMAPS[i]);
     MAP.addLayer( BASEMAPS[which] );
+
+    // now hacks based on the selected basemap, e.g. Google Terrain requires a different maxZoom AND handling for us already being in too close
+    // this doesn't happen in desktop version, because there's no basemap picker there; but it was important for mobile to have one
+    var maxZoom = 18;
+    switch (which) {
+        case 'googleterrain':
+            maxZoom = 15;
+            break;
+        default:
+            break;
+    }
+
+    // set the maxZoom on the map, then zoom to that if we're in too far
+    MAP.options.maxZoom = maxZoom;
+    if ( MAP.getZoom() > maxZoom) MAP.setZoom(maxZoom);
 }
 
 function setSearchFiltersToDefault() {
@@ -845,7 +862,6 @@ function updateEventsAndPlacesDistanceReadouts() {
 }
 
 function clickMarker_EventLocation(marker) {
-console.log('gda click event');
     // start by highlighting, why not?
     highlightMarker(marker);
 
