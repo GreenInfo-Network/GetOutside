@@ -6,79 +6,79 @@
 /*** OVERALL PAGE COLORS ***/
 
 .ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
-    background-color: <?= $bgcolor ?> !important;
-    border-color: <?= $bgcolor ?> !important;
-    color: <?= $fgcolor ?> !important;
-    text-shadow: 0 0 0 <?= $fgcolor ?> !important;
+    background-color: <?= $mobile_bgcolor ?> !important;
+    border-color: <?= $mobile_bgcolor ?> !important;
+    color: <?= $mobile_fgcolor ?> !important;
+    text-shadow: 0 0 0 <?= $mobile_fgcolor ?> !important;
 }
 
 .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
-    background-color: <?= $bgcolor ?> !important;
-    color: <?= $fgcolor ?> !important;
-    text-shadow: 0 0 0 <?= $fgcolor ?> !important;
+    background-color: <?= $mobile_bgcolor ?> !important;
+    color: <?= $mobile_fgcolor ?> !important;
+    text-shadow: 0 0 0 <?= $mobile_fgcolor ?> !important;
 }
 
 /*** BUTTONS: default, alternate, alert ***/
 
 .ui-page-theme-a .ui-btn, html .ui-bar-a .ui-btn, html .ui-body-a .ui-btn, html body .ui-group-theme-a .ui-btn, html head + body .ui-btn.ui-btn-a, .ui-page-theme-a .ui-btn:visited, html .ui-bar-a .ui-btn:visited, html .ui-body-a .ui-btn:visited, html body .ui-group-theme-a .ui-btn:visited, html head + body .ui-btn.ui-btn-a:visited {
-    background-color: <?= $buttonbgcolor1 ?> !important;
-    color: <?= $buttonfgcolor1 ?> !important;
-    text-shadow: 0 0 0 <?= $buttonfgcolor1 ?> !important;
-    border-color: <?= $buttonfgcolor1 ?> !important;
+    background-color: <?= $mobile_buttonbgcolor1 ?> !important;
+    color: <?= $mobile_buttonfgcolor1 ?> !important;
+    text-shadow: 0 0 0 <?= $mobile_buttonfgcolor1 ?> !important;
+    border-color: <?= $mobile_buttonfgcolor1 ?> !important;
 }
 
 #page-search button[data-theme="b"] {
-    background-color: <?= $buttonbgcolor2 ?> !important;
-    border-color: <?= $buttonfgcolor2 ?> !important;
-    color: <?= $buttonfgcolor2 ?> !important;
+    background-color: <?= $mobile_buttonbgcolor2 ?> !important;
+    border-color: <?= $mobile_buttonfgcolor2 ?> !important;
+    color: <?= $mobile_buttonfgcolor2 ?> !important;
     text-align: center;
-    text-shadow: 0 0 0 <?= $buttonfgcolor2 ?> !important;
+    text-shadow: 0 0 0 <?= $mobile_buttonfgcolor2 ?> !important;
 }
 
 .search-results-navbar div {
-    background-color: <?= $buttonfgcolor1 ?> !important;
-    border-right: 1px solid <?= $buttonbgcolor1 ?> !important;
+    background-color: <?= $mobile_buttonfgcolor1 ?> !important;
+    border-right: 1px solid <?= $mobile_buttonbgcolor1 ?> !important;
     height: 2.5em;
     text-align: center;
     vertical-align: middle;
 }
 
 #page-search-results-places a[data-role="button"][data-theme="b"] {
-    background-color: <?= $alertbgcolor ?> !important;
-    color: <?= $alertfgcolor ?> !important;
-    border-color: <?= $alertbgcolor ?> !important;
+    background-color: <?= $mobile_alertbgcolor ?> !important;
+    color: <?= $mobile_alertfgcolor ?> !important;
+    border-color: <?= $mobile_alertbgcolor ?> !important;
 }
 #page-search-results-events a[data-role="button"][data-theme="b"] {
-    background-color: <?= $alertbgcolor ?> !important;
-    color: <?= $alertfgcolor ?> !important;
-    border-color: <?= $alertbgcolor ?> !important;
+    background-color: <?= $mobile_alertbgcolor ?> !important;
+    color: <?= $mobile_alertfgcolor ?> !important;
+    border-color: <?= $mobile_alertbgcolor ?> !important;
 }
 
 .search-results-navbar div.active {
-    background-color: <?= $alertbgcolor ?> !important;
-    color: <?= $alertfgcolor ?> !important;
+    background-color: <?= $mobile_alertbgcolor ?> !important;
+    color: <?= $mobile_alertfgcolor ?> !important;
 }
 .search-results-navbar div.active a {
-    color: <?= $alertfgcolor ?> !important;
+    color: <?= $mobile_alertfgcolor ?> !important;
 }
 
 .search-results-navbar div { /* default button color, but inverted */
-    background-color: <?= $buttonfgcolor1 ?> !important;
-    color: <?= $buttonbgcolor1 ?> !important;
+    background-color: <?= $mobile_buttonfgcolor1 ?> !important;
+    color: <?= $mobile_buttonbgcolor1 ?> !important;
 }
 .search-results-navbar a {
-    color: <?= $buttonfgcolor1 ?> !important;
+    color: <?= $mobile_buttonfgcolor1 ?> !important;
 }
 .ui-page-theme-a a, html .ui-bar-a a, html .ui-body-a a, html body .ui-group-theme-a a {
-    color: <?= $buttonbgcolor1 ?> !important;
+    color: <?= $mobile_buttonbgcolor1 ?> !important;
 }
 
 
 /*** GLOWING MARKERS ***/
 
 img.leaflet-marker-icon.leaflet-marker-highlight {
-    box-shadow: 0 0 8px 6px <?= $markerglowcolor ?> !important;
-    background-color: <?= $markerglowcolor ?> !important;
-    -webkit-box-shadow: 0 0 8px 6px <?= $markerglowcolor ?> !important;
+    box-shadow: 0 0 8px 6px <?= $mobile_place_markerglowcolor ?> !important;
+    background-color: <?= $mobile_place_markerglowcolor ?> !important;
+    -webkit-box-shadow: 0 0 8px 6px <?= $mobile_place_markerglowcolor ?> !important;
     border-radius:10px;
 }

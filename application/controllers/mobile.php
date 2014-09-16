@@ -47,15 +47,8 @@ public function index() {
 public function css() {
     $siteconfig = new SiteConfig();
 
-    // grab all keys whose name starts with mobile_ and stuff 'em into the o
-    $data = array();
-    foreach ($siteconfig->all() as $key=>$value) {
-        if (substr($key,0,7) != 'mobile_') continue;
-        $remainder = preg_replace('/^mobile_/', '', $key);
-        $data[$remainder] = $value;
-    }
-
-    // and print out the resulting CSS stylesheet
+    // grab the whole siteconfig and print out the resulting CSS stylesheet
+    $data = $siteconfig->all();
     header('Content-type: text/css');
     $this->load->view('mobile/css.phtml', $data);
 }
