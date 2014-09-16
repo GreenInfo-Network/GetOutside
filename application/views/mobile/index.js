@@ -939,7 +939,13 @@ function highlightMarker(marker) {
 
     // add the highlight CSS class to this marker image
     // WARNING: _icon is not a Leaflet API, so this may break in the future
-    $(marker._icon).addClass('leaflet-marker-highlight');
+    // WARNING: something of a hack to distinguish Place and Event, by existence of "event" sub-attributes
+    var icondiv = $(marker._icon).addClass('leaflet-marker-highlight');
+    if (marker.attributes.event) {
+        icondiv.addClass('leaflet-marker-event').removeClass('leaflet-marker-place');
+    } else {
+        icondiv.removeClass('leaflet-marker-event').addClass('leaflet-marker-place');
+    }
 }
 
 function updateNavigationLinkFromMarker(marker) {
