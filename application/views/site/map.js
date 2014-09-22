@@ -60,11 +60,9 @@ $(document).ready(function () {
     VISIBLE_MARKERS = new PruneClusterForLeaflet();
     MAP.addLayer(VISIBLE_MARKERS);
 
-//gda
     // map event: when a popup is opened highlight the corresponding marker; when a popup is closed un-highlight them
     // the popupopen event has an undocumentedc (non-API! DANGER) _source attribute to connect to the marker, so huzzah!
     MAP.on('popupopen', function (event) {
-console.log(event.popup._source);
         highlightMarker(event.popup._source);
     }).on('popupclose', function (event) {
         highlightMarker(null);
