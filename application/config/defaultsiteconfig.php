@@ -40,11 +40,27 @@ $config['BBOX_S'] =    9.10210;
 $config['BBOX_E'] =  -45.70312;
 $config['BBOX_N'] =   64.47279;
 
-$config['BING_API_KEY'] = 'AiecIf8cAgrFbHnHLpNfNIAmSqk9wo89f1yDtEMLJJdGpPJPa6G9-WpF3WC8EvTn';
-$config['METRIC']       = 0;
+$config['BING_API_KEY']   = '';
+$config['GOOGLE_API_KEY'] = '';
 
 $config['BASEMAP_TYPE']     = 'googleterrain';
 $config['BASEMAP_XYZURL']   = 'http://{s}.tiles.mapbox.com/v3/greeninfo.map-fdff5ykx/{z}/{x}/{y}.jpg';
+
+$config['METRIC'] = 0;
+
+
+/*
+|--------------------------------------------------------------------------
+| Default geocoding (address lookup) service
+| options:   bing   google
+| this is where you ask why 'google' is not the default
+|     answer: cuz Google has stricter TOU such as requiring that you display on a Google map
+|             and it's just not smart to set up your defaults to perhaps run afoul of changing TOU
+|--------------------------------------------------------------------------
+*/
+
+$config['DEFAULT_GEOCODER'] = 'bing';
+$config['DEFAULT_GEOCODER'] = 'google';
 
 
 /*

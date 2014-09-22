@@ -126,8 +126,12 @@ div.basemap_option {
 
             <table class="table-condensed">
             <tr>
-                <td>Bing Maps API Key <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Address searching and directions are courtesy of Bing Maps. To use these, you need a Bing Maps API Key."></div></td>
+                <td>Bing Maps API Key <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="To use the Bing basemaps and address services, you need a Bing Maps API Key."></div></td>
                 <td><input type="text" name="bing_api_key" size="80" maxlength="100" value="<?= htmlspecialchars( $siteconfig['bing_api_key'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Google Maps API Key <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="To use the Google basemaps and address services beyond certain restrictions, you need a Google Maps API Key."></div></td>
+                <td><input type="text" name="google_api_key" size="80" maxlength="100" value="<?= htmlspecialchars( $siteconfig['google_api_key'] ) ?>" /></td>
             </tr>
             <tr>
                 <td>Basemap <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="The underlying map can be your choice of Google Maps, Bing Maps, or any publicly-accessible tile service using XYZ-compatible format (TMS, WMS-T, Mapbox)."></div></td>
@@ -168,6 +172,24 @@ div.basemap_option {
                         Use {x} {y} and {z} as placeholders for the tile ordinates.<br/>
                         Use {s} as a placeholder for a random selection of subdomains 'a', 'b', 'c', and 'd' (optional).<br/>
                         Example and default: &nbsp; <i>http://{s}.tiles.mapbox.com/v3/greeninfo.map-fdff5ykx/{z}/{x}/{y}.jpg</i>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Address Services (Geocoder) <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Select which geocoder you want to be used when viewing the map (Desktop) and when doing a Near Address search (mobile). Note that both providers have terms of use, which you should read!"></div></td>
+                <td>
+                    <label><input type="radio" name="preferred_geocoder" value="bing" <?= $siteconfig['preferred_geocoder']=='bing'?'checked':'' ?> /> Bing Maps API</label> <br/>
+                    <div style="margin-left:1.5em;">
+                        Using Bing for address services, requires that you have a Bing Maps API key entered above.<br/>
+                        To get a Bing Maps API key, <a href="http://msdn.microsoft.com/en-us/library/ff428642.aspx" target="_blank">follow these instructions</a>.<br/>
+                        You may also want to review the <a href="http://www.microsoft.com/maps/product/terms.html" target="_blank">Bing Maps API Terms of Use</a>
+                    </div>
+                    <label><input type="radio" name="preferred_geocoder" value="google" <?= $siteconfig['preferred_geocoder']=='google'?'checked':'' ?> /> Google Maps API</label> <br/>
+                    <div style="margin-left:1.5em;">
+                        Use of Google Maps address service is subject to <a href="https://developers.google.com/maps/terms" target="_blank">Terms of Use</a> which you may want to review.<br/>
+                        One such restriction, is that <i>you must also use a Google Basemap</i>.<br/>
+                        If you have Google For Work and an API key (which may relieve some of these restrictions),<br/>
+                        you may enter it into <i>Google Maps API Key</i> above, and it will be included with your Google Maps API service calls.
                     </div>
                 </td>
             </tr>

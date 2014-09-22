@@ -238,6 +238,7 @@ public function index() {
     $siteconfig->set('bbox_e',                      $defaults['BBOX_E'] );
     $siteconfig->set('bbox_n',                      $defaults['BBOX_N'] );
     $siteconfig->set('bing_api_key',                $defaults['BING_API_KEY']);
+    $siteconfig->set('google_api_key',              $defaults['GOOGLE_API_KEY']);
     $siteconfig->set('basemap_type',                $defaults['BASEMAP_TYPE'] );
     $siteconfig->set('basemap_xyzurl',              $defaults['BASEMAP_XYZURL'] );
     $siteconfig->set('metric_units',                $defaults['METRIC'] );
@@ -268,8 +269,7 @@ public function index() {
     $siteconfig->set('marker_gps_width',            $defaults['MARKER_GPS']['width'] );
     $siteconfig->set('marker_gps_height',           $defaults['MARKER_GPS']['height'] );
     $siteconfig->set('timezone',                    $defaults['TIMEZONE'] );
-
-
+    $siteconfig->set('preferred_geocoder',          $defaults['DEFAULT_GEOCODER']);
 
     /////
     ///// initial admin password
