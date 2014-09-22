@@ -162,7 +162,21 @@ a {
 }
 
 
-placeactivities
+
+/*** CLUSTER MARKERS ***/
+.leaflet-label {
+    -moz-user-select: none;
+    background: none repeat scroll 0 0 padding-box rgba(235, 235, 235, 0.81);
+    border-radius: 10px;
+    color: #111;
+    display: block;
+    font: bold 12px/20px "Helvetica Neue",Arial,Helvetica,sans-serif;
+    padding: 1px 6px;
+    position: absolute;
+    white-space: nowrap;
+    z-index: 6;
+}
+
 
 
 /*** JQUERY FIXES ***/
