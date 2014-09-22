@@ -224,7 +224,7 @@ function initMap() {
     BASEMAPS['googlesatellite']   = new L.Google('HYBRID', { zIndex:-1 });
     if (BING_API_KEY) BASEMAPS['bingstreets']       = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'Road' });
     if (BING_API_KEY) BASEMAPS['bingsatellite']     = new L.BingLayer(BING_API_KEY, { zIndex:-1, type:'AerialWithLabels' });
-    if (BASEMAP_TYPE == 'xyz') BASEMAPS['xyz']               = L.tileLayer(BASEMAP_XYZURL, { zIndex:-1 });
+    if (BASEMAP_TYPE == 'xyz') BASEMAPS['xyz']      = L.tileLayer(BASEMAP_XYZURL, { zIndex:-1 });
 
     // load the map and its initial view
     // tip: the minZoom is hardcoded here, but the maxZoom of the map is changed in selectBasemap() to suit Google Terrain's idiosyncracies
@@ -464,7 +464,6 @@ function performSearch() {
         case 'address':
             // Address search: do an async geocoder call
             // have it fill in the lat & lng from whatever it finds, then it will perform the search
-            if (! BING_API_KEY) return alert("Address searches disabled.\nNo Bing Maps API key has been entered by the site admin.");
             var address = $form.find('input[name="address"]').val();
             if (! address) return alert('Enter an address.');
             performSearchAfterGeocode(address);
@@ -506,35 +505,13 @@ function performSearchReally(options) {
 }
 
 function performSearchAfterGeocode(address) {
-    var handleReply = function (result) {
-        if (! result || ! result.resourceSets.length) return alert("Could not find that address.");
-        if (result.authenticationResultCode != 'ValidCredentials') return alert("The Bing Maps API key appears to be invalid.");
-
-        try {
-            var $form = $('#page-search form');
-            var best  = result.resourceSets[0].resources[0].geocodePoints[0].coordinates;
-            $form.find('input[name="lat"]').val( best[0] );
-            $form.find('input[name="lng"]').val( best[1] );
-            performSearchReally();
-        } catch (e) {
-            return alert('Could not process the geocoder reply.');
-        }
-    };
-
-    var url           = 'http://dev.virtualearth.net/REST/v1/Locations';
-    var params        = {};
-    params.query      = address;
-    params.key        = BING_API_KEY;
-    params.output     = 'json';
-    params.maxResults = 1;
-    $.ajax({
-        url: url,
-        'data': params,
-        dataType: 'jsonp',
-        jsonp: 'jsonp',
-        success: handleReply,
-        crossDomain: true
-    });
+    var params = { address:address };
+    $.get(BASE_URL + 'site/geocode', params, function (result) {
+console.log(result);
+        $('#page-search input[name="lat"]').val( result.lat );
+        $('#page-search input[name="lng"]').val( result.lng );
+        performSearchReally();
+    },'json');
 }
 
 function performSearchHandleResults(reply) {
