@@ -348,7 +348,45 @@ public function directions() {
 }
 
 private function _directions_google($start_lat,$start_lng,$end_lat,$end_lng,$mode) {
-    return print "GDA";
+    // compose the request to the REST service
+    $params = array();
+    $params['key']              = $this->siteconfig->get('google_api_key');
+    $params['origin']           = sprintf("%f,%f", $start_lat, $start_lng );
+    $params['destination']      = sprintf("%f,%f", $end_lat, $end_lng );
+    $params['mode']             = $mode;
+    $params['units']            = (integer) $this->siteconfig->get('metric_units') ? 'metric' : 'imperial';
+    $url = sprintf("https://maps.googleapis.com/maps/api/directions/json?%s", http_build_query($params) );
+
+    // send it off, parse it, make sure it's valid and that we got a result
+    $result = json_decode(file_get_contents($url));
+    if (! @$result->routes[0]) return print "Could not find directions";
+
+    // start building output: the bounding box
+    $output['s']    = (float) $result->routes[0]->bounds->southwest->lat;
+    $output['w']    = (float) $result->routes[0]->bounds->southwest->lng;
+    $output['n']    = (float) $result->routes[0]->bounds->northeast->lat;
+    $output['e']    = (float) $result->routes[0]->bounds->northeast->lng;
+
+    // build output: grand totals
+    // Google already has these as nice text so we don't have to convert from raw seconds as with Bing
+    $output['total_distance'] = $result->routes[0]->legs[0]->distance->text;
+    $output['total_time']     = $result->routes[0]->legs[0]->duration->text;
+
+    // build output: the vertices     unlike Bing google uses a weird encoding format
+    require_once 'application/third_party/googlePolylineToArray.php';
+    $output['vertices'] = decodePolylineToArray($result->routes[0]->overview_polyline->points);
+
+    // build output: the text directions
+    $output['steps'] = array();
+    foreach ($result->routes[0]->legs[0]->steps as $step) {
+        $output['steps'][] = array(
+            'distance' => $step->distance->text,
+            'text' => strip_tags($step->html_instructions)
+        );
+    }
+
+    // done!
+    return $output;
 }
 
 private function _directions_bing($start_lat,$start_lng,$end_lat,$end_lng,$mode) {
@@ -390,8 +428,7 @@ private function _directions_bing($start_lat,$start_lng,$end_lat,$end_lng,$mode)
     $output['total_distance'] = $distance;
     $output['total_time']     = $time;
 
-    // build output: the vertices
-    // fortunately Bing has them in the right format
+    // build output: the vertices     fortunately Bing has them in the right format
     $output['vertices'] = $result->resourceSets[0]->resources[0]->routePath->line->coordinates;
 
     // build output: the text directions
@@ -408,7 +445,7 @@ private function _directions_bing($start_lat,$start_lng,$end_lat,$end_lng,$mode)
         $output['steps'][] = array( 'text'=>$text, 'distance'=>$distance );
     }
 
-    // and cancel if fields are missing
+    // done!
     return $output;
 }
 
