@@ -68,15 +68,10 @@ $(document).ready(function () {
         highlightMarker(null);
     });
 
-    // enable the geocoder so they can find their address. well, only if there's a Bing key given
-    if (BING_API_KEY) {
-        $('#geocode_go').click(function () {
-            geocodeAndZoom( $('#geocode').val() );
-        });
-    } else {
-        $('#geocode').hide();
-        $('#geocode_go').hide();
-    }
+    // enable the geocoder so they can find their address
+    $('#geocode_go').click(function () {
+        geocodeAndZoom( $('#geocode').val() );
+    });
 
     // general thing: any text input, when someone presses Enter, should trigger a click on the sibling button  (if any)
     $('input[type="text"]').keydown(function (key) {
@@ -251,8 +246,7 @@ function reloadMapPoints(points) {
 
         // HTML prep
         // create the directions link but only if we're Bing enabled
-        var dirlink = '';
-        if (BING_API_KEY) dirlink = '<a href="javascript:void(0);" onClick="clickDirectionsLink(this);" data-lat="'+points[i].lat+'" data-lon="'+points[i].lng+'" data-title="'+ htmlEntities(points[i].name) +'">directions</a>';
+        var dirlink = '<a href="javascript:void(0);" onClick="clickDirectionsLink(this);" data-lat="'+points[i].lat+'" data-lon="'+points[i].lng+'" data-title="'+ htmlEntities(points[i].name) +'">directions</a>';
 
         // finally
         // compose the HTML for the popup
@@ -294,34 +288,12 @@ function handleResize() {
 
 function geocodeAndZoom(address) {
     if (! address) return;
-    if (! BING_API_KEY) return alert("Address searches disabled.\nNo Bing Maps API key has been entered by the site admin.");
 
-    // correct the URL cuz we're using a naive REST/JSONP technique: remove any & characters cuz encodeURIComponent() doesn't solve & causing a Bad Request error
-    address = address.replace('&', 'and');
-
-    var url = 'http://dev.virtualearth.net/REST/v1/Locations/' + encodeURIComponent(address) + '?output=json&jsonp=handleGeocodeResult&key=' + BING_API_KEY;
-    $('<script></script>').prop('type','text/javascript').prop('src',url).appendTo( jQuery('head') );
+    var params = { address:address };
+    $.get(BASE_URL + 'site/geocode', params, function (result) {
+        MAP.fitBounds([[result.s,result.w],[result.n,result.e]]);
+    },'json');
 }
-
-
-function handleGeocodeResult(results) {
-    if (results.authenticationResultCode != 'ValidCredentials') return alert("The Bing Maps API key appears to be invalid.");
-
-    var result, w, s, e, n;
-    try {
-        result = results.resourceSets[0].resources[0];
-        w = result.bbox[1];
-        s = result.bbox[0];
-        e = result.bbox[3];
-        n = result.bbox[2];
-    } catch (e) {
-        return alert('Could not find that location.');
-    }
-
-    // zoom the map, move the marker
-    MAP.fitBounds([[s,w],[n,e]]);
-}
-
 
 
 // callback to create a DIV element for this marker cluster
@@ -336,10 +308,8 @@ function createClusterDiv(cluster) {
 
 
 // this onClick hook is added to Directions hyperlinks in popup bubbles
-// the link has data-lat= and data=lon= attributes, which form our intended destination
+// the link has data-lat= and data=lon= attributes, which form our intended destination --- fill in the directions form and then trigger it
 function clickDirectionsLink(link) {
-    if (! BING_API_KEY) return alert('This site has not enabled Bing services, so directions are not available.');
-
     var $link = $(link);
     var lat   = parseFloat( $link.attr('data-lat'));
     var lon   = parseFloat( $link.attr('data-lon') );
@@ -358,8 +328,7 @@ function clickDirectionsLink(link) {
 
 // look over the directions dialog content, fetch the origin address and target lat/lon, get directions
 function getDirectionsFromDialog() {
-    // various checks: do we have Bing enabled, are lat & lon given, is there an address, ...?
-    if (! BING_API_KEY) return alert('This site has not enabled Bing services, so directions are not available.');
+    // do we in fact have a destination set?
     if (! parseFloat( $('#directions_lat').val() )) return alert("No lat/lon available. How did this happen?");
     if (! parseFloat( $('#directions_lon').val() )) return alert("No lat/lon available. How did this happen?"); 
 
@@ -369,37 +338,52 @@ function getDirectionsFromDialog() {
     // clear previous results
     clearDirections();
 
-    // correct the URL cuz we're using a naive REST/JSONP technique: remove any & characters cuz encodeURIComponent() doesn't solve & causing a Bad Request error
+    // run the address through the geocoder to get starting coordinates, and when that's done hand the coordionates back for directions
     address = address.replace('&', 'and');
-    var url = 'http://dev.virtualearth.net/REST/v1/Locations/' + encodeURIComponent(address) + '?output=json&jsonp=handleDirectionsGeocodeResult&key=' + BING_API_KEY;
-    $('<script></script>').prop('type','text/javascript').prop('src',url).appendTo( jQuery('head') );
-}
+    var params = { address:address };
+    $.get(BASE_URL + 'site/geocode', params, function (result) {
+        var end_lat   = $('#directions_lat').val();
+        var end_lng   = $('#directions_lon').val();
+        var start_lat = result.lat;
+        var start_lng = result.lng;
 
-function handleDirectionsGeocodeResult(results) {
-    if (results.authenticationResultCode != 'ValidCredentials') return alert("The Bing Maps API key appears to be invalid.");
+        var params = { start_lat:start_lat, start_lng:start_lng, end_lat:end_lat, end_lng:end_lng };
+        $.get(BASE_URL + 'site/directions', params, function (directions) {
+            // if the directions object is empty, guess directions failed
+            if (! directions || ! directions.w && ! directions.e) return alert('Could not find directions between these locations.');
 
-    var result, start_lat, start_lon;
-    try {
-        result    = results.resourceSets[0].resources[0];
-        start_lat = result.point.coordinates[0];
-        start_lon = result.point.coordinates[1];
-    } catch (e) {
-        return alert('Could not find that location.');
-    }
+            // lay down a pair of markers for the start and end
+            DIRECTIONS_MARKER1 = L.marker([start_lat,start_lng], { clickable:false }).addTo(MAP);
+            DIRECTIONS_MARKER2 = L.marker([end_lat,end_lng], { clickable:false }).addTo(MAP);
 
-    // got the point, so go ahead and lay down the start and destination markers
-    var end_lat = parseFloat( $('#directions_lat').val() );
-    var end_lon = parseFloat( $('#directions_lon').val() );
-    DIRECTIONS_MARKER1 = L.marker([start_lat,start_lon], { clickable:false }).addTo(MAP);
-    DIRECTIONS_MARKER2 = L.marker([end_lat,end_lon], { clickable:false }).addTo(MAP);
+            // zoom to the bounding box of the route so the user can see the overview
+            MAP.fitBounds([[directions.s,directions.w],[directions.n,directions.e]]);
 
-    // ... then get directions between the two markers
-    var start = start_lat + ',' + start_lon;
-    var dest  = end_lat   + ',' + end_lon;
-    var mode  = 'driving';
+            // draw the line onto the map
+            DIRECTIONS_LINE = L.polyline(directions.vertices, DIRECTIONS_LINE_STYLE).addTo(MAP);
 
-    var url = 'http://dev.virtualearth.net/REST/v1/Routes?wp.0=' + encodeURIComponent(start) + '&wp.1=' + encodeURIComponent(dest) + '&routePathOutput=Points&travelMode='+mode+'&output=json&distanceUnit='+ DISTANCE_UNITS +'&jsonp=RouteCallback&key=' + BING_API_KEY;
-    $('<script></script>').prop('type','text/javascript').prop('src',url).appendTo( jQuery('head') );
+            // render the text directions and show them in a popup
+            // three steps: the steps, the grand total, then sticking it into the DOM
+            var target = $('<div></div>');
+
+            // 1: the steps
+            var table = $('<table></table>').appendTo(target);
+            for (var i=0, l=directions.steps.length; i<l; i++) {
+                var td1 = $('<td></td>').text( directions.steps[i].text );
+                var td2 = $('<td></td>').addClass('rhs').text( directions.steps[i].distance );
+                var tr  = $('<tr></tr>').appendTo(table).append(td1).append(td2);
+            }
+
+            // 2: grand totals
+            $('<div></div>').text('Estimated total: ' + directions.total_time + ' ' + '('+directions.total_distance+')' ).appendTo(target);
+
+            // 3: show it
+            $('#directions_results').append(target);
+
+            // epimetheus: the dialog has possibly changed width due to new content; reassert its position
+            $('#dialog_directions').dialog('option', 'position', DIRECTIONS_DIALOG_POSITION);
+        },'json');
+    },'json');
 }
 
 function clearDirections() {
@@ -418,70 +402,6 @@ function clearDirections() {
     }
 
     $('#directions_results').empty();
-}
-
-
-function RouteCallback(response) {
-    console.log(response);
-    if (response.authenticationResultCode != 'ValidCredentials') return alert("The Bing Maps API key appears to be invalid.");
-
-    var result, w, s, e, n;
-    try {
-        result = response.resourceSets[0].resources[0];
-        w = result.bbox[1];
-        s = result.bbox[0];
-        e = result.bbox[3];
-        n = result.bbox[2];
-        } catch (e) {
-        return alert('Could not find directions between these locations.');
-    }
-
-    // zoom to the bounding box of the route so the user can see the overview
-    MAP.fitBounds([[s,w],[n,e]]);
-
-    // compose the line and draw it onto the map
-    // very easy: Leaflet can accept a [ [lat,lon],... ] which is exactly what Bing returns
-    var vertices = result.routePath.line.coordinates;
-    DIRECTIONS_LINE = L.polyline(vertices, DIRECTIONS_LINE_STYLE).addTo(MAP);
-
-    // render the text directions and show them in a popup
-    // three steps: the steps, the grand total, then sticking it into the DOM
-    var directions = $('<div></div>');
-
-    // 1: the steps
-    var steps = result.routeLegs[0].itineraryItems;
-    var table = $('<table></table>').appendTo(directions);
-    for (var i=0, l=steps.length; i<l; i++) {
-        var step     = steps[i];
-        var text     = step.instruction.text;
-        var distance = step.travelDistance.toFixed(1) + ' ' + DISTANCE_UNITS;
-        if (i+1==steps.length) distance = ' ';
-
-        var td1 = $('<td></td>').text(text);
-        var td2 = $('<td></td>').addClass('rhs').text(distance);
-        var tr = $('<tr></tr>').appendTo(table).append(td1).append(td2);
-    }
-
-    // 2: grand totals
-    var total_distance = result.routeLegs[0].travelDistance; // numeric; in a moment we convert to friendly text
-    total_distance = total_distance >= 5 ? Math.round(total_distance) : total_distance.toFixed(1);
-    total_distance += ' ' + DISTANCE_UNITS;
-    var total_time     = Math.round(result.routeLegs[0].travelDuration / 60); // minutes; in a moment we convert to friendly text
-    if (total_time % 60 == 0) {
-        total_time = (total_time/60) + ' hours';
-    } else if (total_time > 60) {
-        total_time = Math.floor(total_time/60) + ' hours, ' + (total_time%60) + ' minutes';
-    }
-    else {
-        total_time = total_time + ' minutes';
-    }
-    $('<div></div>').text('Estimated total: ' + total_time + ' ' + '('+total_distance+')' ).appendTo(directions);
-
-   // 3: show it
-    $('#directions_results').append(directions);
-
-    // epimetheus: the dialog has possibly changed width due to new content; reassert its position
-    $('#dialog_directions').dialog('option', 'position', DIRECTIONS_DIALOG_POSITION);
 }
 
 

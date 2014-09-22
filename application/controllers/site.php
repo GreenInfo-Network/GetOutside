@@ -242,6 +242,154 @@ public function ajax_map_points() {
     print json_encode($output);
 }
 
+// the geocode abstrcator: look in our siteconfig and figure out which geocoder to use, and hand back a known format despite whomever we're using
+// this is used by both desktop and mobile
+public function geocode() {
+    // check that we got all params
+    $address = trim(@$_GET['address']);
+    if (! $address) return print "No address given";
+
+    // have a sub-method hit up the appropriate service
+    switch ( $this->siteconfig->get('preferred_geocoder') ) {
+        case 'bing':
+            $result = $this->_geocode_bing($address);
+            break;
+        case 'google':
+            $result = $this->_geocode_google($address);
+            break;
+        default:
+            return print "No geocoder enabled?";
+            break;
+    }
+
+    // spit it out as JSON
+    print json_encode($result);
+}
+
+private function _geocode_google($address) {
+    print 'GDA';
+}
+
+private function _geocode_bing($address) {
+    // compose the request to the REST service
+    $params = array();
+    $params['key']          = $this->siteconfig->get('bing_api_key');
+    $params['output']       = 'json';
+    $params['maxResults']   = 1;
+    $params['query']        =  $address;
+    $url = sprintf("http://dev.virtualearth.net/REST/v1/Locations?%s", http_build_query($params) );
+
+    // send it off, parse it, make sure it's valid
+    $result = json_decode(file_get_contents($url));
+    if ($result->authenticationResultCode != 'ValidCredentials') return print "Bing Maps API key is invalid";
+    if (! @$result->resourceSets[0]->resources[0]) return print "Could not find that address";
+
+    // start building output
+    $output = array();
+    $output['lng']  = @$result->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+    $output['lat']  = @$result->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+    $output['s']    = @$result->resourceSets[0]->resources[0]->bbox[0];
+    $output['w']    = @$result->resourceSets[0]->resources[0]->bbox[1];
+    $output['n']    = @$result->resourceSets[0]->resources[0]->bbox[2];
+    $output['e']    = @$result->resourceSets[0]->resources[0]->bbox[3];
+    $output['name'] = @$result->resourceSets[0]->resources[0]->name;
+
+    return $output;
+}
+
+//gda
+// the directionsabstrcator: look in our siteconfig and figure out which directions service to use, and hand back a known format despite whomever we're using
+// this is used by desktop, but for mobile we just send them to Google Maps which may be intercepted by the native app
+public function directions() {
+    // check that we got all params
+    if (! @$_GET['start_lat']) return print "Need start lat and lng";
+    if (! @$_GET['start_lng']) return print "Need start lat and lng";
+    if (! @$_GET['end_lat'])   return print "Need end lat and lng";
+    if (! @$_GET['end_lng'])   return print "Need end lat and lng";
+
+    // have a sub-method hit up the appropriate service
+    switch ( $this->siteconfig->get('preferred_geocoder') ) {
+        case 'bing':
+            $mode   = 'driving';
+            $result = $this->_directions_bing($_GET['start_lat'],$_GET['start_lng'],$_GET['end_lat'],$_GET['end_lng'],$mode);
+            break;
+        case 'google':
+            $mode   = 'driving';
+            $result = $this->_directions_google($_GET['start_lat'],$_GET['start_lng'],$_GET['end_lat'],$_GET['end_lng'],$mode);
+            break;
+        default:
+            return print "No geocoder enabled?";
+            break;
+    }
+
+    // spit it out as JSON
+    print json_encode($result);
+}
+
+private function _directions_google($start_lat,$start_lng,$end_lat,$end_lng,$mode) {
+    return print "GDA";
+}
+
+private function _directions_bing($start_lat,$start_lng,$end_lat,$end_lng,$mode) {
+    // compose the request to the REST service
+    $params = array();
+    $params['key']              = $this->siteconfig->get('bing_api_key');
+    $params['output']           = 'json';
+    $params['wp.0']             = sprintf("%f,%f", $start_lat, $start_lng );
+    $params['wp.1']             = sprintf("%f,%f", $end_lat, $end_lng );
+    $params['distanceUnit']     = (integer) $this->siteconfig->get('metric_units') ? 'km' : 'mi';
+    $params['routePathOutput']  = 'Points';
+    $params['travelMode']       = $mode;
+    $url = sprintf("http://dev.virtualearth.net/REST/v1/Routes?%s", http_build_query($params) );
+
+    // send it off, parse it, make sure it's valid and that we got a result
+    $result = json_decode(file_get_contents($url));
+    if ($result->authenticationResultCode != 'ValidCredentials') return print "Bing Maps API key is invalid";
+    if (! @$result->resourceSets[0]->resources[0]) return print "Could not find that address";
+
+    // start building output: the bounding box
+    $output['s'] = $result->resourceSets[0]->resources[0]->bbox[0];
+    $output['w'] = $result->resourceSets[0]->resources[0]->bbox[1];
+    $output['n'] = $result->resourceSets[0]->resources[0]->bbox[2];
+    $output['e'] = $result->resourceSets[0]->resources[0]->bbox[3];
+
+    // build output: grand totals
+    $distance = (float) $result->resourceSets[0]->resources[0]->routeLegs[0]->travelDistance;
+    $distance = $distance >= 5 ? sprintf("%d %s", round($distance), $params['distanceUnit'] ) : sprintf("%.1f %s", $distance, $params['distanceUnit'] );
+
+    $time = round($result->resourceSets[0]->resources[0]->routeLegs[0]->travelDuration / 60);
+    if ($time % 60 == 0) {
+        $time = ($time/60) . ' hours';
+    } else if ($time > 60) {
+        $time = floor($time/60) . ' hours, ' . ($time%60) . ' minutes';
+    }
+    else {
+        $time = $time . ' minutes';
+    }
+    $output['total_distance'] = $distance;
+    $output['total_time']     = $time;
+
+    // build output: the vertices
+    // fortunately Bing has them in the right format
+    $output['vertices'] = $result->resourceSets[0]->resources[0]->routePath->line->coordinates;
+
+    // build output: the text directions
+    $output['steps'] = array();
+    foreach ($result->resourceSets[0]->resources[0]->routeLegs[0]->itineraryItems as $step) {
+        $text     = (string) $step->instruction->text;
+
+        if ( (float) $step->travelDistance ) {
+            $distance = sprintf("%.1f %s", (float) $step->travelDistance, $params['distanceUnit'] );
+        } else {
+            $distance = ' ';
+        }
+
+        $output['steps'][] = array( 'text'=>$text, 'distance'=>$distance );
+    }
+
+    // and cancel if fields are missing
+    return $output;
+}
 
 
 /***************************************************************************************
