@@ -268,6 +268,7 @@ function reloadMapPoints(points) {
         // start by fetching coordinates, creating the bare marker, adding it to the clusterer
         var marker = new PruneCluster.Marker(points[i].lat, points[i].lng, { attributes:attributes, title:name, html:html, icon:icon });
         marker.category = category;
+
         VISIBLE_MARKERS.RegisterMarker(marker);
     }
 

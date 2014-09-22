@@ -12,9 +12,12 @@
 <script type="text/javascript" src="<?= site_url('application/views/common/leaflet.google.js') ?>"></script>
 <script type="text/javascript" src="<?= site_url('application/views/common/leaflet.bing.js') ?>"></script>
 
-<!-- marker clustering add-on for Leaflet -->
-<script src="<?= site_url() ?>/application/views/common/leaflet.prunecluster/PruneCluster.min.js"></script>
-<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.prunecluster/LeafletStyleSheet.css" />
+<!-- marker clustering add-on for Leaflet then a label addon -->
+<!--gda-->
+<script src="<?= site_url() ?>/application/views/common/leaflet.prunecluster/PruneCluster.js"></script>
+-<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.prunecluster/LeafletStyleSheet.css" />
+<script src="<?= site_url() ?>/application/views/common/Leaflet.label-0.2.1/dist/leaflet.label.js"></script>
+<!--<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/Leaflet.label-0.2.1/dist/leaflet.label.css" />-->
 
 <!-- other code specific to this page -->
 <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/site/map.css" />
