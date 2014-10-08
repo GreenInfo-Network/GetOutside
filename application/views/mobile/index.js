@@ -850,7 +850,8 @@ function handleResultListClick(markid,type) {
         for (var ci=0, cl=cs.length; ci<cl && !cluster; ci++) {
             var ms = cs[ci].GetClusterMarkers();
             for (var mi=0, ml=ms.length; mi<ml; mi++) {
-                if (ms[mi].data.attributes.id == markid || ms[mi].data.attributes.location.id == markid) { cluster = cs[ci]; break; }
+                if (ms[mi].data.attributes.id == markid) { cluster = cs[ci]; break; } // Places
+                if (ms[mi].data.attributes.location && ms[mi].data.attributes.location.id == markid) { cluster = cs[ci]; break; } // EventLocations
             }
         }
         cluster.data._leafletMarker.fire('click');
@@ -867,7 +868,8 @@ function handleResultListClick(markid,type) {
             var onscreen_marker;
             for (var i=0, l=MARKERS.spiderfier._currentMarkers.length; i<l; i++) {
                 var m = MARKERS.spiderfier._currentMarkers[i];
-                if (m.attributes.id == markid || m.attributes.location.id == markid) { m.fire('click'); break; }
+                if (m.attributes.id == markid) { m.fire('click'); break; } // Places
+                if (m.attributes.location && m.attributes.location.id == markid) { m.fire('click'); break; } // EventLocations
             }
         }, 500);
     }, 750);
