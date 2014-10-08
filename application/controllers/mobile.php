@@ -132,7 +132,7 @@ public function fetchdata() {
     $places->where_related('placedatasource','enabled',1);
 
     // ready!
-    $places->get();
+    $places->distinct()->get();
     foreach ($places as $place) {
         // invalid coordinates, skip it
         if (! (float) $place->longitude or ! (float) $place->latitude) continue;
