@@ -963,8 +963,9 @@ var PruneClusterLeafletSpiderfier = (L.Layer ? L.Layer : L.Class).extend({
         this._lines.setLatLngs(polylines);
         this._map.addLayer(this._lines);
 
-        //GIN the clusters go light but never opacify again
-        //this._clusterMarker = data.marker.setOpacity(0.3);
+        //GIN: patch to support opacity and assignment; 0.7 has this method-chained, but 0.6 does not
+        this._clusterMarker = data.marker;
+        this._clusterMarker.setOpacity(0.3);
     },
     _generatePointsCircle: function (count, centerPt) {
         var circumference = this.spiderfyDistanceMultiplier * this._circleFootSeparation * (2 + count), legLength = circumference / this._2PI, angleStep = this._2PI / count, res = [], i, angle;
@@ -991,6 +992,7 @@ var PruneClusterLeafletSpiderfier = (L.Layer ? L.Layer : L.Class).extend({
         return res;
     },
     Unspiderfy: function () {
+console.log([ 'GDA unspidering', this ]);
         var _this = this;
         for (var i = 0, l = this._currentMarkers.length; i < l; ++i) {
             this._currentMarkers[i].setLatLng(this._currentCenter).setOpacity(0);
