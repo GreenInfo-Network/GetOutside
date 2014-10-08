@@ -8,7 +8,6 @@ var BASEMAPS = {};  // dict mapping a name onto a L.tileLayer instance; keys wil
 var MAX_EXTENT;     // L.latLngBounds; used for geocode biasing and as our starting extent
 var MARKERS;        // PruneClusterForLeaflet marker cluster system; empty but gets filled with markers when the user searches, see performSearchHandleResults()
 var LOCATION;       // L.Marker indicating their current location
-var ACCURACY;       // L.Circle showing the accuracy of their location
 
 // should we auto-recenter the map when location is found?
 var AUTO_RECENTER = false;
@@ -238,14 +237,13 @@ function initMap() {
     }).fitBounds(MAX_EXTENT);
     selectBasemap(BASEMAP_TYPE);
 
-    // define the marker and circle for our location and accuracy
+    // define the marker for our location
     // the marker is loaded from a data endpoint and the width & height are in HTML, since these are dynamically set by the admin UI
     var icon = L.icon({
         iconUrl: BASE_URL + 'mobile/image/marker_gps',
         iconSize: [GPS_MARKER_WIDTH, GPS_MARKER_HEIGHT]
     });
     LOCATION  = L.marker([0,0], { clickable:false, draggable:false, icon:icon }).addTo(MAP);
-    ACCURACY  = L.circle([0,0], 1000, { clickable:false }).addTo(MAP);
 
     // set up the event handler when our location is detected, and start continuous tracking
     // loose binding with an anonymous function, for easier debugging (can replace the function in the console)
@@ -348,10 +346,9 @@ function setSearchFiltersToDefault() {
 }
 
 function onLocationFound(event) {
-    // first and easiest: update the location and accuracy markers
+    // first and easiest: update the location marker
     var first_time = ! LOCATION.getLatLng().lat;
     LOCATION.setLatLng(event.latlng);
-    ACCURACY.setLatLng(event.latlng).setRadius(event.accuracy);
 
     // on the Map and Search pages, there are notifications that they're outside the supported area; show/hide these, depending on whether they're in the supported area
     // also if they're outside, turn off auto-centering and zoom to the max extent BUT ONLY IF this is our first time finding the location
