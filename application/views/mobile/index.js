@@ -299,6 +299,12 @@ function initMapInfoPanel() {
         highlightMarker(null);
     });
 
+    // addendum: when someone clicks the map itself, the spidered out clusters will collapse, possibly taking your highlighted marker with it
+    // to prevent confusion, clicking the map should also hide the infopanel, so they can't somehow have the panel open and nothing glowing
+    MAP.on('click', function () {
+        $('#map_infopanel > a[data-icon="delete"]').click();
+    });
+
     // buttons in the info panel: open navigation to the given location
     // due to popup blockers inherent in mobile browsers, this works by properly assigning a 'href' and clicking the link
     // coordinates are populated by updateNavigationLinkFromMarker() which itself is called from the clickMarker_ family of functions
