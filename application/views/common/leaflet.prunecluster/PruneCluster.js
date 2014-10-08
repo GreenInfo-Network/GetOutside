@@ -198,7 +198,10 @@ var PruneCluster;
                 this._clusterMarkers = this._clusterMarkers.concat(newCluster.GetClusterMarkers());
             }
         };
-        Cluster.ENABLE_MARKERS_LIST = false;
+        //GIN: hack to enable what seems to be some debugging code? we need GetClusterMarkers() so we can get at raw markers
+        //GIN: client has unusual request, to find the cluster which contains a marker, so we can get at the individual marker again
+        //Cluster.ENABLE_MARKERS_LIST = false;
+        Cluster.ENABLE_MARKERS_LIST = true;
         return Cluster;
     })(ClusterObject);
     _PruneCluster.Cluster = Cluster;
@@ -960,7 +963,8 @@ var PruneClusterLeafletSpiderfier = (L.Layer ? L.Layer : L.Class).extend({
         this._lines.setLatLngs(polylines);
         this._map.addLayer(this._lines);
 
-        this._clusterMarker = data.marker.setOpacity(0.3);
+        //GIN the clusters go light but never opacify again
+        //this._clusterMarker = data.marker.setOpacity(0.3);
     },
     _generatePointsCircle: function (count, centerPt) {
         var circumference = this.spiderfyDistanceMultiplier * this._circleFootSeparation * (2 + count), legLength = circumference / this._2PI, angleStep = this._2PI / count, res = [], i, angle;

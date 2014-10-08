@@ -434,15 +434,16 @@ function performBrowseMap() {
 function getMarkerById(id) {
     // convenience function: given an ID from the fetchdata output, find the corresponding Marker within the MARKERS layergroup
     // if it doesn't exist, null is returned
-    var lx = MARKERS.getLayers();
+    var lx = MARKERS.GetMarkers();
+    var marker;
     for (var i=0, l=lx.length; i<l; i++) {
         // a simple Place has a simple ID
-        if (id == lx[i].options.attributes.id) return lx[i];
+        if (id == lx[i].data.attributes.id) { marker = lx[i]; break; }
 
         // a LocationEvent marker has the eventlocation-ID under the location sub-attribute
-        if (lx[i].options.attributes.location && id == lx[i].options.attributes.location.id) return lx[i];
+        if (lx[i].data.attributes.location && id == lx[i].data.attributes.location.id) { marker = lx[i]; break; }
     }
-    return null;
+    return marker ? marker : null;
 }
 
 function performSearch() {
@@ -628,7 +629,7 @@ function renderPlacesList() {
 
     for (var i=0, l=items.length; i<l; i++) {
         var item = items[i];
-        var li   = $('<li></li>').data('rawresult',item).appendTo($target);
+        var li   = $('<li></li>').data('rawresult',item).attr('data-id',item.id).appendTo($target);
 
         // if this Place has activities, create a inset listview
         if (item.activities) {
@@ -697,14 +698,11 @@ function renderPlacesList() {
             $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
         }
 
-        // click handler: zoom to this marker on the map
+        // click handler: trigger a click upon this marker on the map, keeping in mind that there is no Marker but only the clusterer and its not-same-as-Leaflet internal Marker type
         li.tap(function () {
-            var latlng = L.latLng([ $(this).data('rawresult').lat, $(this).data('rawresult').lng ]);
             var markid = $(this).data('rawresult').id;
             switchToMap(function () {
-                zoomToPoint(latlng);
-                var marker = getMarkerById(markid);
-                if (marker) clickMarker_Place(marker);
+                handleResultListClick(markid,'Place');
             });
         });
     }
@@ -726,7 +724,7 @@ function renderEventsList() {
 
     for (var i=0, l=items.length; i<l; i++) {
         var item = items[i];
-        var li   = $('<li></li>').data('rawresult',item).appendTo($target);
+        var li   = $('<li></li>').data('rawresult',item).attr('data-id',item.id).appendTo($target);
 
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
         $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
@@ -754,11 +752,8 @@ function renderEventsList() {
 
                 link.tap(function () {
                     var markid = $(this).data('markerid');
-                    var latlng = L.latLng([ $(this).data('lat'), $(this).data('lng') ]);
                     switchToMap(function () {
-                        zoomToPoint(latlng);
-                        var marker = getMarkerById(markid);
-                        if (marker) clickMarker_EventLocation(marker);
+                        handleResultListClick(markid,'EventLocation');
                     });
                 });
             }
@@ -836,8 +831,50 @@ function updateEventsAndPlacesDistanceReadouts() {
     $children.tsort({data:'distance_meters'});
 }
 
+// an attempt to abstract out clicks on the result lists, and look up a marker cluster and pick out the individual marker, so it can have a click triggered upon it
+// this calls getMarkerById() which returns a prunecluster marker, which is not the same as a L.marker
+// problem: the clusterer does not contain L.markers with event handlers and the like, but their own internal model
+//          but client demand is that the marker be clicked (even though it doesn't exist) so it triggers the info slideout, gets highlighted, etc. same as a real mouse click
+function handleResultListClick(markid,type) {
+    // start by fetching the prunecluster marker data
+    // then zoom to that point; this would usually result in a re-clustering, unless by some slim chance your target point is at the same location as your current map view...
+    // tip: do not use zoomToPoint() as that doesn't necessarily use the tightest possible zoom, so "clicking" the cluster below may not spider, but simply zoom in again without triggering the spidering
+    var marker = getMarkerById(markid);
+    MAP.setView(marker.position,MAP.options.maxZoom);
+
+    // wait a second for the reclustering to complete...
+    setTimeout(function () {
+        // find the cluster which contains this marker, and trigger a click on the underlying marker so it spiders out
+        var cluster;
+        var cs = MARKERS._objectsOnMap;
+        for (var ci=0, cl=cs.length; ci<cl && !cluster; ci++) {
+            var ms = cs[ci].GetClusterMarkers();
+            for (var mi=0, ml=ms.length; mi<ml; mi++) {
+                if (ms[mi].data.attributes.id == markid || ms[mi].data.attributes.location.id == markid) { cluster = cs[ci]; break; }
+            }
+        }
+        cluster.data._leafletMarker.fire('click');
+
+        // if there was only 1 marker in the cluster, then we're done
+        // the click above was passed on to the only Marker, a true L.marker with the event handler to call clickMarker_() through the usual on('click') assignment
+        // and the glow and data slideout are already showing
+        if (cluster.population == 1) return;
+
+        // if we got here, then the cluster has >1 marker in it AND it should be spidered out by now
+        // find the specific marker and trigger a click upon it
+        // but give it a moment for the spidering to render
+        setTimeout(function () {
+            var onscreen_marker;
+            for (var i=0, l=MARKERS.spiderfier._currentMarkers.length; i<l; i++) {
+                var m = MARKERS.spiderfier._currentMarkers[i];
+                if (m.attributes.id == markid || m.attributes.location.id == markid) { m.fire('click'); break; }
+            }
+        }, 500);
+    }, 750);
+}
+
 function clickMarker_EventLocation(marker) {
-    // start by highlighting, why not?
+    // start by highlighting, why not?   tip: do not zoom here, cuz then the clusterer freaks out, recentering and reclustering repeatedly
     highlightMarker(marker);
 
     // update the Directions link to navigate to this marker
@@ -877,7 +914,7 @@ function clickMarker_EventLocation(marker) {
 }
 
 function clickMarker_Place(marker) {
-    // start by highlighting, why not?
+    // start by highlighting, why not?   tip: do not zoom here, cuz then the clusterer freaks out, recentering and reclustering repeatedly
     highlightMarker(marker);
 
     // update the Directions link to navigate to this marker
