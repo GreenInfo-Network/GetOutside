@@ -992,7 +992,6 @@ var PruneClusterLeafletSpiderfier = (L.Layer ? L.Layer : L.Class).extend({
         return res;
     },
     Unspiderfy: function () {
-console.log([ 'GDA unspidering', this ]);
         var _this = this;
         for (var i = 0, l = this._currentMarkers.length; i < l; ++i) {
             this._currentMarkers[i].setLatLng(this._currentCenter).setOpacity(0);
