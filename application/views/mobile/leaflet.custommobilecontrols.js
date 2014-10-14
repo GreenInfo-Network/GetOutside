@@ -16,6 +16,10 @@ L.controlCustomButtonPanel = L.Control.extend({
         // sub-control 1
         // Search: returns to the search page (front page)
         var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-search', container);
+        subcontainer.title = 'Search'; // tfa added tool-tip to each
+        // tfa added fa-icons to each subcontainer
+        var icon = L.DomUtil.create('i', 'fa fa-lg fa-search', subcontainer);
+
         L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)
             .on(subcontainer, 'click', function (event) {
                 // go to the Search page, which is also the Home page
@@ -25,6 +29,9 @@ L.controlCustomButtonPanel = L.Control.extend({
         // sub-control 2
         // List: switches to your search results listing
         var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-list', container);
+        subcontainer.title = 'Show search results';
+        var icon = L.DomUtil.create('i', 'fa fa-lg fa-bars', subcontainer);
+
         L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)
             .on(subcontainer, 'click', function (event) {
                 // go to the Search Results page
@@ -34,6 +41,9 @@ L.controlCustomButtonPanel = L.Control.extend({
         // sub-control 3
         // GPS: toggle the Auto-Center behavior from whatever it currently is
         var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-gps', container);
+        subcontainer.title = 'Toggle your location';
+        var icon = L.DomUtil.create('i', 'fa fa-lg fa-location-arrow', subcontainer);
+
         L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)
             .on(subcontainer, 'click', function (event) {
             autoCenterToggle();
@@ -42,6 +52,9 @@ L.controlCustomButtonPanel = L.Control.extend({
         // sub-control 4
         // Settings: open the slide-in panel with a legend
         var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-legend', container);
+        subcontainer.title = 'View map legend';
+        var icon = L.DomUtil.create('i', 'fa fa-lg fa-map-marker', subcontainer);
+
         L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)
             .on(subcontainer, 'click', function (event) {
                 // open the Map Legend panel (not a page, a slideout)
@@ -51,6 +64,9 @@ L.controlCustomButtonPanel = L.Control.extend({
         // sub-control 5
         // Settings: open the slide-in panel with Map settings such as basemap
         var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-settings', container);
+        subcontainer.title = 'View map settings';
+        var icon = L.DomUtil.create('i', 'fa fa-lg fa-gear', subcontainer);
+
         L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)
             .on(subcontainer, 'click', function (event) {
                 // open the Map Settings panel (not a page, a slideout)

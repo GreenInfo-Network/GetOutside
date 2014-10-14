@@ -12,7 +12,26 @@
     border-bottom:1px solid #CCCCCC;
 
     cursor:pointer;
+
+    text-align: center; /*TFA for fa-icons*/
+    vertical-align: middle; /*TFA for fa-icons*/
+    line-height: 2; /*TFA for fa-icons, works great on desktop, but see below for media-specific tweaks*/
 }
+
+/* TFA iPhone 5 tweak for icon spacing on map*/
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 568px) { .leaflet-custombuttons div {line-height: 2.2;} }
+
+/* TFA iPhone 2G, 3G, 4, 4S tweak for icon spacing on map*/
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) { .leaflet-custombuttons div {line-height: 2.2;} }
+
+/* TFA iPad (all generations - including iPad mini) tweak for icon spacing on map*/
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px)  { .leaflet-custombuttons div {line-height: 2.2;} }
 
 .leaflet-custombuttons div:first-child {
     border-top-right-radius:4px;
@@ -26,22 +45,26 @@
     border-bottom:0 none transparent;
 }
 
+.leaflet-custombuttons i {
+    color: #444;
+}
+
 .leaflet-custombutton-search {
-    background-image:url(images/custombutton-search.png);
+    /*background-image:url(images/custombutton-search.png); TFA replaced with fa icons, see leaflet.custommobilecontrols.js*/ 
 }
 .leaflet-custombutton-list {
-    background-image:url(images/custombutton-list.png);
+    /*background-image:url(images/custombutton-list.png); TFA replaced with fa icons, see leaflet.custommobilecontrols.js*/
 }
 .leaflet-custombutton-gps {
-    background-image:url(images/custombutton-gps.png);
+    /*background-image:url(images/custombutton-gps.png); TFA replaced with fa icons, see leaflet.custommobilecontrols.js*/
 }
 .leaflet-custombutton-gps.active {
-    background-image:url(images/custombutton-gps2.png);
-    background-color:#FF0000;
+    /*background-image:url(images/custombutton-gps2.png); TFA replaced with fa icons, see leaflet.custommobilecontrols.js*/
+    background-color:#de716d;
 }
 .leaflet-custombutton-settings {
-    background-image:url(images/custombutton-settings.png);
+    /*background-image:url(images/custombutton-settings.png); TFA replaced with fa icons, see leaflet.custommobilecontrols.js*/
 }
 .leaflet-custombutton-legend {
-    background-image:url(images/custombutton-legend.png);
+    /*background-image:url(images/custombutton-legend.png); TFA replaced with fa icons, see leaflet.custommobilecontrols.js*/
 }
