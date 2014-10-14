@@ -16,7 +16,9 @@
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
     <![endif]-->
     <script src="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
-
+    <!-- fa icons for map controls TFA see leaflet.custommobilecontrols.js-->
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    
     <!-- a whole mess of basemap options for Leaflet: Google, Bing -->
     <?php if ($siteconfig['google_api_key']) { ?>
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?v=3&sensor=false&key=<?= $siteconfig['google_api_key'] ?>"></script>

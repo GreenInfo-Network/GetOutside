@@ -134,10 +134,12 @@ function initSearchForms() {
     $('#page-search select[name="location"]').change(function () {
         switch ( $(this).val() ) {
             case 'address':
-                $('#page-search input[name="address"]').show();
+                // $('#page-search input[name="address"]').show();
+                $('#address-container').show(); // TFA, to mask the border on the inputs, hide the entire div
                 break;
             case 'gps':
-                $('#page-search input[name="address"]').hide();
+                // $('#page-search input[name="address"]').hide();
+                $('#address-container').hide(); // TFA, to mask the border on the inputs, hide the entire div
                 break;
         }
     }).val('gps').trigger('change');
@@ -254,6 +256,15 @@ function initMap() {
     // add some Controls, including our custom ones which are simply buttons; we use a Control so Leaflet will position and style them
     L.control.scale({ metric:false }).addTo(MAP);
     new L.controlCustomButtonPanel().addTo(MAP);
+    // TFA: add jQuery mobile icons to leaflet custom icon panel (L.controlCustomButtonPanel)
+    // var target = $('.leaflet-custombutton-search');
+    // var icon = $('<a>', {
+    //     href: '#'
+    // });
+    // icon.attr('data-role','button');
+    // icon.attr('data-icon','search');
+    // icon.attr('data-iconpos', 'notext');
+    // icon.appendTo(target);
 
     // now add the empty MARKERS LayerGroup
     // this will be loaded with markers when a search is performed or when they pick Browse The Map
@@ -285,6 +296,7 @@ function initMap() {
             }
         });
     });
+
 }
 
 function initMapInfoPanel() {
@@ -628,7 +640,7 @@ function renderPlacesList() {
 
     // bail condition: 0 items means we need to display only 1 item: Nothing Found
     if (! items.length) {
-        $('<li></li>').html('No places matched your search.<br/>Use the Find button below, to search for places and events.').appendTo($target);
+        $('<li></li>').html('No places matched your search.<br/>Use the Find button to search for places and events.').appendTo($target);
         $target.listview('refresh');
         return;
     }
@@ -723,7 +735,7 @@ function renderEventsList() {
 
     // bail condition: 0 items means we need to display only 1 item: Nothing Found
     if (! items.length) {
-        $('<li></li>').html('No events matched your search.<br/>Use the Find button below, to search for places and events.').appendTo($target);
+        $('<li></li>').html('No events matched your search.<br/>Use the Find button to search for places and events.').appendTo($target);
         $target.listview('refresh');
         return;
     }

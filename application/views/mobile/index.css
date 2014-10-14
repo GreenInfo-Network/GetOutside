@@ -138,7 +138,7 @@ a {
 
 #map_infopanel > div {
     width:99%;
-    margin:0 10px 0 10px;
+    margin:0 10px 0 50px; /*TFA added more left margin*/
 }
 
 
@@ -200,3 +200,37 @@ div.ui-header .ui-btn.ui-corner-all {
     font-weight:normal !important;
     font-size:10pt !important;
 }
+
+/*** TFA additional jQuery Mobile Style overrides and other css tweaks ***/
+
+/*opening page search button*/
+button[name='search-go'], button[name='search-browse-map'] { 
+    border-radius: 8px !important; 
+    border-color: #999 !important; 
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 3px 0px !important;
+}
+/*opening page selects*/
+#select-4-button, a[data-role='button'] {border-color: #d3d3d3 !important;}
+
+/* search results buttons border radius */
+#page-search-results-places a[data-role='button'] {
+    border-radius: 8px !important;
+}
+
+/*"more info" links on individual search result panel. this was getting configured by 
+  $mobile_buttonbgcolor1 in css.phtml; the style here reverts to default TFA */
+#map_infopanel a[data-field='url'] {
+    color: #3388cc !important;
+}
+
+/*map side panel icon image padding*/
+.ui-panel-inner > label > img {
+    padding: 0 8px 0 2px;
+}
+/* override jquery ui label margin on these side panel icons labels */
+.ui-panel-inner > label { margin: 0 !important;}
+
+/* ovveride grid on navbar widths to match design*/ 
+.search-results-navbar .ui-block-a { width: 20%;}
+.search-results-navbar .ui-block-b { width: 40%;}
+.search-results-navbar .ui-block-c { width: 40%;}
