@@ -27,7 +27,7 @@ div.page-withtrim[data-role="page"] {
 
 /*** BUTTONS: default, alternate, alert ***/
 
-.ui-page-theme-a .ui-btn, html .ui-bar-a .ui-btn, html .ui-body-a .ui-btn, html body .ui-group-theme-a .ui-btn, html head + body .ui-btn.ui-btn-a, .ui-page-theme-a .ui-btn:visited, html .ui-bar-a .ui-btn:visited, html .ui-body-a .ui-btn:visited, html body .ui-group-theme-a .ui-btn:visited, html head + body .ui-btn.ui-btn-a:visited {
+#page-home .ui-btn {
     background-color: <?= $mobile_buttonbgcolor1 ?>;
     color: <?= $mobile_buttonfgcolor1 ?>;
 }
@@ -36,21 +36,6 @@ div.page-withtrim[data-role="page"] {
     margin: 0;
 }
 
-.ui-collapsible-heading-toggle.ui-btn { /* collapsibles are .ui-btn but we do not want them colored like the real buttons above */
-    background-color: <?= $mobile_bgcolor ?> !important;
-    color: <?= $mobile_fgcolor ?> !important;
-    border-radius:0;
-}
-
-#page-search .ui-btn { /* ...in fact that funny color theme is only for the front page, except where it's for other pages, which is TBD; specifically override the Search page, we know that one.... */
-    background-color: <?= $mobile_bgcolor ?> !important;
-    color: <?= $mobile_fgcolor ?> !important;
-}
-
-#page-search-results-places-list .ui-btn,#page-search-results-events-list .ui-btn { /* ... more of "all buttons are green" except for "except most of them" */
-    background-color: <?= $mobile_bgcolor ?> !important;
-    color: <?= $mobile_fgcolor ?> !important;
-}
 
 
 /*** CUSTOM NAVBARS change quite often
