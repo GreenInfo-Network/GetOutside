@@ -47,16 +47,11 @@ div.page-withtrim[data-role="page"] {
     color: <?= $mobile_fgcolor ?> !important;
 }
 
-#page-search-results-places a[data-role="button"][data-theme="b"] {
-    background-color: <?= $mobile_alertbgcolor ?> !important;
-    color: <?= $mobile_alertfgcolor ?> !important;
-    border-color: <?= $mobile_alertbgcolor ?> !important;
+#page-search-results-places-list .ui-btn,#page-search-results-events-list .ui-btn { /* ... more of "all buttons are green" except for "except most of them" */
+    background-color: <?= $mobile_bgcolor ?> !important;
+    color: <?= $mobile_fgcolor ?> !important;
 }
-#page-search-results-events a[data-role="button"][data-theme="b"] {
-    background-color: <?= $mobile_alertbgcolor ?> !important;
-    color: <?= $mobile_alertfgcolor ?> !important;
-    border-color: <?= $mobile_alertbgcolor ?> !important;
-}
+
 
 /*** CUSTOM NAVBARS change quite often
  current vogue is:
