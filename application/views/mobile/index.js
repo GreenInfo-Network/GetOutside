@@ -12,6 +12,10 @@ var LOCATION;       // L.Marker indicating their current location
 // should we auto-recenter the map when location is found?
 var AUTO_RECENTER = false;
 
+// when we go back to search results, should it be to Places or to Events?
+// a strange hack here, using a global for such state, but it's what works between a Leaflet control and two panels that will continue to change
+// see also initSearchResultLastPanelHack()
+var SEARCH_RESULTS_SUBTYPE = '#page-search-results-places';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// JAVASCRIPT EXTENSIONS
@@ -118,6 +122,7 @@ $(document).ready(function () {
     initMap();
     initMapInfoPanel();
     initSearchForms();
+    initSearchResultLastPanelHack();
 });
 
 function initSearchForms() {
@@ -321,6 +326,15 @@ function initMapInfoPanel() {
     // due to popup blockers inherent in mobile browsers, this works by properly assigning a 'href' and clicking the link
     // coordinates are populated by updateNavigationLinkFromMarker() which itself is called from the clickMarker_ family of functions
     //$('#map_infopanel > a[data-icon="navigation"]')
+}
+
+function initSearchResultLastPanelHack() {
+    // requirement: if the last Search Results-related panel the person visited was Places/Events, then the "go to result list" control on the map page must go to that same panel
+    // meaning that the control needs to be able to know which panel you last visited (may not be your -1 history)
+    // see also leaflet-custombutton-list in leaflet.custommobilecontrols.js
+    $('.search-results-navbar a').tap(function () {
+        SEARCH_RESULTS_SUBTYPE = $(this).prop('href');
+    });
 }
 
 

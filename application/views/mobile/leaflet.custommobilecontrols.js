@@ -28,14 +28,15 @@ L.controlCustomButtonPanel = L.Control.extend({
 
         // sub-control 2
         // List: switches to your search results listing
+        // hack: uses SEARCH_RESULTS_SUBTYPE to determine the last Search Result page you visited
         var subcontainer  = L.DomUtil.create('div', 'leaflet-custombutton leaflet-custombutton-list', container);
         subcontainer.title = 'Show search results';
         var icon = L.DomUtil.create('i', 'fa fa-lg fa-bars', subcontainer);
 
         L.DomEvent.on(subcontainer, 'click', L.DomEvent.stopPropagation).on(subcontainer, 'click', L.DomEvent.preventDefault)
             .on(subcontainer, 'click', function (event) {
-                // go to the Search Results page
-                $.mobile.changePage('#page-search-results-places');
+                // go to the appropriate Search Results page
+                $.mobile.changePage(SEARCH_RESULTS_SUBTYPE);
         }, this);
 
         // sub-control 3
