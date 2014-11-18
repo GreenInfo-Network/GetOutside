@@ -263,7 +263,7 @@ function initMap() {
     // loose binding with an anonymous function, for easier debugging (can replace the function in the console)
     MAP.on('locationfound', function (event) { onLocationFound(event); });
     //MAP.on('locationerror', function (error) { onLocationError(error); });
-    MAP.locate({ enableHighAccuracy:true, watch:true });
+    /////GDA///MAP.locate({ enableHighAccuracy:true, watch:true });
 
     // add some Controls, including our custom ones which are simply buttons; we use a Control so Leaflet will position and style them
     L.control.scale({ metric:false }).addTo(MAP);
@@ -551,12 +551,6 @@ function performSearchAfterGeocode(address) {
 }
 
 function performSearchHandleResults(reply) {
-    // first some light data fudging
-    // Places' "categories" attribute is a list of category names; we want a comma-joined string
-    for (var i=0, l=reply.places.length; i<l; i++) {
-        reply.places[i].categories = reply.places[i].categories.join(", ");
-    }
-
     // assign the results into the listing components (listviews, map) ...
     $('#page-search-results-places-list').data('rawresults', reply.places);
     $('#map_canavs').data('rawresults', reply.places);
@@ -670,84 +664,51 @@ function renderPlacesList() {
         var item = items[i];
         var li   = $('<li></li>').data('rawresult',item).attr('data-id',item.id).appendTo($target);
 
-        // if this Place has activities, create a inset listview
-        if (item.activities) {
-            // there are activities so this element is much more complex
-            // in that we need to make an inset panel for each type of activity,  which has a list of the days/times for that activity
 
-            // make an assoc to guarantee uniqueness, each name having a list of days-and-times
-            var activities = {};
-            for (var ai=0, al=item.activities.length; ai<al; ai++) {
-                var actname  = item.activities[ai].name;
-                var actstart = item.activities[ai].start;
-                var actend   = item.activities[ai].end;
-                var actdays  = item.activities[ai].days;
-                if (! activities[actname]) activities[actname] = [];
-                activities[actname].push({ start:actstart, end:actend, days:actdays });
-            }
+        // part 0: the plus-minus icon; not necessary since it's the title that does the toggling, but looks nice
+        var plusminus = $('<i class="fa fa-lg fa-plus"></i>').appendTo(li);
 
-            // make a list of the keys of the activities listing, and sort it; thus we can alphabetically iterate
-            // remember, assocs are inherently unsorted and if they happen to come out alphabetically it was purely coincidental
-            var activity_names = [];
-            for (var act in activities) activity_names.push(act);
-            activity_names.sort();
+        // part 1: the label of name and distance/heading
+        var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
+        $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
+        $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
 
-            // finally, some content!
-            var label = $('<h2></h2>').text(item.name).appendTo(li);
-            $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
+        // part 2: the details: list of categories, list of activities, ...
+        // then the Go To Map button, which for styling purposes is actually in a listview
+        var details = $('<div></div>').addClass('search-result-details').appendTo(li).hide();
+        $('<div></div>').addClass('search-result-details-place-categories').text( item.categories.join(' | ') ).appendTo(details);
 
-            var button = $('<div></div>').text('Show activities').addClass('placeactivities_toggle').appendTo(li);
-            button.click(function (event) {
-                // keep the click from falling through to the location itself, and thus triggering a switch over to the map
-                event.preventDefault();
-                event.stopPropagation();
-
-                // clicking ths link toggles the neighboring DIV that has the inset listview
-                var target = $(this).siblings('div.placeactivities');
-                if ( target.is(':visible') ) {
-                    target.hide();
-                    $(this).text('Show activities');
-                } else {
-                    target.show();
-                    $(this).text('Hide activities');
-                }
-            });
-
-            var div = $('<div></div>').addClass('placeactivities').appendTo(li);
-            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(div);
-            for (var ai=0, al=activity_names.length; ai<al; ai++) {
-                var actname  = activity_names[ai];
-                var actlist  = activities[actname];
-
-                var inset = $('<li></li>').appendTo(sublist);
-                $('<div></div>').addClass('ui-btn-text').text(actname).appendTo(inset);
-                for (var tai=0, tal=actlist.length; tai<tal; tai++) {
-                    var days  = actlist[tai].days;
-                    var start = actlist[tai].start;
-                    var end   = actlist[tai].end;
-
-                    $('<div></div>').addClass('ui-btn-text').html(days + ' &nbsp;&nbsp; ' + start + ' - ' + end).appendTo(inset);
-                }
-            }
-        } else {
-            // no activities so this element is much simpler,
-            // just a the text label and the distance readout placeholder
-            var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
-            $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
-            $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
-        }
-
-        // click handler: trigger a click upon this marker on the map, keeping in mind that there is no Marker but only the clusterer and its not-same-as-Leaflet internal Marker type
-        li.tap(function () {
-            var markid = $(this).data('rawresult').id;
+        var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(details);
+        var link = $('<a></a>').addClass('maplink').prop('href','javascript:void(0);').html('Go To Map').data('markerid',item.id).data('lat',item.lat).data('lng',item.lng);
+        $('<li></li>').attr('data-icon','map').attr('data-iconpos','left').append(link).appendTo(sublist);
+        link.tap(function () {
+            var markid = $(this).data('markerid');
             switchToMap(function () {
                 handleResultListClick(markid,'Place');
             });
+        });
+
+        // super glue: clicking the label toggles the visibility of the details
+        plusminus.tap(function () {
+            var button  = $(this).siblings('div.ui-btn-text').tap();
+        });
+        label.tap(function () {
+            var details = $(this).siblings('div.search-result-details');
+            var button  = $(this).siblings('i.fa');
+            if (details.is(':visible')) {
+                details.hide();
+                button.removeClass('fa-minus').addClass('fa-plus');
+            }
+            else {
+                details.show();
+                button.removeClass('fa-plus').addClass('fa-minus');
+            }
         });
     }
 
     $target.listview('refresh');
     $target.find('ul').listview();
+    $target.find('a.maplink').removeClass('ui-btn-icon-right').addClass('ui-btn-icon-left'); // hack: JQM forces the icons to right, ignoring my data-iconpos
 }
 
 function renderEventsList() {
@@ -777,7 +738,7 @@ function renderEventsList() {
         var details = $('<div></div>').addClass('search-result-details').appendTo(li).hide();
 
         if (item.url) {
-            var link = $('<a></a>').prop('target','_blank').prop('href',item.url).html('More Info');
+            var link = $('<a></a>').prop('target','_blank').addClass('search-results-moreinfo-hyperlink').prop('href',item.url).html('More Info');
             $('<div></div>').addClass('ui-li-desc').append(link).appendTo(details);
         }
 
@@ -805,6 +766,9 @@ function renderEventsList() {
         }
 
         // super glue: clicking the label toggles the visibility of the details
+        plusminus.tap(function () {
+            var button  = $(this).siblings('div.ui-btn-text').tap();
+        });
         label.tap(function () {
             var details = $(this).siblings('div.search-result-details');
             var button  = $(this).siblings('i.fa');
