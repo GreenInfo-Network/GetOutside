@@ -5,42 +5,46 @@
 
 /*** OVERALL PAGE COLORS ***/
 
+div.page-withtrim[data-role="page"] {
+    border-left:7px solid <?= $mobile_alertbgcolor ?>;
+    border-right:7px solid <?= $mobile_alertbgcolor ?>;
+    border-bottom:7px solid <?= $mobile_alertbgcolor ?>;
+}
+
 .ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
     background-color: <?= $mobile_bgcolor ?> !important;
-    /* border-color: <?= $mobile_bgcolor ?> !important; TFA per JS*/
     color: <?= $mobile_fgcolor ?> !important;
-    text-shadow: 0 0 0 <?= $mobile_fgcolor ?> !important;
 }
 
 .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
     background-color: <?= $mobile_bgcolor ?> !important;
     color: <?= $mobile_fgcolor ?> !important;
-    text-shadow: 0 0 0 <?= $mobile_fgcolor ?> !important;
+}
+
+.ui-btn-icon-left:after, .ui-btn-icon-right:after, .ui-btn-icon-top:after, .ui-btn-icon-bottom:after, .ui-btn-icon-notext:after {
+    background-color: <?= $mobile_alertbgcolor ?>;
 }
 
 /*** BUTTONS: default, alternate, alert ***/
 
 .ui-page-theme-a .ui-btn, html .ui-bar-a .ui-btn, html .ui-body-a .ui-btn, html body .ui-group-theme-a .ui-btn, html head + body .ui-btn.ui-btn-a, .ui-page-theme-a .ui-btn:visited, html .ui-bar-a .ui-btn:visited, html .ui-body-a .ui-btn:visited, html body .ui-group-theme-a .ui-btn:visited, html head + body .ui-btn.ui-btn-a:visited {
-    background-color: <?= $mobile_buttonbgcolor1 ?> !important;
-    color: <?= $mobile_buttonfgcolor1 ?> !important;
-    text-shadow: 0 0 0 <?= $mobile_buttonfgcolor1 ?> !important;
-    /* border-color: <?= $mobile_buttonfgcolor1 ?> !important; TFA per JS*/
+    background-color: <?= $mobile_buttonbgcolor1 ?>;
+    color: <?= $mobile_buttonfgcolor1 ?>;
 }
 
-#page-search button[data-theme="b"] {
-    background-color: <?= $mobile_buttonbgcolor2 ?> !important;
-    /* border-color: <?= $mobile_buttonfgcolor2 ?> !important; TFA per JS*/
-    color: <?= $mobile_buttonfgcolor2 ?> !important;
-    text-align: center;
-    text-shadow: 0 0 0 <?= $mobile_buttonfgcolor2 ?> !important;
+.ui-collapsible-inset, .ui-collapsible-set {
+    margin: 0;
 }
 
-.search-results-navbar div {
-    background-color: <?= $mobile_buttonfgcolor1 ?> !important;
-    border-right: 1px solid <?= $mobile_buttonbgcolor1 ?> !important;
-    height: 2.5em;
-    text-align: center;
-    vertical-align: middle;
+.ui-collapsible-heading-toggle.ui-btn { /* collapsibles are .ui-btn but we do not want them colored like the real buttons above */
+    background-color: <?= $mobile_bgcolor ?> !important;
+    color: <?= $mobile_fgcolor ?> !important;
+    border-radius:0;
+}
+
+#page-search .ui-btn { /* ...in fact that funny color theme is only for the front page, except where it's for other pages, which is TBD; specifically override the Search page, we know that one.... */
+    background-color: <?= $mobile_bgcolor ?> !important;
+    color: <?= $mobile_fgcolor ?> !important;
 }
 
 #page-search-results-places a[data-role="button"][data-theme="b"] {
@@ -54,37 +58,43 @@
     border-color: <?= $mobile_alertbgcolor ?> !important;
 }
 
-.search-results-navbar div.active {
+/*** CUSTOM NAVBARS change quite often
+ current vogue is:
+ - the FIRST custom-navbar uses the trim color for BG and general BG for text
+ - the second one for the search results, uses the button color along with some opacities to make the active/inactive different
+ ***/
+
+div.custom-navbar {
     background-color: <?= $mobile_alertbgcolor ?> !important;
     color: <?= $mobile_alertfgcolor ?> !important;
 }
-.search-results-navbar div.active a {
-    color: <?= $mobile_alertfgcolor ?> !important;
+div.custom-navbar a {
+    color: <?= $mobile_bgcolor ?> !important;
 }
 
-.search-results-navbar div { /* default button color, but inverted */
-    background-color: <?= $mobile_buttonfgcolor1 ?> !important;
-    color: <?= $mobile_buttonbgcolor1 ?> !important;
+.search-results-navbar {
+    background-color: <?= $mobile_buttonbgcolor1 ?>;
 }
 .search-results-navbar a {
     color: <?= $mobile_buttonfgcolor1 ?> !important;
 }
-html .ui-bar-a a, html .ui-body-a a, html body .ui-group-theme-a a, a.ui-link {
-    color: <?= $mobile_buttonbgcolor1 ?> !important;
+
+.search-results-navbar div.active {
+    background-color: <?= $mobile_buttonbgcolor2 ?> !important;
 }
+.search-results-navbar div.active a {
+    color: <?= $mobile_buttonfgcolor2 ?> !important;
+}
+
 
 
 /*** GLOWING MARKERS ***/
 
 img.leaflet-marker-icon.leaflet-marker-place.leaflet-marker-highlight {
-    box-shadow: 0 0 8px 6px <?= $place_markerglowcolor ?> !important;
     background-color: <?= $place_markerglowcolor ?> !important;
-    -webkit-box-shadow: 0 0 8px 6px <?= $place_markerglowcolor ?> !important;
     border-radius:10px;
 }
 img.leaflet-marker-icon.leaflet-marker-event.leaflet-marker-highlight {
-    box-shadow: 0 0 8px 6px <?= $event_markerglowcolor ?> !important;
     background-color: <?= $event_markerglowcolor ?> !important;
-    -webkit-box-shadow: 0 0 8px 6px <?= $event_markerglowcolor ?> !important;
     border-radius:10px;
 }

@@ -1,3 +1,17 @@
+/*** START by turning off the pesky box shadows and text shadows ***/
+* {
+    text-shadow:none !important;
+    box-shadow:none !important;
+}
+
+
+/*** PAGEs with the trim class, lack some width in favor of a border (border defined in theme: css.phtml) ***/
+div.page-withtrim[data-role="page"] {
+    width:calc(100% - 14px);
+    margin-right:7px;
+    /* margin-left:7px; */
+}
+
 /*** CUSTOM data-icon for a GPS icon ***/
 
 .ui-icon-gps:after {
@@ -36,22 +50,26 @@ a {
 
 /*** SEARCH PAGE ***/
 
-#page-search {
+#page-home {
     margin: 0 5%;
     width: 90%;
 }
 
-#page-search .ui-btn {
-    text-align: left;
+#page-home .ui-btn {
+    text-align: center;
+}
+
+#page-home div.center img {
+    max-width: 100%;
 }
 
 /*** OUTSIDE AREA if the user is outside the supported area, these elements are visible ***/
 
 .outside_area {
-    display:none !important; /*gda disabled for testing??? */
+    display:none;
 }
 
-#search-outsidearea {
+.outside_area {
     text-align:center;
     color:red;
 }
@@ -74,20 +92,15 @@ a {
 }
 
 
-/*** NAVBARS on the search results page, custom grid stuff here ***/
+/*** NAVBARS there's a pair of them on the search results page, custom grid stuff here ***/
 
-.search-results-navbar {
-    
-}
 .search-results-navbar div {
     /* colors are overridden in the mobile/css dynamic stylesheet *(admin-defined) */
-    background-color:black;
-    border-right:1px solid white;
-
-    height:2.5em;
-
     text-align:center;
     vertical-align:middle;
+
+    height: 2.5em;
+    line-height: 2.5em;
 }
 .search-results-navbar div:last-child {
     border-right:0 none transparent;
@@ -96,14 +109,27 @@ a {
     /* colors are defined in mobile/css dynamic stylesheet (admin-defined) */
     display:inline-block;
 }
-.search-results-navbar div:first-child {
-    line-height:2.5em;
+
+.custom-navbar {
+    text-align:right;
 }
 
-.search-results-navbar div.active {
-    background-color: #0083CC;
+
+div.custom-navbar {
+    text-align:right;
+    line-height:2em;
 }
-.search-results-navbar div.active a {
+div.custom-navbar a {
+    font-size:13px;
+}
+div.custom-navbar a:last-of-type {
+    margin-right:10px;
+}
+div.custom-navbar a[href="#page-home"] {
+    /* probably not the best way to position Home on the top-left, but seems th'e only thing that works without breaking the search results second navbar */
+    position: absolute;
+    top: 2px;
+    left: 10px;
 }
 
 
@@ -230,7 +256,3 @@ button[name='search-go'], button[name='search-browse-map'] {
 /* override jquery ui label margin on these side panel icons labels */
 .ui-panel-inner > label { margin: 0 !important;}
 
-/* ovveride grid on navbar widths to match design*/ 
-.search-results-navbar .ui-block-a { width: 20%;}
-.search-results-navbar .ui-block-b { width: 40%;}
-.search-results-navbar .ui-block-c { width: 40%;}

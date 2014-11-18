@@ -122,11 +122,11 @@ $(document).ready(function () {
 
 function initSearchForms() {
     // enable the 2 "GO" buttons on the home (Search) page
-    $('#page-search button[name="search-browse-map"]').tap(function () {
+    $('#page-home button[name="search-browse-map"]').tap(function () {
         performBrowseMap();
     });
-    $('#page-search button[name="search-go"]').tap(function () {
-        performSearch();
+    $('#page-home a[name="search-everything"]').tap(function () {
+        performBrowseList();
     });
 
     // DOM handler: when the Address Type changed to address, show the address box; when it's not address, hide the box
@@ -134,35 +134,35 @@ function initSearchForms() {
     $('#page-search select[name="location"]').change(function () {
         switch ( $(this).val() ) {
             case 'address':
-                // $('#page-search input[name="address"]').show();
+                // $('#page-home input[name="address"]').show();
                 $('#address-container').show(); // TFA, to mask the border on the inputs, hide the entire div
                 break;
             case 'gps':
-                // $('#page-search input[name="address"]').hide();
+                // $('#page-home input[name="address"]').hide();
                 $('#address-container').hide(); // TFA, to mask the border on the inputs, hide the entire div
                 break;
         }
     }).val('gps').trigger('change');
 
-    // Search Settings has an Apply button
-    // this should in fact switch over to the Search page as noirmal... but then perform a search
-    $('#page-search-settings a[href="#page-search"]').tap(function () {
-        $('#page-search button[name="search-go"]').tap();
+    // Search Settings has a Show Results button
+    // this should in fact switch over to the Search Results page as normal... but then perform a search
+    $('#page-search a[href="#page-search-results-places"]').tap(function () {
+        performSearch();
     });
 
     // Search Settings has this weekdays selector, as well as an option for Today vs Upcoming Week
     // spec is for these to be checkboxes,though they act kinda like radioboxes (kinda)
     // in no case may none of them be checked; if that happens select the One Week option
     // and THIS is why something elegant like Angular just doesn't cut it; we end up doing intricate DOM manipulation anyway...
-    var weekdaypickers    = $('#page-search-settings input[name="weekday"]');
-    var howmanydaypickers = $('#page-search-settings input[name="eventdays"]');
+    var weekdaypickers    = $('#page-search input[name="weekday"]');
+    var howmanydaypickers = $('#page-search input[name="eventdays"]');
     weekdaypickers.change(function () {
         if ( $(this).is(':checked') ) {
             howmanydaypickers.removeAttr('checked').checkboxradio('refresh');
         } else {
             // none checked at all from the two lists? check a default
-            if (! $('#page-search-settings input[name="weekday"]:checked').length && ! $('#page-search-settings input[name="eventdays"]:checked').length) {
-                $('#page-search-settings input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
+            if (! $('#page-search input[name="weekday"]:checked').length && ! $('#page-search input[name="eventdays"]:checked').length) {
+                $('#page-search input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
             }
         }
     });
@@ -172,37 +172,37 @@ function initSearchForms() {
             howmanydaypickers.not( $(this) ).removeAttr('checked').checkboxradio('refresh');
         } else {
             // none checked at all from the two lists? check a default
-            if (! $('#page-search-settings input[name="weekday"]:checked').length && ! $('#page-search-settings input[name="eventdays"]:checked').length) {
-                $('#page-search-settings input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
+            if (! $('#page-search input[name="weekday"]:checked').length && ! $('#page-search input[name="eventdays"]:checked').length) {
+                $('#page-search input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
             }
         }
     });
 
     // Search Settings has an Age selector, which allows multiple selections UNLESS they pick All Ages (0) in which case it must unselect the others
     // and in no case must none of them be checked; if none are checked check the one by default
-    $('#page-search-settings input[name="agegroup"][value="0"]').change(function () {
+    $('#page-search input[name="agegroup"][value="0"]').change(function () {
         if ( $(this).is(':checked')) {
-            $('#page-search-settings input[name="agegroup"]').not($(this)).removeAttr('checked').checkboxradio('refresh');
+            $('#page-search input[name="agegroup"]').not($(this)).removeAttr('checked').checkboxradio('refresh');
         }
     });
-    $('#page-search-settings input[name="agegroup"][value!="0"]').change(function () {
+    $('#page-search input[name="agegroup"][value!="0"]').change(function () {
         if ( $(this).is(':checked')) {
-            $('#page-search-settings input[name="agegroup"][value="0"]').removeAttr('checked').checkboxradio('refresh');
+            $('#page-search input[name="agegroup"][value="0"]').removeAttr('checked').checkboxradio('refresh');
         }
     });
-    $('#page-search-settings input[name="agegroup"]').change(function () {
-        if (! $('#page-search-settings input[name="agegroup"]:checked').length) {
-            $('#page-search-settings input[name="agegroup"][value="0"]').prop('checked',true).checkboxradio('refresh');
+    $('#page-search input[name="agegroup"]').change(function () {
+        if (! $('#page-search input[name="agegroup"]:checked').length) {
+            $('#page-search input[name="agegroup"][value="0"]').prop('checked',true).checkboxradio('refresh');
         }
     });
 
     // Search Settings has an Gender selector, which allows only one selection like a radiobox, but spec is that it must be checkboxes...
     // never allow none of them to be checked; if that happens, select the default (0)
-    $('#page-search-settings input[name="gender"]').change(function () {
-        $('#page-search-settings input[name="gender"]').not($(this)).removeAttr('checked').checkboxradio('refresh');
+    $('#page-search input[name="gender"]').change(function () {
+        $('#page-search input[name="gender"]').not($(this)).removeAttr('checked').checkboxradio('refresh');
 
-        if (! $(this).is(':checked') && ! $('#page-search-settings input[name="gender"]:checked').length ) {
-            $('#page-search-settings input[name="gender"][value="0"]').prop('checked',true).checkboxradio('refresh');
+        if (! $(this).is(':checked') && ! $('#page-search input[name="gender"]:checked').length ) {
+            $('#page-search input[name="gender"][value="0"]').prop('checked',true).checkboxradio('refresh');
         }
     });
 
@@ -357,10 +357,10 @@ function selectBasemap(which) {
 }
 
 function setSearchFiltersToDefault() {
-    $('#page-search-settings input[type="checkbox"]').removeAttr('checked').checkboxradio('refresh');
-    $('#page-search-settings input[name="agegroup"][value="0"]').prop('checked',true).checkboxradio('refresh');
-    $('#page-search-settings input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
-    $('#page-search-settings input[name="gender"][value="0"]').prop('checked',true).checkboxradio('refresh');
+    $('#page-search input[type="checkbox"]').removeAttr('checked').checkboxradio('refresh');
+    $('#page-search input[name="agegroup"][value="0"]').prop('checked',true).checkboxradio('refresh');
+    $('#page-search input[name="eventdays"][value="30"]').prop('checked',true).checkboxradio('refresh');
+    $('#page-search input[name="gender"][value="0"]').prop('checked',true).checkboxradio('refresh');
 }
 
 function onLocationFound(event) {
@@ -449,6 +449,18 @@ function performBrowseMap() {
     });
 }
 
+function performBrowseList() {
+    // reset all search options, set to GPS mode and submit the START_X and START_Y coords which are the center of the supported area, then submit that search
+    // with the option to (after results had) proceed to the Map panel instead of the Results panel
+    setSearchFiltersToDefault();
+    $('#page-search select[name="location"]').val('gps').selectmenu('refresh').trigger('change');
+    $('#page-search input[name="lat"]').val(START_Y);
+    $('#page-search input[name="lng"]').val(START_X);
+
+    // perform the search
+    performSearchReally({ 'afterpage':'#page-search-results-places' });
+}
+
 function getMarkerById(id) {
     // convenience function: given an ID from the fetchdata output, find the corresponding Marker within the MARKERS layergroup
     // if it doesn't exist, null is returned
@@ -499,15 +511,15 @@ function performSearchReally(options) {
     var params = {};
     params.lat          = $('#page-search input[name="lat"]').val();
     params.lng          = $('#page-search input[name="lng"]').val();
-    params.eventdays    = $('#page-search-settings input[name="eventdays"]:checked').val();
+    params.eventdays    = $('#page-search input[name="eventdays"]:checked').val();
     params.categories   = [];
     params.weekdays     = [];
     params.gender       = [];
     params.agegroup     = [];
-    $('#page-search-settings input[name="categories"]:checked').each(function () { params.categories.push($(this).prop('value')); });
-    $('#page-search-settings input[name="weekdays"]:checked').each(function () { params.weekdays.push($(this).prop('value')); });
-    $('#page-search-settings input[name="gender"]:checked').each(function () { params.gender.push($(this).prop('value')); });
-    $('#page-search-settings input[name="agegroup"]:checked').each(function () { params.agegroup.push($(this).prop('value')); });
+    $('#page-search input[name="categories"]:checked').each(function () { params.categories.push($(this).prop('value')); });
+    $('#page-search input[name="weekdays"]:checked').each(function () { params.weekdays.push($(this).prop('value')); });
+    $('#page-search input[name="gender"]:checked').each(function () { params.gender.push($(this).prop('value')); });
+    $('#page-search input[name="agegroup"]:checked').each(function () { params.agegroup.push($(this).prop('value')); });
     if (params.agegroup.length == 1 && params.agegroup[0] == '0')   delete(params.agegroup);
     if (params.gender.length   == 1 && params.gender[0] == '0')     delete(params.gender);
 

@@ -16,7 +16,8 @@
     <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
     <![endif]-->
     <script src="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
-    <!-- fa icons for map controls TFA see leaflet.custommobilecontrols.js-->
+
+    <!-- FontAwesome icons for map controls; see this index.phtml file and also leaflet.custommobilecontrols.js-->
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     
     <!-- a whole mess of basemap options for Leaflet: Google, Bing -->
@@ -82,63 +83,66 @@
 <body>
 
 
-<div data-role="page" id="page-search">
-    <form action="javascript:void(0);">
-        <div class="center">
-            <img src="<?= site_url() ?>/mobile/image/logo" />
-        </div>
+<div data-role="page" id="page-home">
+    <div class="center">
+        <img src="<?= site_url() ?>/mobile/image/logo" />
+    </div>
 
-        <div class="outside_area" id="search-outsidearea">
-            You seem to be outside the supported area.
-            <br/>
-            Using <i>My current location</i> may result in no matches,
-            <br/>
-            and the map may not show anything close to you.
-        </div>
+    <h3 class="center">Find Parks, Play Spaces, and Recreational Events &amp; Activities:</h3>
 
-        <h3 class="center">Find Parks and Recreation Near:</h3>
-        <select name="location">
-            <option value="gps">My current location</option>
-            <option value="address">Address</option>
-        </select>
-        <input type="text" name="address" placeholder="enter address" class="center" />
-        <input type="hidden" name="lat" />
-        <input type="hidden" name="lng" />
+    <div class="outside_area">
+        You seem to be outside the supported area.<br/>
+        There may be no matches near your current location.<br/>
+    </div>
 
-        <a data-role="button" href="#page-search-settings" data-icon="carat-d" data-iconpos="right">Find an activity (optional)</a>
+    <a data-role="button" name="search-everything" href="#page-search-results-places"><b>EVERYTHING</b> near you</a>
+    <a data-role="button" href="#page-search"><b>CHOOSE</b> location, activities, events, park facilities</a>
 
-        <!--  this button must be 1/3 the page width, but JQM doesn't have a way to do that... so tables -->
-        <table style="width:100%;">
-            <tr>
-                <td style="width:67%;"></td>
-                <td style="width:33%;"><button name="search-go" data-icon="search" data-iconpos="right" data-theme="b">Search</button></td>
-            </tr>
-        </table>
+    <hr/>
 
-        <hr/>
-
-        <h3 class="center">OR:</h3>
-        <button name="search-browse-map" data-icon="map" data-iconpos="right" data-textpos="left" data-theme="b">Browse the Map</button>
-    </form>
+    <h3 class="center">OR:</h3>
+    <button name="search-browse-map" data-icon="map" data-iconpos="left" data-textpos="left">Browse the <b>MAP</b></button>
 </div>
 
 
-<div data-role="page" id="page-search-settings">
-    <div data-role="header" data-position="inline">
-        <a href="#page-search" data-role="button" data-icon="search">Apply</a><!-- event handler to perform search; check index.js for a[href="#page-search"] -->
-        <h2>Search Options</h2>
+
+<div data-role="page" class="page-withtrim" id="page-search">
+    <div class="custom-navbar">
+        <a href="#page-home"><i class="fa fa-2x fa-home"></i></a>
+        <a href="#page-search-results-places" class="forward">Show Results <i class="fa fa-lg fa-chevron-right"></i></a>
     </div>
 
-    <div data-role="collapsible-set" data-theme="a" data-content-theme="b">
+    <form>
+    <div data-role="collapsible-set">
         <div data-role="collapsible">
-            <h2>Activities &amp; Amenities</h2>
+            <h2>Near where?</h2>
+            <div data-role="controlgroup" data-mini="true">
+                <div class="outside_area">
+                    You seem to be outside the supported area.<br/>
+                    Using <i>My current location</i> may result in no matches,<br/>
+                    and the map may not show anything close to you.<br/>
+                </div>
+
+                <select name="location">
+                    <option value="gps">My current location</option>
+                    <option value="address">Address</option>
+                </select>
+                <span id="address-container">
+                    <input type="text" name="address" placeholder="enter address" class="center" />
+                    <input type="hidden" name="lat" />
+                    <input type="hidden" name="lng" />
+                </span>
+            </div>
+        </div>
+        <div data-role="collapsible">
+            <h2>Search for Parks &amp; Recreation</h2>
             <div data-role="controlgroup" data-mini="true">
                 <?php foreach ($place_categories as $catid=>$catname) { ?>
                 <label><input type="checkbox" name="categories" value="<?= $catid ?>" /> <?= $catname ?></label>
                 <?php } ?>
             </div>
         </div>
-<span style="display:none;"><!-- argued against it, proved that nothing in fact can match these filters; overridden; client noticed, change their mind; can't remove cuz may want it back-->
+        <span style="display:none;"><!-- argued against it, proved that nothing in fact can match these filters; overridden; client noticed, change their mind; can't remove cuz may want it back-->
         <div data-role="collapsible">
             <h2>Age</h2>
             <div data-role="controlgroup" data-mini="true">
@@ -158,9 +162,9 @@
                 <label><input type="checkbox" name="gender" value="0" /> Either/Both</label>
             </div>
         </div>
-</span>
+        </span>
         <div data-role="collapsible">
-            <h2>When</h2>
+            <h2>Search for Events &amp; Activities</h2>
             <div data-role="controlgroup" data-mini="true">
                 <label><input type="checkbox" name="eventdays" value="0" /> Today</label>
                 <label><input type="checkbox" name="eventdays" value="6" /> This Week</label>
@@ -175,20 +179,19 @@
             </div>
         </div>
     </div>
+    </form>
 </div>
 
 
 
-<div data-role="page" id="page-search-results-places" class="page-results">
-    <div class="ui-grid-b search-results-navbar">
-        <div class="ui-block-a"><img src="<?= site_url() ?>/application/views/mobile/jquerymobile-1.4.2/images/icons-png/home-white.png" /> <a href="#page-search">Home</a></div>
-        <div class="ui-block-b active"><a href="#page-search-results-places">Parks &amp;<br/>Rec Centers</a></div>
-        <div class="ui-block-c"><a href="#page-search-results-events">Events &amp;<br/>Activities</a></div>
+<div data-role="page" class="page-withtrim" id="page-search-results-places" class="page-results">
+    <div class="custom-navbar">
+        <a href="#page-home"><i class="fa fa-2x fa-home"></i></a>
+        <a href="#page-search" class="backward"><i class="fa fa-lg fa-chevron-left"></i> Search Options</a> &nbsp;|&nbsp; <a href="#page-map" class="forward">See On Map <i class="fa fa-lg fa-chevron-right"></i></a>
     </div>
-    <div class="ui-grid-b">
-        <div class="ui-block-a"><a href="#page-search-settings" data-role="button" data-inline="true" data-mini="true" data-icon="search" data-theme="b">Find</a></div>
-        <div class="ui-block-b"></div>
-        <div class="ui-block-c right"><a href="#page-map" data-role="button" data-icon="map" data-inline="true" data-mini="true">Map</a></div>
+    <div class="ui-grid-a search-results-navbar">
+        <div class="ui-block-a active"><a href="#page-search-results-places">Parks &amp; Places</a></div>
+        <div class="ui-block-b"><a href="#page-search-results-events">Events &amp; Activities</a></div>
     </div>
 
     <div id="page-search-results">
@@ -199,16 +202,14 @@
 
 
 
-<div data-role="page" id="page-search-results-events" class="page-results">
-    <div class="ui-grid-b search-results-navbar">
-        <div class="ui-block-a"><img src="<?= site_url() ?>/application/views/mobile/jquerymobile-1.4.2/images/icons-png/home-white.png" /> <a href="#page-search">Home</a></div>
-        <div class="ui-block-b"><a href="#page-search-results-places">Parks &amp;<br/>Rec Centers</a></div>
-        <div class="ui-block-c active"><a href="#page-search-results-events">Events &amp;<br/>Activities</a></div>
+<div data-role="page" class="page-withtrim" id="page-search-results-events" class="page-results">
+    <div class="custom-navbar">
+        <a href="#page-home"><i class="fa fa-2x fa-home"></i></a>
+        <a href="#page-search" class="backward"><i class="fa fa-lg fa-chevron-left"></i> Search Options</a> &nbsp;|&nbsp; <a href="#page-map" class="forward">See On Map <i class="fa fa-lg fa-chevron-right"></i></a>
     </div>
-    <div class="ui-grid-b">
-        <div class="ui-block-a"><a href="#page-search-settings" data-role="button" data-inline="true" data-mini="true" data-icon="search" data-theme="b">Find</a></div>
-        <div class="ui-block-b"></div>
-        <div class="ui-block-c right"><a href="#page-map" data-role="button" data-icon="map" data-inline="true" data-mini="true">Map</a></div>
+    <div class="ui-grid-a search-results-navbar">
+        <div class="ui-block-a"><a href="#page-search-results-places">Parks &amp; Places</a></div>
+        <div class="ui-block-b active"><a href="#page-search-results-events">Events &amp; Activities</a></div>
     </div>
 
     <div id="page-search-results">
