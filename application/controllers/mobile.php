@@ -121,18 +121,13 @@ public function fetchdata() {
 
     // PHASE 1
     // Places, with their attendant PlaceActivities (if any)
-    // the categories filter is applied here in the ORM query
+    // we have to do this in code cuz the ORM won't do quite what we need, so start by grabbing all enabled Places
     $places = new Place();
-    if (is_array(@$_POST['categories'])) {
-        $places->where_in_related('placecategory', 'id', $_POST['categories']);
-    }
+    $places->where_related('placedatasource','enabled',1)->get();
 
     // the data source must not be disabled
     // disabling a data source should "hide" these markers from the front-facing map
-    $places->where_related('placedatasource','enabled',1);
 
-    // ready!
-    $places->distinct()->get();
     foreach ($places as $place) {
         // invalid coordinates, skip it
         if (! (float) $place->longitude or ! (float) $place->latitude) continue;
@@ -140,6 +135,13 @@ public function fetchdata() {
         // distance filter
         $distance_squared = ( ($_POST['lng']-$place->longitude) * ($_POST['lng']-$place->longitude) ) + ( ($_POST['lat']-$place->latitude) * ($_POST['lat']-$place->latitude) );
         if ($distance_squared > $max_distance_squared) continue;
+
+        // filter by categories: Places fitting *all* of these category numbers
+        if (is_array(@$_POST['categories'])) {
+            $placecats = array(); foreach ($place->placecategory as $c) $placecats[] = $c->id;
+            $missing   = array_diff($_POST['categories'],$placecats);
+            if (sizeof($missing)) continue;
+        }
 
         // guess it's a hit!
         $thisone = array();
