@@ -551,6 +551,12 @@ function performSearchAfterGeocode(address) {
 }
 
 function performSearchHandleResults(reply) {
+    // fudge attributes!
+    // for the info panel on the map, but perhaps others, we want an easy-to-use attribute to show a comma-joined list of categories
+    for (var i=0, l=reply.places.length; i<l; i++) {
+        reply.places[i].categorylist = reply.places[i].categories.join(", ");
+    }
+
     // assign the results into the listing components (listviews, map) ...
     $('#page-search-results-places-list').data('rawresults', reply.places);
     $('#map_canavs').data('rawresults', reply.places);
