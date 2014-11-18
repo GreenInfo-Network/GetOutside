@@ -237,13 +237,35 @@ public function fetchdata() {
     $events->get();
     foreach ($events as $event) {
         // the time filter: if it doesn't start this week, or ended last week, it's outta here
+        // this filter is done first as it typically eliminates the largest proportion
         if ($event->starts > $filter_time_end or $event->ends < $filter_time_start) continue;
 
+        // no EventLocations? then it can't go onto the map and isn't "near" us; skip it
+        // has locations? then collect the ones that are within range and bail if there are none (not close to us, skip)
+        if (! $event->eventlocation->count()) continue;
+        $locations = array();
+        foreach ($event->eventlocation as $loc) {
+            $distance_squared = ( ($_POST['lng']-$loc->longitude) * ($_POST['lng']-$loc->longitude) ) + ( ($_POST['lat']-$loc->latitude) * ($_POST['lat']-$loc->latitude) );
+            if ($distance_squared > $max_distance_squared) continue;
+
+            $thisloc = array();
+            $thisloc['id']        = 'eventlocation-' . $loc->id;
+            $thisloc['title']     = $loc->title;
+            $thisloc['subtitle']  = $loc->subtitle;
+            $thisloc['lat']       = (float) $loc->latitude;
+            $thisloc['lng']       = (float) $loc->longitude;
+
+            $locations[] = $thisloc;
+        }
+        if (! sizeof($locations) ) continue;
+
         // guess it's a hit!
+        // that time above wasn't wasted: we did want the locations anyway
         $thisone = array();
-        $thisone['id']       = 'event-' . $event->id;
-        $thisone['name']     = $event->name;
-        $thisone['url']      = $event->url;
+        $thisone['id']        = 'event-' . $event->id;
+        $thisone['name']      = $event->name;
+        $thisone['url']       = $event->url;
+        $thisone['locations'] = $locations;
 
         // fix some damaged URLs; we should add missing http at the driver layer, but...
         if ($thisone['url'] and substr($thisone['url'],0,4) != 'http') $thisone['url'] = 'http://' . $thisone['url'];
@@ -285,21 +307,6 @@ public function fetchdata() {
                 $start = date('M j Y', $event->starts);
                 $end   = date('M j Y', $event->ends);
                 $thisone['datetime'] = sprintf("%s - %s", $start, $end);
-            }
-        }
-
-        // any EventLocations?
-        if ($event->eventlocation->count()) {
-            $thisone['locations'] = array();
-            foreach ($event->eventlocation as $loc) {
-                $thisloc = array();
-                $thisloc['id']        = 'eventlocation-' . $loc->id;
-                $thisloc['title']     = $loc->title;
-                $thisloc['subtitle']  = $loc->subtitle;
-                $thisloc['lat']       = (float) $loc->latitude;
-                $thisloc['lng']       = (float) $loc->longitude;
-
-                $thisone['locations'][] = $thisloc;
             }
         }
 
