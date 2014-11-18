@@ -217,7 +217,7 @@ public function fetchdata() {
     }
     if (is_array(@$_POST['weekdays'])) {
         $events->or_group_start();
-        foreach ($_POST['weekdays'] as $wday) $events->where($wday,1);
+        foreach ($_POST['weekdays'] as $wday) $events->or_where($wday,1);
         $events->group_end();
     }
     if (is_array(@$_POST['agegroup'])) {
