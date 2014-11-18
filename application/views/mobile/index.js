@@ -127,11 +127,18 @@ $(document).ready(function () {
 
 function initSearchForms() {
     // enable the 2 "GO" buttons on the home (Search) page
+    // one of them loads the whole map (clearing the filters) and switches over to it
+    // the other is a shortcut to clear filters, set My Current Location, then click go
     $('#page-home button[name="search-browse-map"]').tap(function () {
         performBrowseMap();
     });
     $('#page-home a[name="search-everything"]').tap(function () {
-        performBrowseList();
+        // reset all search options, set to GPS mode, and submit
+        // with the option to (after results had) proceed to the Map panel instead of the Results panel
+        $.mobile.changePage('#page-search-results-places');
+        setSearchFiltersToDefault();
+        $('#page-search select[name="location"]').val('gps').selectmenu('refresh').trigger('change');
+        performSearch();
     });
 
     // DOM handler: when the Address Type changed to address, show the address box; when it's not address, hide the box
@@ -461,18 +468,6 @@ function performBrowseMap() {
         MAP.fitBounds(MAX_EXTENT);
         performSearchReally({ 'afterpage':'#page-map' });
     });
-}
-
-function performBrowseList() {
-    // reset all search options, set to GPS mode and submit the START_X and START_Y coords which are the center of the supported area, then submit that search
-    // with the option to (after results had) proceed to the Map panel instead of the Results panel
-    setSearchFiltersToDefault();
-    $('#page-search select[name="location"]').val('gps').selectmenu('refresh').trigger('change');
-    $('#page-search input[name="lat"]').val(START_Y);
-    $('#page-search input[name="lng"]').val(START_X);
-
-    // perform the search
-    performSearchReally({ 'afterpage':'#page-search-results-places' });
 }
 
 function getMarkerById(id) {
