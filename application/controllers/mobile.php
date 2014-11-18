@@ -111,7 +111,7 @@ public function fetchdata() {
     // how far can a thing be, to fit the location filter?
     // a crude approximation presuming 1 degree = 60 miles, so 0.16=10 miles
     // tip: distance is sqrt of dX and dY, but why take sqrt when we can compare the square? skip the extra math
-    $max_distance_squared = 0.16 * 0.16;
+    $max_distance_squared = 0.25 * 0.25;
 
     // start the output
     $output = array(
