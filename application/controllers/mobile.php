@@ -208,15 +208,6 @@ public function fetchdata() {
     // Events, with their attendant EventLocations (if any)
     // the categories filter is applied here in the ORM query, but first we must resolve the list of Category-IDs onto a list of words (the cats' names)
     $events = new Event();
-    if (is_array(@$_POST['categories'])) {
-        $events->or_group_start();
-
-        $cats = new PlaceCategory();
-        $cats->where_in('id',$_POST['categories'])->get();
-        foreach ($cats as $cat) $events->like('name', $cat->name)->or_like('description', $cat->name);
-
-        $events->group_end();
-    }
     if (is_array(@$_POST['weekdays'])) {
         $events->or_group_start();
         foreach ($_POST['weekdays'] as $wday) $events->or_where($wday,1);
