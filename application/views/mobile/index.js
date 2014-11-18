@@ -694,6 +694,45 @@ function renderPlacesList() {
             });
         });
 
+        // part 3: activities
+        // if this Place has activities, create a inset listview (a second listview)
+        if (item.activities) {
+            // make an assoc to guarantee uniqueness, each name having a list of days-and-times
+            // see, the same activities may have different days (swimming is 9-10 MWF, 11-12 RF, 12-6 SaSu, ...)
+            var activities = {};
+            for (var ai=0, al=item.activities.length; ai<al; ai++) {
+                var actname  = item.activities[ai].name;
+                var actstart = item.activities[ai].start;
+                var actend   = item.activities[ai].end;
+                var actdays  = item.activities[ai].days;
+                if (! activities[actname]) activities[actname] = [];
+                activities[actname].push({ start:actstart, end:actend, days:actdays });
+            }
+
+            // make a list of the keys of the activities listing, and sort it; thus we can alphabetically iterate
+            // remember, assocs are inherently unsorted and if they happen to come out alphabetically it was purely coincidental
+            var activity_names = [];
+            for (var act in activities) activity_names.push(act);
+            activity_names.sort();
+
+            // and finally compose the listview: one LI-row for each unique-named activity
+            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').addClass('search-results-places-activities').appendTo(details);
+            for (var ai=0, al=activity_names.length; ai<al; ai++) {
+                var actname  = activity_names[ai];
+                var actlist  = activities[actname];
+
+                var inset = $('<li></li>').appendTo(sublist);
+                $('<div></div>').addClass('ui-btn-text').text(actname).appendTo(inset);
+                for (var tai=0, tal=actlist.length; tai<tal; tai++) {
+                    var days  = actlist[tai].days;
+                    var start = actlist[tai].start;
+                    var end   = actlist[tai].end;
+
+                    $('<div></div>').addClass('ui-btn-text').html(days + ' &nbsp;&nbsp; ' + start + ' - ' + end).appendTo(inset);
+                }
+            }
+        }
+
         // super glue: clicking the label toggles the visibility of the details
         plusminus.tap(function () {
             var button  = $(this).siblings('div.ui-btn-text').tap();

@@ -174,15 +174,6 @@ div.custom-navbar a[href="#page-home"] {
     cursor:pointer;
 }
 
-#page-search-results-places-list div.placeactivities_toggle {
-    color:#6060FF;
-    font-weight:bold;
-}
-
-#page-search-results-places-list div.placeactivities {
-    display:none; /* there's a button to show it; see renderPlacesList() */
-}
-
 .search-result-details {
     margin-left: 3em;
 }
@@ -198,6 +189,13 @@ div.custom-navbar a[href="#page-home"] {
 .maplink {
     font-weight:normal !important;
     font-size:10pt !important;
+}
+.search-results-places-activities {
+    margin-top:1em;
+}
+.search-results-places-activities:before {
+    content: "Activities";
+    font-weight: bold;
 }
 
 #page-search-results-events-list i.fa,#page-search-results-places-list i.fa {
