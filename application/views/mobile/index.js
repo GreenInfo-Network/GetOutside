@@ -765,19 +765,25 @@ function renderEventsList() {
         var item = items[i];
         var li   = $('<li></li>').data('rawresult',item).attr('data-id',item.id).appendTo($target);
 
+        // part 0: the plus-minus icon; not necessary since it's the title that does the toggling, but looks nice
+        var plusminus = $('<i class="fa fa-lg fa-plus"></i>').appendTo(li);
+
+        // part 1: the label of name and date-time
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
         $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
         $('<div></div>').addClass('ui-li-desc').text(item.datetime).appendTo(label);
 
+        // part 2: the details: More Info link, list of locations
+        var details = $('<div></div>').addClass('search-result-details').appendTo(li).hide();
+
         if (item.url) {
             var link = $('<a></a>').prop('target','_blank').prop('href',item.url).html('More Info');
-            $('<div></div>').addClass('ui-li-desc').append(link).appendTo(label);
+            $('<div></div>').addClass('ui-li-desc').append(link).appendTo(details);
         }
 
-        // if this Event has locations, create a inset listview
         // each entry showing the location by name; clicking it goes to the map
         if (item.locations) {
-            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(li);
+            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(details);
             for (var ai=0, al=item.locations.length; ai<al; ai++) {
                 var markerid    = item.locations[ai].id;
                 var loctitle    = item.locations[ai].title;
@@ -797,6 +803,20 @@ function renderEventsList() {
                 });
             }
         }
+
+        // super glue: clicking the label toggles the visibility of the details
+        label.tap(function () {
+            var details = $(this).siblings('div.search-result-details');
+            var button  = $(this).siblings('i.fa');
+            if (details.is(':visible')) {
+                details.hide();
+                button.removeClass('fa-minus').addClass('fa-plus');
+            }
+            else {
+                details.show();
+                button.removeClass('fa-plus').addClass('fa-minus');
+            }
+        });
     }
 
     $target.listview('refresh');

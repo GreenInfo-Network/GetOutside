@@ -170,11 +170,7 @@ div.custom-navbar a[href="#page-home"] {
 
 /*** RESULT LISTINGS ***/
 
-#page-search-results-places-list li {
-    cursor:pointer;
-}
-
-#page-search-results-events-list li {
+#page-search-results-places-list li , #page-search-results-events-list li {
     cursor:pointer;
 }
 
@@ -187,7 +183,20 @@ div.custom-navbar a[href="#page-home"] {
     display:none; /* there's a button to show it; see renderPlacesList() */
 }
 
+.search-result-details {
+    margin-left: 4em;
+}
 
+#page-search-results-events-list i.fa,#page-search-results-places-list i.fa {
+    float: left;
+    margin-right: 1em;
+    margin-top: 0.5em;
+
+    border-radius: 1em;     /* add a circle background so we can fake it to look like JQM's buttons */
+    padding: 5px 4px 3px;
+
+    color:white;
+}
 
 /*** CLUSTER MARKERS ***/
 .leaflet-label {
