@@ -202,6 +202,19 @@ public function reloadContent() {
             $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
             $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
 
+            // catch: if the $lat $lng are null, geocode failed
+            // see if we can trim off the first comma-joined element of the address and try again
+            // this (sorta) addresses a common use case of prepending the location name:  Cathedral of Saint Paul, 239 Selby Ave, St Paul, MN 55102, United States
+            if (! $lat and ! $lng) {
+                $whereagain = implode(",", array_slice(explode(",",$where),1) );
+                $geocode = sprintf("http://dev.virtualearth.net/REST/v1/Locations?key=%s&output=json&query=%s",
+                    $bing_key, urlencode($whereagain)
+                );
+                $geocode = @json_decode(file_get_contents($geocode));
+                $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+                $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+            }
+
             // ... then put it into the cache
             // note that this may have failed, but the casting will turn them into 0s if so
             // a 0,0 result is valid and specifically indicates that the address failed
