@@ -8,10 +8,6 @@ public function __construct() {
     // see whether we're bootstrapped
     if (! $this->db->table_exists('config')) die( redirect(site_url('setup')) );
 
-    // if they're using a Mobile browser, then bail on this and send them over to the Mobile site
-    $this->load->library('user_agent');
-    if ($this->agent->is_mobile()) die( redirect(site_url('mobile')) );
-
     // add $this->siteconfig, a link to our configuration settings, which we use practically everywhere
     // and use it to double-check that we're already boostrapped
     $this->load->model('SiteConfig');
@@ -54,6 +50,10 @@ public function logout() {
  ***************************************************************************************/
 
 public function index() {
+    // if they're using a Mobile browser, then bail on this and send them over to the Mobile site
+    $this->load->library('user_agent');
+    if ($this->agent->is_mobile()) die( redirect(site_url('mobile')) );
+
     $this->load->view('site/index.phtml');
 }
 
