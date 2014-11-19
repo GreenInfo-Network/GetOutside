@@ -513,7 +513,8 @@ function performSearch() {
 function performSearchReally(options) {
     // options? surprise! Browse Map should perform a search but should then go to Map instead of Results
     //      afterpage       jQuery UI selector for a page element, will go to that page after search is done
-    if (typeof options == 'undefined') options = { 'afterpage':'#page-search-results-places' };
+    if (typeof options == 'undefined') options = {};
+    if (typeof options.afterpage == 'undefined') options.afterpage = SEARCH_RESULTS_SUBTYPE;
 
     // compose params, including both the form itself (simple address) and the Settings (checkboxes from a different page)
     // this is why we can't use serialize()
@@ -685,7 +686,7 @@ function renderPlacesList() {
         $('<div></div>').addClass('search-result-details-place-categories').text( item.categories.join(' | ') ).appendTo(details);
 
         var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(details);
-        var link = $('<a></a>').addClass('maplink').prop('href','javascript:void(0);').html('Go To Map').data('markerid',item.id).data('lat',item.lat).data('lng',item.lng);
+        var link = $('<a></a>').addClass('maplink').prop('href','javascript:void(0);').html('&nbsp; Go To Map').data('markerid',item.id).data('lat',item.lat).data('lng',item.lng);
         $('<li></li>').attr('data-icon','map').attr('data-iconpos','left').append(link).appendTo(sublist);
         link.tap(function () {
             var markid = $(this).data('markerid');
