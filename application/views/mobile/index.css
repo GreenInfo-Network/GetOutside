@@ -165,7 +165,7 @@ div.custom-navbar a[href="#page-home"] {
 }
 
 
-/*** RESULT LISTINGS ***/
+/*** RESULT LISTINGS including very specific positions for the ui-li-count distance readouts ***/
 
 #page-search-results-places-list li , #page-search-results-events-list li {
     cursor:pointer;
@@ -207,6 +207,14 @@ div.custom-navbar a[href="#page-home"] {
 }
 #page-search-results-places-list i.fa {
     margin-top: 0;
+}
+
+#page-search-results-places-list .ui-li-count {
+    margin-top:-0.75em;
+}
+#page-search-results-events-list .ui-li-count {
+    margin-right: -0.6em;
+    margin-top: 1em;
 }
 
 /*** CLUSTER MARKERS ***/
