@@ -73,50 +73,25 @@ public function reloadContent() {
         'singleevents' => 'true',
         'start-min' => date(DATE_ATOM, mktime(0, 0, 0, $month, 1, $year) ),
         'start-max' => date(DATE_ATOM, mktime(0, 0, 0, $month+6, $date, $year) ),
-        //'prettyprint' => 'true',
+        'prettyprint' => 'true',
         'max-results' => 250,
         'orderby' => 'starttime',
     );
-    $full_url  = sprintf("%s/%s?%s", $url, 'full-noattendees', http_build_query($params) );
-    $basic_url = sprintf("%s/%s?%s", $url, 'basic',            http_build_query($params) );
+    $url = sprintf("%s/%s?%s", $url, 'basic', http_build_query($params) );
+    $xml = @file_get_contents($url);
+    if (substr($xml,0,6) != '<?xml ') throw new EventDataSourceErrorException( array('Non-XML response from the given URL (basic). Not a calendar feed?') );
 
-    // fetch the XML, do the most basic check that a <?xml header is given
-    // because some errors result in a HTML page or a brief text message
-    $full_xml = @file_get_contents($full_url);
-    if (substr($full_xml,0,6) != '<?xml ') throw new EventDataSourceErrorException( array('Non-XML response from the given URL (full). Not a calendar feed?') );
-
-    $basic_xml = @file_get_contents($basic_url);
-    if (substr($basic_xml,0,6) != '<?xml ') throw new EventDataSourceErrorException( array('Non-XML response from the given URL (basic). Not a calendar feed?') );
-
-    // replace the $xml variables with the parsed versions... or die trying
+    // replace the $xml variable with the parsed XML document... or die trying
     try {
-        $full_xml = @new SimpleXMLElement($full_xml);
-    } catch (Exception $e) {
-        throw new EventDataSourceErrorException(array('Could not parse response from the given URL (full). Not a calendar feed?') );
-    }
-    try {
-        $basic_xml = @new SimpleXMLElement($basic_xml);
+        $xml = @new SimpleXMLElement($xml);
     } catch (Exception $e) {
         throw new EventDataSourceErrorException( array('Could not parse response from the given URL (basic). Not a calendar feed?') );
     }
-
-    // check for some known headers, and bail if we don't see them
-    $updated = (string) $full_xml->updated;
-    $title   = (string) $full_xml->title;
-    if (!$title or !$updated) throw new EventDataSourceErrorException( array('Got XML but no content.') );
-
-    // the Basic feed, we really only want one thing: the <summary> tag for each event
-    // build a struct of these summaries keyed by the event's ID, and we can attach it to the real $entry items when we iterate over $full_xml in a little bit
-    $summaries = array();
-    foreach ($basic_xml->entry as $entry) {
-        $id  = basename( (string) $entry->id );
-        $sum = (string) $entry->summary;
-        $summaries[$id] = $sum;
-    }
+    if (!$xml->entry) throw new EventDataSourceErrorException( array('Got XML but no content.') );
 
     $details = array();
     $details[] = "Successfully parsed $url";
-    $details[] = sprintf("Found %d summaries to process", sizeof($summaries) );
+    $details[] = sprintf("Found %d events to process", sizeof($xml->entry) );
 
     // finally got here, so we're good, dang that's a lot of validation; it'll pay off in the long run  ;)
     // take a moment and delete all of the old Events from this data source
@@ -124,7 +99,7 @@ public function reloadContent() {
     foreach ($this->event as $old) $old->delete();
     $details[] = "Clearing out: $howmany_old old Event records";
 
-    // iterate over FULL entries and use them to construct our records
+    // iterate over entries and use them to construct our records
     // splicing onto them the $summaries entry from the Basic feed   so we can extract the Where: info from them
     // WARNING: as of now, the driver uses intimate knowledge of the framework context (siteconfig) which hypothetically should be in the Controller...
     //          but how is that gonna happen, without the Controller introspecting the driver details in ways which also violate MVC...?
@@ -136,13 +111,10 @@ public function reloadContent() {
     $howmany     = 0;
     $no_geocode  = 0;
     $no_location = 0;
-    foreach ($full_xml->entry as $entry) {
-        $id             = basename( (string) $entry->id );
-        $entry->summary = @$summaries[$id]; if (! $entry->summary) $entry->summary = "";
-
+    foreach ($xml->entry as $entry) {
         $event = new Event();
         $event->eventdatasource_id  = $this->id;
-        $event->remoteid            = $id;
+        $event->remoteid            = basename( (string) $entry->id );
         $event->name                = substr( (string) $entry->title, 0, 100);
         $event->description         = (string) $entry->content;
 
@@ -152,19 +124,32 @@ public function reloadContent() {
         }
 
         // parse the date & time into a Unix timestamp
-        $when = $entry->xpath('gd:when');
-        $start = (string) $when[0]['startTime'];
-        $end   = (string) $when[0]['endTime'];
-        $event->starts = strtotime($start); // Unix timestamp
-        $event->ends   = strtotime($end);   // Unix timestamp
+        // these are in the text as the When: string and requires some parsing of the "to" text to determine the ending time
+        // Examples:
+        //      When: Thu Jan 22, 2015
+        //      When: Tue Oct 28, 2014 6pm to Tue Oct 28, 2014 7:30pm
+        //      When: Wed Oct 29, 2014 3:30pm to 4:30pm 
 
-        // parse the date & time and see if it's at 00:00:00
-        // if so, then it's an All Day event AND ALSO we should trim off a few seconds so it ends at 11:59 the previous night instead of 12:00am the next morning
-        $start_midnight = date_parse($start);
-        $end_midnight   = date_parse($end);
-        if (!$start_midnight['hour'] and !$start_midnight['minute'] and !$end_midnight['hour'] and !$end_midnight['minute']) {
+        $timestring = null;
+        preg_match('/When: ([\w\s\,\:]+)/', $entry->summary, $timestring);
+        $timestring = $timestring[1];
+        if ( strpos($timestring, ' to ') === FALSE) {
+            // All Day event -- only a date was given and no times
+            $event->starts = strtotime($timestring);
+            $event->ends   = $event->starts + 86399;
             $event->allday = 1;
-            $event->ends  -= 1;
+        } else {
+            // "to" was found so it's not All Day
+            // split on the "to" string, and perhaps prepend the date component to the second half if it's missing  (see note above, re formats)
+            $from = explode(' to ',$timestring);
+            $to   = $from[1];
+            $from = $from[0];
+
+            // ending time may or may not have date prepended; inconsistent behavior in the RSS output
+            if ( preg_match('/^\d/',$to) ) $to = implode(' ',array_slice(explode(' ',$from),0,4)) . " $to";
+
+            $event->starts = strtotime($from);
+            $event->ends   = strtotime($to);
         }
 
         // now, figure out what weekdays intersect this event's duration; sat  sun  mon  ...
