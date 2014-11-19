@@ -110,14 +110,11 @@ a {
     display:inline-block;
 }
 
-.custom-navbar {
-    text-align:right;
-}
-
-
 div.custom-navbar {
     text-align:right;
     line-height:2em;
+
+    text-transform:uppercase;
 }
 div.custom-navbar a {
     font-size:13px;
