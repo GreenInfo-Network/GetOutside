@@ -263,6 +263,7 @@ public function geocode() {
     }
 
     // spit it out as JSON
+    header('Content-type: application/json');
     print json_encode($result);
 }
 
@@ -344,6 +345,7 @@ public function directions() {
     }
 
     // spit it out as JSON
+    header('Content-type: application/json');
     print json_encode($result);
 }
 
