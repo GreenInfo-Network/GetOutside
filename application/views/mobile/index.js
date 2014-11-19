@@ -263,7 +263,7 @@ function initMap() {
     // loose binding with an anonymous function, for easier debugging (can replace the function in the console)
     MAP.on('locationfound', function (event) { onLocationFound(event); });
     //MAP.on('locationerror', function (error) { onLocationError(error); });
-    /////GDA///MAP.locate({ enableHighAccuracy:true, watch:true });
+    MAP.locate({ enableHighAccuracy:true, watch:true });
 
     // add some Controls, including our custom ones which are simply buttons; we use a Control so Leaflet will position and style them
     L.control.scale({ metric:false }).addTo(MAP);
