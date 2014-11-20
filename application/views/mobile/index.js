@@ -553,6 +553,10 @@ function performSearchReally(options) {
     if (params.agegroup.length == 1 && params.agegroup[0] == '0')   delete(params.agegroup);
     if (params.gender.length   == 1 && params.gender[0] == '0')     delete(params.gender);
 
+    // empty the results panels immediately so we see neither old results nor "nothing matched" messages
+    $('#page-search-results-places-list').empty();
+    $('#page-search-results-events-list').empty();
+
     // .. and send off
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
     $.post(BASE_URL + 'mobile/fetchdata', params, function (reply) {
