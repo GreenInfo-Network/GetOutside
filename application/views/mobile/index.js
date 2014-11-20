@@ -158,7 +158,27 @@ function initSearchForms() {
 
     // Search Settings has a Show Results button
     // this should in fact switch over to the Search Results page as normal... but then perform a search
+    // BUT... the joys of replacing submit buttons with nav hyperlinks...
+    //        check that there's an address entered OR a location found, so we can "retrn false" and cancel navigation altogether
     $('#page-search a[href="#page-search-results-places"]').tap(function () {
+        var $form = $('#page-search form');
+        switch ( $form.find('select[name="location"]').val() ) {
+            case 'gps':
+                if (! LOCATION.getLatLng().lat) {
+                    alert("Still waiting for your location.");
+                    return false;
+                }
+                break;
+            case 'address':
+                if (! $form.find('input[name="address"]').val() ) {
+                    alert("Please enter an address.");
+                    return false;
+                }
+                break;
+            default:
+                break;
+        }
+
         performSearch();
     });
 
@@ -502,7 +522,7 @@ function performSearch() {
             // Address search: do an async geocoder call
             // have it fill in the lat & lng from whatever it finds, then it will perform the search
             var address = $form.find('input[name="address"]').val();
-            if (! address) return alert('Enter an address.');
+            if (! address) alert('Enter an address.');
             performSearchAfterGeocode(address);
             break;
         default:
