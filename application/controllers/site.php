@@ -300,6 +300,7 @@ private function _geocode_bing($address) {
     $params['output']       = 'json';
     $params['maxResults']   = 1;
     $params['query']        =  $address;
+    $params['userMapView']  = sprintf("%f,%f,%f,%f", $this->siteconfig->get('bbox_s'), $this->siteconfig->get('bbox_w'), $this->siteconfig->get('bbox_n'), $this->siteconfig->get('bbox_e') );
     $url = sprintf("http://dev.virtualearth.net/REST/v1/Locations?%s", http_build_query($params) );
 
     // send it off, parse it, make sure it's valid
