@@ -182,7 +182,6 @@ public function reloadContent() {
             $geo_cache[$where] = $this->_geocode($where);
         }
         $latlng = $geo_cache[$where];
-error_log(print_r($latlng,TRUE));//gda
 
         if (!$latlng) {
             $no_geocode++;
@@ -193,10 +192,10 @@ error_log(print_r($latlng,TRUE));//gda
         // ready, set, save!
         $loc = new EventLocation();
         $loc->event_id      = $event->id;
-        $loc->title         = $event->name;
+        $loc->title         = $where;
+        $loc->subtitle      = "";
         $loc->latitude      = $latlng['lat'];
         $loc->longitude     = $latlng['lng'];
-        $loc->subtitle      = $where;
         $loc->save();
     }
 
@@ -237,7 +236,6 @@ private function _geocode($address) {
     }
 }
 
-//gda
 private function _geocode_google($address) {
     // key is optional and is added to params if given; address is required
     $key = $this->siteconfig->get('google_api_key');
