@@ -203,11 +203,11 @@ div.custom-navbar a[href="#page-home"] {
 }
 
 #page-search-results-places-list .ui-li-count {
-    margin-top:-0.75em;
+    top:1.75em;
 }
 #page-search-results-events-list .ui-li-count {
     margin-right: -0.6em;
-    margin-top: 1em;
+    top: 1.5em;
 }
 
 /*** CLUSTER MARKERS ***/
@@ -233,9 +233,6 @@ div.custom-navbar a[href="#page-home"] {
 }
 .ui-li-heading {
     font-weight:bold;
-}
-.ui-li-count {
-    top:1.5em;
 }
 
 div.ui-header .ui-btn.ui-corner-all {

@@ -853,8 +853,9 @@ function renderEventsList() {
                 var loclat      = item.locations[ai].lat;
                 var loclng      = item.locations[ai].lng;
 
-                var link     = $('<a></a>').addClass('maplink').prop('href','javascript:void(0);').html('&nbsp; ' + loctitle + '<br/>' + '&nbsp; ' + locsubtitle).data('markerid',markerid).data('lat',loclat).data('lng',loclng);
-                var dislabel = $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // ignores CSS in files, must add it here
+                var titlehtml = '&nbsp; ' + loctitle;
+                var link      = $('<a></a>').addClass('maplink').prop('href','javascript:void(0);').html(titlehtml).data('markerid',markerid).data('lat',loclat).data('lng',loclng);
+                var dislabel  = $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // ignores CSS in files, must add it here
                 $('<li></li>').attr('data-icon','map').attr('data-iconpos','left').append(link).append(dislabel).appendTo(sublist);
 
                 link.tap(function () {
