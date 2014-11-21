@@ -151,18 +151,13 @@ public function fetchdata() {
         $thisone['lat']     = (float) $place->latitude;
         $thisone['lng']     = (float) $place->longitude;
 
-        // should we link to the place-info "website" ?
-        // only if... there's a description and/or any PlaceActivities     otherwise it's too blank to be interesting
-        $placeactivitycount = $place->placeactivity->count();
-        $thisone['url'] = site_url("site/place/{$place->id}");
-        if (! $place->description and ! $placeactivitycount) $thisone['url'] = "";
-
         // add the list of categories
         $thisone['categories'] = array();
         foreach ($place->placecategory as $cat) $thisone['categories'][] = $cat->name;
 
         // does this Place have any PlaceActivity items associated to it?
         // this is a flat list of all name-days-time settings, though I'm told the browser will "aggregate" them by name so as to make a compact layout; not this endpoint's problem...
+        $placeactivitycount = $place->placeactivity->count();
         if ($placeactivitycount) {
             $thisone['activities'] = array();
             foreach ($place->placeactivity as $activity) {
