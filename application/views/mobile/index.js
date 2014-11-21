@@ -562,8 +562,11 @@ function performSearchReally(options) {
     if (params.gender.length   == 1 && params.gender[0] == '0')     delete(params.gender);
 
     // empty the results panels immediately so we see neither old results nor "nothing matched" messages
+    // hide the map info panel, since that marker won't exist in a moment
+    // both of these are done implicitly in the handle-results sub-handlers, but it's cosmetically pleasing to hide them now
     $('#page-search-results-places-list').empty();
     $('#page-search-results-events-list').empty();
+    $('#map_infopanel').hide();
 
     // .. and send off
     $.mobile.loading('show', {theme:"a", text:"Searching", textonly:false, textVisible:true });
