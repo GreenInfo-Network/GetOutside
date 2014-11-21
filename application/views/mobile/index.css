@@ -5,19 +5,10 @@
 }
 
 
-
-/*** LEAFLET hacks ***/
-
-.leaflet-right .leaflet-control {
-    margin-right: 20px;
-}
-
-
 /*** PAGEs with the trim class, lack some width in favor of a border (border defined in theme: css.phtml) ***/
 div.page-withtrim[data-role="page"] {
     width:calc(100% - 14px);
     margin-right:7px;
-    /* margin-left:7px; */
 }
 
 /*** CUSTOM data-icon for a GPS icon ***/
