@@ -133,18 +133,17 @@ function initSearchForms() {
         performBrowseMap();
     });
     $('#page-home a[name="search-everything"]').tap(function () {
-        // reset all search options, set to GPS mode, and submit
-        // with the option to (after results had) proceed to the Map panel instead of the Results panel
-        $.mobile.changePage('#page-search-results-places');
-        setSearchFiltersToDefault();
-        $('#page-search select[name="location"]').val('gps').selectmenu('refresh').trigger('change');
-
         // whoa there! if they don't ev/en have a valid location this is about to get ugly; skip out
         if (! LOCATION.getLatLng().lat) {
             alert("Still waiting for your location.");
             return false;
         }
 
+        // reset all search options, set to GPS mode, and submit
+        // with the option to (after results had) proceed to the Map panel instead of the Results panel
+        $.mobile.changePage('#page-search-results-places');
+        setSearchFiltersToDefault();
+        $('#page-search select[name="location"]').val('gps').selectmenu('refresh').trigger('change');
         performSearch();
     });
 
