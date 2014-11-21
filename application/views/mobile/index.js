@@ -879,6 +879,14 @@ function renderEventsList() {
         });
     }
 
+    // hack (specific to Samsung?)
+    // intercept all of the hyperlinks on the Events results panel, and have them explicitly call window.open instead of using target=_blank
+    $('#page-search-results-events-list a.search-results-moreinfo-hyperlink').click(function () {
+        window.open( $(this).prop('href') );
+        return false;
+    });
+
+    // ready, done, refresh!
     $target.listview('refresh');
     $target.find('ul').listview();
     $target.find('a.maplink').removeClass('ui-btn-icon-right').addClass('ui-btn-icon-left'); // hack: JQM forces the icons to right, ignoring my data-iconpos
