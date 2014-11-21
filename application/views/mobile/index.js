@@ -241,10 +241,6 @@ function initSearchForms() {
     // and since Firefox loves to cache controls (checkboxes)
     // explicitly uncheck all checkboxes in the search setttings,, then set these defaults
     setSearchFiltersToDefault();
-
-    // trigger a rendering of Nothing Found at this time, as if a search had been performed
-    // this populates the Results panel, which someone could find via the Map panel having not done a search
-    performSearchHandleResults({ places:[], events:[] });
 }
 
 function initMap() {
