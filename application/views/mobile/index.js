@@ -349,10 +349,15 @@ function initMapInfoPanel() {
         $('#map_infopanel > a[data-icon="delete"]').click();
     });
 
-    // buttons in the info panel: open navigation to the given location
-    // due to popup blockers inherent in mobile browsers, this works by properly assigning a 'href' and clicking the link
-    // coordinates are populated by updateNavigationLinkFromMarker() which itself is called from the clickMarker_ family of functions
-    //$('#map_infopanel > a[data-icon="navigation"]')
+    // buttons in the info panel: Directions gation and More Info
+    // Directions already works by having a href assigned by updateNavigationLinkFromMarker() which itself is called from the clickMarker_ family of functions
+    // but this is a Samsung hack: Samsung ignores target=_blank and opens in current tab
+    //      workaround: intercept these taps and turn them into window.open()
+    // funny, as that href assignment thing was a workaround for window.open() not working...
+    $('#map_infopanel a[target="_blank"]').tap(function () {
+        window.open( $(this).prop('href') );
+        return false;
+    });
 }
 
 function initSearchResultPanels() {
