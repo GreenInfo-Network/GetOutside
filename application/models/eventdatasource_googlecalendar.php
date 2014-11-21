@@ -101,11 +101,8 @@ public function reloadContent() {
 
     // iterate over entries and use them to construct our records
     // splicing onto them the $summaries entry from the Basic feed   so we can extract the Where: info from them
-    // WARNING: as of now, the driver uses intimate knowledge of the framework context (siteconfig) which hypothetically should be in the Controller...
-    //          but how is that gonna happen, without the Controller introspecting the driver details in ways which also violate MVC...?
-    // Tip: as we go through and geocode, we cache the lat/lng by address, so that a second geocode on the same address will not require the geocoder service
-    //      this helps runtimes if the events tend to repeat at the same locations a lot, which is quite often true for park-n-rec things
-    $bing_key   = $this->siteconfig->get('bing_api_key');
+    // Tip: as we go through and geocode, we cache the lat/lng by address, so that a second geocode on the same address will not hit the geocoder service
+    //      this helps runtimes (and API usage counts!) if the events tend to repeat at the same locations a lot, which is quite often true for park-n-rec things
     $geo_cache  = array();
 
     $howmany     = 0;
@@ -167,18 +164,9 @@ public function reloadContent() {
         $event->save();
         $howmany++;
 
-        // afterthought
-        // the point of splicing on the <summary> tags was so we can parse them for probable location information via the Where: strings
-        // if the <summary> tag can't be found, or is empty, or just can't be geocoded, then skip it and increment that warning count
-        // also, bail condition: if we don't have a Bing API key configured, we must skip this
-        // WARNING: this does mean that the driver has intimate knowledge of the framework context (siteconfig) which violates MVC principles
-        //          but I'm not coming up with another way to do it, without the Controller getting into the Model and violating MVC anyway...
-        if (!$bing_key) {
-            $no_geocode++;
-            $details[] = "Bing API key not set; skipping address lookup for {$event->name}";
-            continue;
-        }
-
+        // parse the <summary> tags for location information via the Where: strings
+        // if the location just can't be geocoded (e.g. Meeting Room C), then skip it and increment a warning count
+        // since g;eocoding can be an admin option of WHICH geocoder, as well as some vebndor-specific behavior such as retrying, that's handed off to a handler
         $where = null;
         preg_match('/[\r\n]+(<br>|<br \/>)Where: (.+?)[\r\n]+/', $entry->summary, $where);
         $where = @$where[2];
@@ -188,49 +176,26 @@ public function reloadContent() {
             continue;
         }
 
-        if (array_key_exists($where,$geo_cache)) {
-            // this address has previously been cached, so just load it from there
-            // the check for 0 takes place below, so the cache can in fact contain 0,0 points for known fails
-            $lat = $geo_cache[$where]['lat'];
-            $lng = $geo_cache[$where]['lng'];
-        } else {
-            // not in the cache, so geocode it...
-            $geocode = sprintf("http://dev.virtualearth.net/REST/v1/Locations?key=%s&output=json&query=%s",
-                $bing_key, urlencode($where)
-            );
-            $geocode = @json_decode(file_get_contents($geocode));
-            $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
-            $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
-
-            // catch: if the $lat $lng are null, geocode failed
-            // see if we can trim off the first comma-joined element of the address and try again
-            // this (sorta) addresses a common use case of prepending the location name:  Cathedral of Saint Paul, 239 Selby Ave, St Paul, MN 55102, United States
-            if (! $lat and ! $lng) {
-                $whereagain = implode(",", array_slice(explode(",",$where),1) );
-                $geocode = sprintf("http://dev.virtualearth.net/REST/v1/Locations?key=%s&output=json&query=%s",
-                    $bing_key, urlencode($whereagain)
-                );
-                $geocode = @json_decode(file_get_contents($geocode));
-                $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
-                $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
-            }
-
-            // ... then put it into the cache
-            // note that this may have failed, but the casting will turn them into 0s if so
-            // a 0,0 result is valid and specifically indicates that the address failed
-            $geo_cache[$where] = array( 'lat'=>$lat, 'lng'=>$lng );
+        // check the geocoder cache for this address; if it's not there, make it be there
+        // now that we have the location, bail if it's a failure
+        if ( ! array_key_exists($where,$geo_cache)) {
+            $geo_cache[$where] = $this->_geocode($where);
         }
-        if (!$lat or !$lng) {
+        $latlng = $geo_cache[$where];
+error_log(print_r($latlng,TRUE));//gda
+
+        if (!$latlng) {
             $no_geocode++;
             $details[] = "Address could not be found: {$where}";
             continue;
         }
 
+        // ready, set, save!
         $loc = new EventLocation();
         $loc->event_id      = $event->id;
-        $loc->latitude      = $lat;
-        $loc->longitude     = $lng;
         $loc->title         = $event->name;
+        $loc->latitude      = $latlng['lat'];
+        $loc->longitude     = $latlng['lng'];
         $loc->subtitle      = $where;
         $loc->save();
     }
@@ -252,6 +217,83 @@ public function reloadContent() {
         'details'    => $details
     );
     throw new EventDataSourceSuccessException($messages,$info);
+}
+
+
+// the geocoder
+// sadly this violates MVC pretty badly: the driver must have access to the website's siteconfig in order to choose a geocoder, then load an API key
+// not sure how best to get around that and keep models agnostic of each other       "this is why we can't have nice UML diagrams"  :)
+private function _geocode($address) {
+    switch ( $this->siteconfig->get('preferred_geocoder') ) {
+        case 'bing':
+            return $this->_geocode_bing($address);
+            break;
+        case 'google':
+            return $this->_geocode_google($address);
+            break;
+        default:
+            return print "No geocoder enabled?";
+            break;
+    }
+}
+
+//gda
+private function _geocode_google($address) {
+    // key is optional and is added to params if given; address is required
+    $key = $this->siteconfig->get('google_api_key');
+    if (! $address) return NULL;
+
+    // compose the request and grab it
+    $params = array();
+    if ($key) $params['key'] = $key;
+    $params['address']       =  $address;
+    $params['bounds']        = sprintf("%f,%f|%f,%f", $this->siteconfig->get('bbox_s'), $this->siteconfig->get('bbox_w'), $this->siteconfig->get('bbox_n'), $this->siteconfig->get('bbox_e') );
+    $url = sprintf("https://maps.googleapis.com/maps/api/geocode/json?%s", http_build_query($params) );
+    $result = json_decode(file_get_contents($url));
+    if (! @$result->results[0]) return NULL;
+
+    // start building output
+    $latlng = array();
+    $latlng['lng']  = (float)  $result->results[0]->geometry->location->lng;
+    $latlng['lat']  = (float)  $result->results[0]->geometry->location->lat;
+    $latlng['s']    = (float)  $result->results[0]->geometry->viewport->southwest->lat;
+    $latlng['w']    = (float)  $result->results[0]->geometry->viewport->southwest->lng;
+    $latlng['n']    = (float)  $result->results[0]->geometry->viewport->northeast->lat;
+    $latlng['e']    = (float)  $result->results[0]->geometry->viewport->northeast->lng;
+    $latlng['name'] = (string) $result->results[0]->formatted_address;
+    return $latlng;
+}
+
+private function _geocode_bing($address) {
+    // for Bing geocoding, the API key is required, so bail if it's lacking
+    $key = $this->siteconfig->get('bing_api_key');
+    if (! $key) return NULL;
+    if (! $address) return NULL;
+
+    // hit the service, grok the reply
+    $urltemplate = "http://dev.virtualearth.net/REST/v1/Locations?key=%s&output=json&query=%s";
+    $geocode     = sprintf($urltemplate, $key, urlencode($address) );
+    $geocode     = @json_decode(file_get_contents($geocode));
+    $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+    $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+
+    // if we got nothing, then try again; this time, strip off the first comma-joined element
+    // this (sorta) addresses a common use case of prepending the location name:  Cathedral of Saint Paul, 239 Selby Ave, St Paul, MN 55102, United States
+    if (! $lat and ! $lng) {
+        $address = implode(",", array_slice(explode(",",$address),1) );
+        $geocode = sprintf($urltemplate, $key, urlencode($address) );
+        $geocode = @json_decode(file_get_contents($geocode));
+        $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+        $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+    }
+
+    // done!
+    if ($lat and $lng) {
+        return array('lat'=>$lat, 'lng'=>$lng);
+    } else {
+        return NULL;
+    }
+
 }
 
 
