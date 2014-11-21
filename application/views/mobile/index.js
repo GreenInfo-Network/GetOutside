@@ -361,7 +361,10 @@ function initSearchResultPanels() {
 
     // the Show On Map buttons on the result panels, should indeed go to the map...then should zoom to the extent of search results
     // the MARKERS were populated as part of renderResultsToMap() in turn a part of performSearchHandleResults()
+    // side effect: hide the info panel since we've left the map and are now zooming around, so it's surely not relevant anymore
     $('.custom-navbar a[href="#page-map"]').tap(function () {
+        $('#map_infopanel').hide();
+
         switchToMap(function () {
             MARKERS.FitBounds();
         });
@@ -604,6 +607,10 @@ function performSearchHandleResults(reply) {
 }
 
 function renderResultsToMap() {
+    // start by closing the infopanel
+    // we can't see it, but when they go to the map they will be able to and it's for a marker that may not even exist anymore
+    $('#map_infopanel').hide();
+
     // the factory method to generate the markers; required for any click or popup handling (despite the shorter syntax documented at https://github.com/SINTEF-9012/PruneCluster)
     // these PruneCluster.Marker instances use PrepareLeafletMarker to generate click event handlers; the default behavior supports only popups and even that requires PrepareLeafletMarker
     // kinda goofy to override these functions here every time we load new points, but this places it where we'll be in the code, keeps it in-sight and in-mind
