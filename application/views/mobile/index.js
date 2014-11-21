@@ -138,6 +138,13 @@ function initSearchForms() {
         $.mobile.changePage('#page-search-results-places');
         setSearchFiltersToDefault();
         $('#page-search select[name="location"]').val('gps').selectmenu('refresh').trigger('change');
+
+        // whoa there! if they don't ev/en have a valid location this is about to get ugly; skip out
+        if (! LOCATION.getLatLng().lat) {
+            alert("Still waiting for your location.");
+            return false;
+        }
+
         performSearch();
     });
 
