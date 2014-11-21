@@ -354,7 +354,7 @@ function initMapInfoPanel() {
     // but this is a Samsung hack: Samsung ignores target=_blank and opens in current tab
     //      workaround: intercept these taps and turn them into window.open()
     // funny, as that href assignment thing was a workaround for window.open() not working...
-    $('#map_infopanel a[target="_blank"]').tap(function () {
+    $('#map_infopanel a[target="_blank"]').click(function () {
         window.open( $(this).prop('href') );
         return false;
     });
