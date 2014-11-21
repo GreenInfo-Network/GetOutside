@@ -14,7 +14,7 @@ var AUTO_RECENTER = false;
 
 // when we go back to search results, should it be to Places or to Events?
 // a strange hack here, using a global for such state, but it's what works between a Leaflet control and two panels that will continue to change
-// see also initSearchResultLastPanelHack()
+// see also initSearchResultPanels()
 var SEARCH_RESULTS_SUBTYPE = '#page-search-results-places';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ $(document).ready(function () {
     initMap();
     initMapInfoPanel();
     initSearchForms();
-    initSearchResultLastPanelHack();
+    initSearchResultPanels();
 });
 
 function initSearchForms() {
@@ -355,12 +355,21 @@ function initMapInfoPanel() {
     //$('#map_infopanel > a[data-icon="navigation"]')
 }
 
-function initSearchResultLastPanelHack() {
+function initSearchResultPanels() {
     // requirement: if the last Search Results-related panel the person visited was Places/Events, then the "go to result list" control on the map page must go to that same panel
     // meaning that the control needs to be able to know which panel you last visited (may not be your -1 history)
     // see also leaflet-custombutton-list in leaflet.custommobilecontrols.js
     $('.search-results-navbar a').tap(function () {
         SEARCH_RESULTS_SUBTYPE = $(this).prop('href');
+    });
+
+    // the Show On Map buttons on the result panels, should indeed go to the map...then should zoom to the extent of search results
+    // the MARKERS were populated as part of renderResultsToMap() in turn a part of performSearchHandleResults()
+    $('.custom-navbar a[href="#page-map"]').tap(function () {
+        switchToMap(function () {
+            MARKERS.FitBounds();
+        });
+        return false;
     });
 }
 
