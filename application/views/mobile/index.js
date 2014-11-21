@@ -153,12 +153,10 @@ function initSearchForms() {
     $('#page-search select[name="location"]').change(function () {
         switch ( $(this).val() ) {
             case 'address':
-                // $('#page-home input[name="address"]').show();
-                $('#address-container').show(); // TFA, to mask the border on the inputs, hide the entire div
+                $('#address-container').show();
                 break;
             case 'gps':
-                // $('#page-home input[name="address"]').hide();
-                $('#address-container').hide(); // TFA, to mask the border on the inputs, hide the entire div
+                $('#address-container').hide();
                 break;
         }
     }).val('gps').trigger('change');
