@@ -442,6 +442,13 @@ function autoCenterToggle() {
     AUTO_RECENTER ? autoCenterOff() : autoCenterOn();
 }
 function autoCenterOn() {
+    // if their LOCATION is still 0,0 then something's screwy (location turned off?) so refuse to turn on GPS tracking
+    if (! LOCATION.getLatLng().lat) {
+        alert("Could not find your location.");
+        autoCenterOff();
+        return;
+    }
+
     AUTO_RECENTER = true;
     $('#map_canvas div.leaflet-custombutton-gps').addClass('active');
 
