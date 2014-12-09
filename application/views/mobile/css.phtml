@@ -3,6 +3,40 @@
  * it provides overrides to the JQM styles (e.g. borders) and also the color choices pulled from the 'config' table (and set via the admin panel)
  */
 
+
+/*** FEEDBACK PANELS ***/
+/*** GDA HACK: this is a temp patch for a beta tester, do not commit and push until this is removed ***/
+
+#home_feedback {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    margin-left: -4em;
+}
+#home_feedback a {
+    font-weight:bold;
+    background-color: <?= $mobile_buttonbgcolor1 ?>;
+    color: <?= $mobile_buttonfgcolor1 ?>;
+    padding:0.5em 1em 0 1em;
+    border-top-right-radius:1em;
+    border-top-left-radius:1em;
+}
+#map_feedback {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    margin-left: -4em;
+}
+#map_feedback a {
+    font-weight:bold;
+    background-color: <?= $mobile_buttonbgcolor1 ?>;
+    color: <?= $mobile_buttonfgcolor1 ?>;
+    padding:0.5em 1em 0 1em;
+    border-top-right-radius:1em;
+    border-top-left-radius:1em;
+}
+
+
 /*** OVERALL PAGE COLORS ***/
 
 .ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
@@ -79,8 +113,14 @@ div.custom-navbar a {
 img.leaflet-marker-icon.leaflet-marker-place.leaflet-marker-highlight {
     background-color: <?= $place_markerglowcolor ?> !important;
     border-radius:10px;
+
+    box-shadow: 0 0 8px 6px <?= $place_markerglowcolor ?> !important;
+    -webkit-box-shadow: 0 0 8px 6px <?= $place_markerglowcolor ?> !important;
 }
 img.leaflet-marker-icon.leaflet-marker-event.leaflet-marker-highlight {
     background-color: <?= $event_markerglowcolor ?> !important;
     border-radius:10px;
+
+    box-shadow: 0 0 8px 6px <?= $event_markerglowcolor ?> !important;
+    -webkit-box-shadow: 0 0 8px 6px <?= $event_markerglowcolor ?> !important;
 }
