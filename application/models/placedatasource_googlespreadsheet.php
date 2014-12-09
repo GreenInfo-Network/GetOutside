@@ -59,10 +59,9 @@ public function reloadContent() {
     $descfield = $this->option2;
     $latfield  = $this->option3;
     $lonfield  = $this->option4;
-    if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
-    if (! preg_match('!^\w+$!', $latfield))  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Latitude field') );
-    if (! preg_match('!^\w+$!', $lonfield))  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Longitude field') );
-    if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Description field') );
+    if (! $namefield) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
+    if (! $latfield)  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Latitude field') );
+    if (! $lonfield)  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Longitude field') );
     $fields = $this->listFields(TRUE);
     if (!in_array($namefield,$fields)) throw new PlaceDataSourceErrorException( array('Chosen Name field ($namefield) does not exist in the spreadsheet.') );
     if (!in_array($latfield,$fields))  throw new PlaceDataSourceErrorException( array('Chosen Latitude field ($latfield) does not exist in the spreadsheet.') );
@@ -142,6 +141,8 @@ public function reloadContent() {
 
     // pass 2
     // go from row 2 to row $maxrow and fetch specifically the columns we want to form this record
+    // hint: blank cells are omitted from the spreadsheet output -- cell X99 being NULL in the spreadsheet, means it's undefined in $cells
+    // use PHP's @stfu operator to allow these to silently be NULLed, since we handle their being blank/undef anyway
     $records_new       = 0;
     $records_updated   = 0;
     $records_badcoords = 0;
@@ -149,14 +150,14 @@ public function reloadContent() {
 
     for ($i=2; $i<=$maxrow; $i++) {
         $remoteid = $cells["{$column_name}{$i}"]; // no real remote ID so we use the name, I am certain that we'll regret this some day but since the Spreadsheet API lacks a true "row ID" separate from the row number, it's what we have
-        $name     = $cells["{$column_name}{$i}"];
-        $desc     = $cells["{$column_desc}{$i}"];
-        $lon      = (float) $cells["{$column_lon}{$i}"];
-        $lat      = (float) $cells["{$column_lat}{$i}"];
+        $name     = @$cells["{$column_name}{$i}"];
+        $desc     = @$cells["{$column_desc}{$i}"];
+        $lon      = (float) @$cells["{$column_lon}{$i}"];
+        $lat      = (float) @$cells["{$column_lat}{$i}"];
 
         // all attributes including and excluding those key ones targeted above; use the list of $colnames and make a simple assoc
         $attributes = array();
-        foreach ($colnames as $acol=>$albl) $attributes[$albl] = $cells["{$acol}{$i}"];
+        foreach ($colnames as $acol=>$albl) $attributes[$albl] = @$cells["{$acol}{$i}"];
 
         // missing a name? give a blank one but increment the warning count
         if (! $name) {
