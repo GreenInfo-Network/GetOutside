@@ -153,8 +153,9 @@ div.custom-navbar a[href="#page-home"] {
 }
 
 #map_infopanel > div {
-    width:99%;
-    margin:0 10px 0 50px; /*TFA added more left margin*/
+    width:calc(1000% - 55px); /* works on Android but not iOS, see resizeMap() */
+    margin:0 10px 0 50px;
+    white-space:normal;
 }
 
 

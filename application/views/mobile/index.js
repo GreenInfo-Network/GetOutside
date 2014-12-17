@@ -100,6 +100,12 @@ function resizeMap() {
 
     $("#map_canvas").height(contentHeight);
     if (MAP) MAP.invalidateSize();
+
+
+  // afterthought: the info panel needs to have an explicit width set on the description text
+  // since iOS doesn't handle calc() for setting the width
+  var width = $(window).width() - 50 - 10;
+  $('#map_infopanel > div').width(width);
 }
 
 function switchToMap(callback) {
