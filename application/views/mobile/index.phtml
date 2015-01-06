@@ -130,7 +130,7 @@
             </div>
         </div>
         <div data-role="collapsible">
-            <h2>Find Parks &amp; Recreation</h2>
+            <h2>Find Parks &amp; Recreation Amenities</h2>
             <div data-role="controlgroup" data-mini="true">
                 <?php foreach ($place_categories as $catid=>$catname) { ?>
                 <label><input type="checkbox" name="categories" value="<?= $catid ?>" /> <?= $catname ?></label>
@@ -220,8 +220,13 @@
                 of the supported area.
             </div>
             <div id="map_infopanel">
-                <a href="javascript:void(0);" target="_blank" data-role="button" data-icon="navigation" data-inline="true" data-mini="true" style="float:right;" data-lng="" data-lat="">Directions</a><!--this opens the nav app, see initMapInfoPanel() -->
+                <span style="float:right;">
+                    <a href="javascript:void(0);" target="_blank" data-role="button" data-icon="navigation" data-inline="true" data-mini="true" data-lng="" data-lat="">Directions</a><!--this opens the nav app, see initMapInfoPanel() -->
+                    <br/>
+                    <a href="#" target="_blank" data-role="button" data-icon="info" data-inline="true" data-mini="true">More Info</a>
+                </span>
                 <a href="javascript:void(0);" data-role="button" data-icon="delete" data-iconpos="notext" data-inline="true" data-mini="true" style="float:left;"></a><!--this X closes the panel, see initMapInfoPanel() -->
+
                 <div data-type="place">
                     <p data-field="name" style="font-weight:bold; font-size:115%;"></p>
                     <p data-field="desc"></p>
@@ -250,7 +255,6 @@
             <label><img src="<?= site_url('mobile/image/marker_event') ?>" /> Events</label>
             <br/>
             <label><img src="<?= site_url('mobile/image/marker_place') ?>" /> Places</label>
-
         </div>
 
         <div data-role="panel" id="panel-map-settings" data-position="right" data-display="overlay">
@@ -274,6 +278,7 @@
                 <?php } ?>
             </div>
         </div>
+
     </div>
 </div>
 

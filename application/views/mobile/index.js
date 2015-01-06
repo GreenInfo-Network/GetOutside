@@ -1018,13 +1018,14 @@ function clickMarker_EventLocation(marker) {
     // start by highlighting, why not?   tip: do not zoom here, cuz then the clusterer freaks out, recentering and reclustering repeatedly
     highlightMarker(marker);
 
-    // update the Directions link to navigate to this marker
+    // update the Directions link to navigate to this marker, and the More Info link to open a new browser window
     updateNavigationLinkFromMarker(marker);
+    updateWebsiteLinkFromMarker(marker);
 
     // expand the info panel, then show only this one subpanel for the marker type
     var panel = $('#map_infopanel').show();
     var subpanel = panel.children('div[data-type="eventlocation"]').show();
-    subpanel.siblings('div').hide();
+    subpanel.siblings('div[data-type]').hide();
 
     // go over attributes, load them into the tagged field (if one exists)
     // note the switch for the tag type: A tags assign an URL, everything else gets text filled in, ... thus we have self-expanding code simply by adding fields whose data-field=FIELDNAME
@@ -1058,13 +1059,14 @@ function clickMarker_Place(marker) {
     // start by highlighting, why not?   tip: do not zoom here, cuz then the clusterer freaks out, recentering and reclustering repeatedly
     highlightMarker(marker);
 
-    // update the Directions link to navigate to this marker
+    // update the Directions link to navigate to this marker, and the More Info link to open a new browser window
     updateNavigationLinkFromMarker(marker);
+    updateWebsiteLinkFromMarker(marker);
 
     // expand the info panel, then show only this one subpanel for the marker type
     var panel = $('#map_infopanel').show();
     var subpanel = panel.children('div[data-type="place"]').show();
-    subpanel.siblings('div').hide();
+    subpanel.siblings('div[data-type]').hide();
 
     // go over attributes, load them into the tagged field (if one exists)
     // note the switch for the tag type: A tags assign an URL, everything else gets text filled in, ... thus we have self-expanding code simply by adding fields whose data-field=FIELDNAME
@@ -1108,7 +1110,7 @@ function highlightMarker(marker) {
 function updateNavigationLinkFromMarker(marker) {
     // this hyperlink is triggered on click, to open the navigation/directions to the given point; see also see initMapInfoPanel() 
     // updateNavigationLinkFromMarker() should be called from the clickMarker_ family of functions, to bring the nav link into line with the marker being displayed
-    var target = $('#map_infopanel > a[data-icon="navigation"]');
+    var target = $('#map_infopanel a[data-icon="navigation"]');
     var there  = marker.getLatLng();
 
     if (is_ios()) {
@@ -1132,3 +1134,13 @@ function updateNavigationLinkFromMarker(marker) {
     }
 }
 
+function updateWebsiteLinkFromMarker(marker) {
+    var target = $('#map_infopanel a[data-icon="info"]');
+    var url    = marker.attributes.url;
+    
+    if (url) {
+      target.prop('href',url).show();
+    } else {
+      target.prop('href','javascript:void(0);').hide();
+    }
+}

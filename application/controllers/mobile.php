@@ -148,6 +148,7 @@ public function fetchdata() {
         $thisone['id']      = 'place-' . $place->id;
         $thisone['name']    = $place->name;
         $thisone['desc']    = $place->description;
+        $thisone['url']     = $place->url;
         $thisone['lat']     = (float) $place->latitude;
         $thisone['lng']     = (float) $place->longitude;
 
