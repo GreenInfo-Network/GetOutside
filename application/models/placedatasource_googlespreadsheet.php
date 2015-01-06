@@ -12,7 +12,7 @@ var $option_fields = array(
     'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option3' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Latitude Field", 'help'=>"Which field has the latitude of this location?"),
     'option4' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Longitude Field", 'help'=>"Which field has the longitude of this location?"),
-    'option5' => NULL,
+    'option5' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"URL Field", 'help'=>"Which field contains a URL for more info about these locations?"),
     'option6' => NULL,
     'option7' => NULL,
     'option8' => NULL,
@@ -59,6 +59,7 @@ public function reloadContent() {
     $descfield = $this->option2;
     $latfield  = $this->option3;
     $lonfield  = $this->option4;
+    $urlfield  = $this->option5;
     if (! $namefield) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
     if (! $latfield)  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Latitude field') );
     if (! $lonfield)  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Longitude field') );
@@ -67,6 +68,7 @@ public function reloadContent() {
     if (!in_array($latfield,$fields))  throw new PlaceDataSourceErrorException( array('Chosen Latitude field ($latfield) does not exist in the spreadsheet.') );
     if (!in_array($lonfield,$fields))  throw new PlaceDataSourceErrorException( array('Chosen Longitude field ($lonfield) does not exist in the spreadsheet.') );
     if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException( array('Chosen Description field ($descfield) does not exist in the spreadsheet.') );
+    if ($urlfield  and !in_array($urlfield,$fields))  throw new PlaceDataSourceErrorException( array('Chosen URL field ($urlfield) does not exist in the spreadsheet.') );
 
     // compose the URL and fetch the spreadsheet content
     // then check for nonsense: no data, non-XML data
@@ -98,6 +100,7 @@ public function reloadContent() {
     $column_desc = null;
     $column_lat  = null;
     $column_lon  = null;
+    $column_url  = null;
 
     foreach ($xml->entry as $cell) {
         $cellid    = (string) $cell->title;
@@ -114,17 +117,19 @@ public function reloadContent() {
         if ($rownumber==1 and $value == $descfield) $column_desc = $colletter;
         if ($rownumber==1 and $value == $latfield)  $column_lat  = $colletter;
         if ($rownumber==1 and $value == $lonfield)  $column_lon  = $colletter;
+        if ($rownumber==1 and $value == $urlfield)  $column_url  = $colletter;
 
         // if this cell is in row 1 then we have found a column label, e.g. B=>Park Name
         if ($rownumber==1) $colnames[$colletter] = $value;
 
-        // load the cells registry; a mdoest accomplishment, but one which will pay off in a moment
+        // load the cells registry; a modest accomplishment, but one which will pay off in a moment
         $cells[$cellid] = $value;
     }
     if (! $column_name) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for Name") );
-    if (! $column_desc) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for Desc") );
+    if ($descfield and ! $column_desc) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for Desc") );
     if (! $column_lat ) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for Latitude") );
     if (! $column_lon ) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for Longitude") );
+    if ($urlfield and ! $column_url) throw new PlaceDataSourceErrorException( array("Parsing error: Couldn't figure out column letter for URL") );
 
     // start the verbose output
     $details = array();
@@ -154,6 +159,7 @@ public function reloadContent() {
         $desc     = @$cells["{$column_desc}{$i}"];
         $lon      = (float) @$cells["{$column_lon}{$i}"];
         $lat      = (float) @$cells["{$column_lat}{$i}"];
+        $url      = @$cells["{$column_url}{$i}"];
 
         // all attributes including and excluding those key ones targeted above; use the list of $colnames and make a simple assoc
         $attributes = array();
@@ -195,6 +201,7 @@ public function reloadContent() {
         $place->description      = $desc;
         $place->latitude         = $lat;
         $place->longitude        = $lon;
+        $place->url              = $url;
         $place->attributes_json  = json_encode($attributes);
         $place->save();
     }

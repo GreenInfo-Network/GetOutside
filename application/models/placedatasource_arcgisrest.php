@@ -11,7 +11,7 @@ var $option_fields = array(
     'option1' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
     'option2' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option3' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"Filter Clause", 'help'=>"A filter clause using standard ArcGIS REST syntax, e.g. <i>STATE_FID=16</i> or OPENPUBLIC='Yes'<br/>This is used to filter the features, e.g. to remove those that are closed or non-public, or to narrow down results if only a few features are relevant."),
-    'option4' => NULL,
+    'option4' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"URL Field", 'help'=>"Which field contains a URL for more info about these locations?"),
     'option5' => NULL,
     'option6' => NULL,
     'option7' => NULL,
@@ -48,11 +48,13 @@ public function reloadContent() {
 
     $namefield = $this->option1;
     $descfield = $this->option2;
+    $urlfield  = $this->option4;
     if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
     if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Description field') );
     $fields = $this->listFields();
     if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Name field ($namefield) does not exist in the ArcGIS service.") );
     if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Description field ($descfield) does not exist in the ArcGIS service.") );
+    if ($urlfield  and !in_array($urlfield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen URL field ($descfield) does not exist in the ArcGIS service.") );
 
     // the filter clause; kinda free-form here, and high potential for them to mess it up
     // that's why we're so thorough on catching possible exceptions such as missing field names
@@ -120,8 +122,10 @@ public function reloadContent() {
         $remoteid    = (integer) $feature->attributes->OBJECTID;
         $name        = $feature->attributes->{$namefield};
         $description = $descfield ? $feature->attributes->{$descfield} : '';
+        $url         = $urlfield  ? $feature->attributes->{$urlfield} : '';
         if (! $name)        { $name= ' ';        $warn_noname++; $details[] = "Record $remoteid lacks a name"; }
         if (! $description) { $description = ''; $warn_nodesc++; }
+        if (! $url)         { $url = ''; }
 
         list($longitude,$latitude) = call_user_func_array(array($this, $geom_extractor), array($feature->geometry));
 
@@ -146,6 +150,7 @@ public function reloadContent() {
         $place->description      = $description;
         $place->latitude         = $latitude;
         $place->longitude        = $longitude;
+        $place->url              = $url;
         $place->attributes_json  = json_encode($feature->attributes);
         $place->save();
     }

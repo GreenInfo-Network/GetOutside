@@ -14,7 +14,7 @@ var $option_fields = array(
     'option4' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
     'option5' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option6' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"Filter Clause", 'help'=>"A WHERE clause using standard PostgreSQL or PostGIS syntax, e.g. <i>STATE_FID=16</i> or OPENPUBLIC='Yes'<br/>This is used to filter the features, e.g. to remove those that are closed or non-public, or to narrow down results if only a few features are relevant."),
-    'option7' => NULL,
+    'option7' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"URL Field", 'help'=>"Which field contains a URL for more info about these locations?"),
     'option8' => NULL,
     'option9' => NULL,
 );
@@ -53,11 +53,13 @@ public function reloadContent() {
     // check the selected name field and description field (if applicable) as also being simple alphanumeric, then make sure they're on the list
     $namefield = $this->option4;
     $descfield = $this->option5;
+    $urlfield  = $this->option7;
     if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
     if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Description field') );
     $fields = $this->listFields();
     if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Name field ($namefield) does not exist in the CartoDB table.") );
     if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Description field ($descfield) does not exist in the CartoDB table.") );
+    if ($urlfield  and !in_array($urlfield,$fields))  throw new PlaceDataSourceErrorException( array("Chosen URL field ($urlfield) does not exist in the CartoDB table.") );
 
     // the SQL clause, well, they can go bananas there, so no validation
     $whereclause = $this->option6;
@@ -121,6 +123,7 @@ public function reloadContent() {
         $remoteid = $feature->properties->cartodb_id;
         $name     = $feature->properties->{$namefield};
         $desc     = $descfield ? $feature->properties->{$descfield} : '';
+        $url      = $urlfield  ? $feature->properties->{$urlfield}  : '';
         $lon      = (float) @$feature->geometry->coordinates[0];
         $lat      = (float) @$feature->geometry->coordinates[1];
 
@@ -164,6 +167,7 @@ public function reloadContent() {
         $place->description      = $desc;
         $place->latitude         = $lat;
         $place->longitude        = $lon;
+        $place->url              = $url;
         $place->attributes_json  = json_encode($attributes);
         $place->save();
 

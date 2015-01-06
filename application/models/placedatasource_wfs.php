@@ -18,7 +18,7 @@ var $option_fields = array(
     'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
     'option3' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option4' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"Additional URL Parameters", 'help'=>"Additional URL params to be included in the WFS request, in standard URL syntax. Example: <i>&srsName=EPSG:4326</i> to output the content in WGS84 coordinates, or <i>BBOX=-95.7,42.2,-92.6,43.5</i> to apply a spatial filter."),
-    'option5' => NULL,
+    'option5' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"URL Field", 'help'=>"Which field contains a URL for more info about these locations?"),
     'option6' => NULL,
     'option7' => NULL,
     'option8' => NULL,
@@ -60,11 +60,13 @@ public function reloadContent() {
     // name field (required) and description field (optionsl) should be simple alphanumeric, then make sure they're on the list
     $namefield = $this->option2;
     $descfield = $this->option3;
+    $urlfield  = $this->option5;
     if (! preg_match('!^\w+$!', $namefield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
     if ($descfield and ! preg_match('!^\w+$!', $descfield)) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Description field') );
     $fields = $this->listFields();
     if (!$namefield or !in_array($namefield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Name field ($namefield) does not exist in this FeatureType.") );
     if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException( array("Chosen Description field ($descfield) does not exist in this FeatureType.") );
+    if ($urlfield  and !in_array($urlfield,$fields))  throw new PlaceDataSourceErrorException( array("Chosen URL field ($descfield) does not exist in this FeatureType.") );
 
     // Other URL Params isn't something we can sanitize, really   Just arbitrary text to add to the URL string
     $moreparams = $this->option4;
@@ -143,11 +145,13 @@ public function reloadContent() {
             $warn_nounique++;
         }
 
-        // the simple attributes: name and description
+        // the simple attributes: name and description and URL
         $name     = @$attributes[$namefield];
         $desc     = $descfield ? @$attributes[$descfield] : '';
+        $url      = $urlfield  ? @$attributes[$urlfield]  : '';
         if (! $name) { $name= ''; $warn_noname++; $details[] = "Record $remoteid lacks a name"; }
         if (! $desc) { $desc= ''; }
+        if (! $url)  { $url = ''; }
 
         // geometry may be a gml:LinearRing (polygon, multipolygon) or a gml:Point (point) but they both have "gml:coordinates" so we lock on to that
         // hand off to handlers to find the centroid if it's a polygon, or to extract the coordinates if it's a point
@@ -197,6 +201,7 @@ public function reloadContent() {
         $place->description      = $desc;
         $place->latitude         = $lat;
         $place->longitude        = $lon;
+        $place->url              = $url;
         $place->attributes_json  = json_encode($attributes);
         $place->save();
 
