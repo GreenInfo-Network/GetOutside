@@ -97,6 +97,10 @@ div.basemap_option {
                 <td><input type="text" name="company_url" size="50" maxlength="50" value="<?= htmlspecialchars( $siteconfig['company_url'] ) ?>" /></td>
             </tr>
             <tr>
+                <td>Feedback URL<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="If you enter a URL here, the site will present a Feedback button, which can be used by visitors to leave feedback, bug reports, etc. This should point to your website's contact form, a Google Form, or another web page which invites visitors to contact you."></div></td>
+                <td><input type="text" name="feedback_url" size="50" maxlength="50" value="<?= htmlspecialchars( $siteconfig['feedback_url'] ) ?>" /></td>
+            </tr>
+            <tr>
                 <td>Time Zone<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="What time zone should be used to report dates and times? This is particularly important for events."></div></td>
                 <td><?= form_dropdown('timezone', $timezones, $siteconfig['timezone'] ) ?></td>
             </tr>

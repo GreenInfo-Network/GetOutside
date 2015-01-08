@@ -26,6 +26,7 @@ $config['JQUITHEME'] = 'pepper-grinder';
 
 $config['TIMEZONE'] = "America/Los_Angeles"; // aka Pacific time
 
+$config['FEEDBACK_URL'] = '';
 
 /*
 |--------------------------------------------------------------------------

@@ -93,6 +93,7 @@ public function ajax_save_settings() {
     // guess we're golden
     $this->siteconfig->set('jquitheme', $_POST['jquitheme']);
     $this->siteconfig->set('title', $_POST['title']);
+    $this->siteconfig->set('feedback_url', $_POST['feedback_url']);
 
     $this->siteconfig->set('timezone', $_POST['timezone']);
 

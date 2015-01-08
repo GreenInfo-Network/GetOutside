@@ -93,6 +93,15 @@ $(document).ready(function () {
         startMap(which);
     }).filter(':checked').trigger('change');
 
+    // enable special effects in the editing forms
+    // if a Feedback URL was given, ensure that it starts with http:// because people forget to add it when they're pasting
+    $('input[name="feedback_url"]').change(function () {
+        var url = $(this).val();
+        if (! url) return;                      // no URL at all; fine
+        if (url.substr(0,4) == 'http') return;  // already has it, fine
+        $(this).val( 'http://' + url );
+    });
+
 });
 
 
