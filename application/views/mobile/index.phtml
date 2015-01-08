@@ -99,6 +99,13 @@
 
     <h3 class="center">Or:</h3>
     <button name="search-browse-map" data-icon="map" data-iconpos="left" data-textpos="left">Explore the <b>MAP</b></button>
+
+    <!-- Feedback button but only if configured -->
+    <?php if ($siteconfig['feedback_url']) { ?>
+    <div id="home_feedback">
+        <a target="_blank" href="<?= $siteconfig['feedback_url'] ?>">Feedback</a>
+    </div>
+    <?php } ?>
 </div>
 
 
@@ -278,6 +285,13 @@
                 <?php } ?>
             </div>
         </div>
+
+        <!-- Feedback button but only if configured -->
+        <?php if ($siteconfig['feedback_url']) { ?>
+        <div id="map_feedback">
+            <a target="_blank" href="<?= $siteconfig['feedback_url'] ?>">Feedback</a>
+        </div>
+        <?php } ?>
 
     </div>
 </div>
