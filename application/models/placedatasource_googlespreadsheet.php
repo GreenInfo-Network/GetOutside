@@ -160,6 +160,7 @@ public function reloadContent() {
         $lon      = (float) @$cells["{$column_lon}{$i}"];
         $lat      = (float) @$cells["{$column_lat}{$i}"];
         $url      = @$cells["{$column_url}{$i}"];
+        if ($url and substr($url,0,4) != 'http') $url = "http://$url";
 
         // all attributes including and excluding those key ones targeted above; use the list of $colnames and make a simple assoc
         $attributes = array();

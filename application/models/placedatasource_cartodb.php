@@ -126,6 +126,7 @@ public function reloadContent() {
         $url      = $urlfield  ? $feature->properties->{$urlfield}  : '';
         $lon      = (float) @$feature->geometry->coordinates[0];
         $lat      = (float) @$feature->geometry->coordinates[1];
+        if ($url and substr($url,0,4) != 'http') $url = "http://$url";
 
         // no name? that's okay but increment the warning
         if (! $name) {

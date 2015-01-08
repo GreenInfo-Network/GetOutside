@@ -126,6 +126,7 @@ public function reloadContent() {
         if (! $name)        { $name= ' ';        $warn_noname++; $details[] = "Record $remoteid lacks a name"; }
         if (! $description) { $description = ''; $warn_nodesc++; }
         if (! $url)         { $url = ''; }
+        if ($url and substr($url,0,4) != 'http') $url = "http://$url";
 
         list($longitude,$latitude) = call_user_func_array(array($this, $geom_extractor), array($feature->geometry));
 

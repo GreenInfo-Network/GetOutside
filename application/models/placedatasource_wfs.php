@@ -152,6 +152,7 @@ public function reloadContent() {
         if (! $name) { $name= ''; $warn_noname++; $details[] = "Record $remoteid lacks a name"; }
         if (! $desc) { $desc= ''; }
         if (! $url)  { $url = ''; }
+        if ($url and substr($url,0,4) != 'http') $url = "http://$url";
 
         // geometry may be a gml:LinearRing (polygon, multipolygon) or a gml:Point (point) but they both have "gml:coordinates" so we lock on to that
         // hand off to handlers to find the centroid if it's a polygon, or to extract the coordinates if it's a point
