@@ -612,7 +612,11 @@ function performSearchHandleResults(reply) {
     // fudge attributes!
     // for the info panel on the map, but perhaps others, we want an easy-to-use attribute to show a comma-joined list of categories
     for (var i=0, l=reply.places.length; i<l; i++) {
-        reply.places[i].categorylist = reply.places[i].categories.join(", ");
+        if (reply.places[i].categories.length) {
+            reply.places[i].categorylist = 'Categories: ' + reply.places[i].categories.join(", ");
+        } else {
+            reply.places[i].categorylist = '';
+        }
     }
 
     // assign the results into the listing components (listviews, map) ...
