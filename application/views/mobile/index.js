@@ -364,6 +364,12 @@ function initMapInfoPanel() {
         window.open( $(this).prop('href') );
         return false;
     });
+
+    // have the panel swallow clicks, so they don't propagate down to the map
+    // which itself will cause the panel to close, or to bring up info on some other location marker
+    $('#map_infopanel').click(function (event) {
+        event.stopPropagation();
+    });
 }
 
 function initSearchResultPanels() {
