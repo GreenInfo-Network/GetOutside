@@ -729,4 +729,16 @@ public function ajax_save_placeactivity() {
 }
 
 
+public function ajax_delete_placeactivity() {
+    // accept a POST with the ID# of a PlaceActivity
+    $act = new PlaceActivity();
+    $act->where('id',@$_POST['id'])->get();
+    if (! $act->id) return print "Could not find that activity. Maybe it was deleted already?";
+
+    // AJAX endpoint, just say OK and let the caller figure it out
+    $act->delete();
+    print 'ok';
+}
+
+
 } // end of Controller

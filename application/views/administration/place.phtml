@@ -12,6 +12,11 @@ input[name="starttime"] {
 input[name="endtime"] {
     width:1in;
 }
+i.placeactivity-delete {
+    float:right;
+    cursor:pointer;
+    top:3px;
+}
 </style>
 
 
@@ -47,16 +52,16 @@ input[name="endtime"] {
         </tr>
         <?php foreach ($place->placeactivity as $hour) { ?>
         <tr data-activity-id="<?= $hour->id ?>">
-            <td><a href="javascript:void(0);"><?= htmlspecialchars($hour->name) ?></a></td>
+            <td><a href="javascript:void(0);"><?= htmlspecialchars($hour->name) ?></a> <i class="glyphicon glyphicon-remove placeactivity-delete"></i></td>
             <td><?= PlaceActivity::roundTime($hour->starttime) ?></td>
             <td><?= PlaceActivity::roundTime($hour->endtime) ?></td>
-            <td><?= $hour->mon ? 'Yes' : '-' ?>
-            <td><?= $hour->tue ? 'Yes' : '-' ?>
-            <td><?= $hour->wed ? 'Yes' : '-' ?>
-            <td><?= $hour->thu ? 'Yes' : '-' ?>
-            <td><?= $hour->fri ? 'Yes' : '-' ?>
-            <td><?= $hour->sat ? 'Yes' : '-' ?>
-            <td><?= $hour->sun ? 'Yes' : '-' ?>
+            <td><?= $hour->mon ? 'Yes' : '-' ?></td>
+            <td><?= $hour->tue ? 'Yes' : '-' ?></td>
+            <td><?= $hour->wed ? 'Yes' : '-' ?></td>
+            <td><?= $hour->thu ? 'Yes' : '-' ?></td>
+            <td><?= $hour->fri ? 'Yes' : '-' ?></td>
+            <td><?= $hour->sat ? 'Yes' : '-' ?></td>
+            <td><?= $hour->sun ? 'Yes' : '-' ?></td>
         </tr>
         <?php } ?>
     </table>

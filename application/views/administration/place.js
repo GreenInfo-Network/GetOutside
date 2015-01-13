@@ -61,10 +61,31 @@ $(document).ready(function () {
     // activate the time pickers
     $('#dialog_activity input[name="starttime"]').timepicker();
     $('#dialog_activity input[name="endtime"]').timepicker();
+
+    // on the table, the delete buttons trigger a confirmation, then send an AJAX delete request for the given activity
+    $('#activities i.placeactivity-delete').click(function () {
+        var ok = confirm("Really delete this activity from the schedule?\nClick OK to delete, Cancel to keep.");
+        if (! ok) return false;
+
+        var id = $(this).closest('tr').attr('data-activity-id');
+        deleteActivityById(id);
+    });
 });
 
 
 
+function deleteActivityById(id) {
+    $('#dialog_fetching').dialog('open');
+    var url    = BASE_URL + 'administration/ajax_delete_placeactivity';
+    var params = { id:id };
+    $.post(url, params, function (reply) {
+        $('#dialog_fetching').dialog('close');
+        if (reply != 'ok') return alert(reply);
+
+        $('#dialog_activity').dialog('close');
+        document.location.href = document.location.href;
+    });
+}
 
 function editActivityById(id) {
     // find the given row, parse it into some values
