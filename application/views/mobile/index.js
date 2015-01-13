@@ -748,7 +748,7 @@ function renderPlacesList() {
 
         // part 1: the label of name and distance/heading
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
-        $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
+        $('<span></span>').addClass('ui-li-heading').html(item.name).appendTo(label);
         $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
 
         // part 2: the details: list of categories, list of activities, ...
@@ -848,7 +848,7 @@ function renderEventsList() {
 
         // part 1: the label of name and date-time
         var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
-        $('<span></span>').addClass('ui-li-heading').text(item.name).appendTo(label);
+        $('<span></span>').addClass('ui-li-heading').html(item.name).appendTo(label);
         $('<div></div>').addClass('ui-li-desc').text(item.datetime).appendTo(label);
 
         // part 2: the details: More Info link, list of locations
