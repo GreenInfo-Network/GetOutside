@@ -97,7 +97,7 @@ public function fetchdata() {
     // validation can be somewhat terse; there's no way these params would be omitted by the app using this endpoint
     $_POST['lat'] = (float) @$_POST['lat']; if (! $_POST['lat']) return print "Missing param: lat";
     $_POST['lng'] = (float) @$_POST['lng']; if (! $_POST['lng']) return print "Missing param: lng";
-    if (! in_array(@$_POST['eventdays'],array('30','6','0'))) return print "Missing or invalid value for param: eventdays";
+    if (! in_array(@$_POST['eventdays'],array('365','30','6','0'))) return print "Missing or invalid value for param: eventdays";
 
     // PREP WORK
     // for event date filtering, today and the next 7 days
