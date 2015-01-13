@@ -9,7 +9,7 @@ public function reload_events() {
 
     // loop over all data sources...
     $sources = new EventDataSource();
-    $sources->get();
+    $sources->where('enabled','1')->get();
     printf("Found %d Event data sources\n", $sources->result_count() );
 
     // a link to the site config; a not-so-great MVC-violating hack, now that the data sxources need detailed knowledge of website configuration
@@ -42,7 +42,7 @@ public function reload_places() {
 
     // loop over all data sources...
     $sources = new PlaceDataSource();
-    $sources->get();
+    $sources->where('enabled','1')->get();
     printf("Found %d Place data sources\n", $sources->result_count() );
 
     // a link to the site config; a not-so-great MVC-violating hack, now that the data sources need detailed knowledge of website configuration
