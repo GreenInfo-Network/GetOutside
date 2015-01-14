@@ -757,14 +757,20 @@ function renderPlacesList() {
         $('<div></div>').addClass('search-result-details-place-categories').text( item.categories.join(' | ') ).appendTo(details);
 
         var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(details);
-        var link = $('<a></a>').addClass('maplink').prop('href','javascript:void(0);').html('&nbsp; Go To Map').data('markerid',item.id).data('lat',item.lat).data('lng',item.lng);
-        $('<li></li>').attr('data-icon','map').attr('data-iconpos','left').append(link).appendTo(sublist);
+
+        var li      = $('<li></li>').attr('data-icon','map').attr('data-iconpos','left').appendTo(sublist);
+        var link    = $('<a></a>').appendTo(li).addClass('maplink').prop('href','javascript:void(0);').html('&nbsp; Go To Map').data('markerid',item.id).data('lat',item.lat).data('lng',item.lng);
         link.tap(function () {
             var markid = $(this).data('markerid');
             switchToMap(function () {
                 handleResultListClick(markid,'Place');
             });
         });
+
+        if (item.url) {
+            var li   = $('<li></li>').attr('data-icon','info').attr('data-iconpos','left').appendTo(sublist);
+            var link = $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url).prop('target','_blank').html('&nbsp; More Info');
+        }
 
         // part 3: activities
         // if this Place has activities, create a inset listview (a second listview)
@@ -826,6 +832,7 @@ function renderPlacesList() {
     $target.listview('refresh');
     $target.find('ul').listview();
     $target.find('a.maplink').removeClass('ui-btn-icon-right').addClass('ui-btn-icon-left'); // hack: JQM forces the icons to right, ignoring my data-iconpos
+    $target.find('a.infolink').removeClass('ui-btn-icon-right').addClass('ui-btn-icon-left'); // hack: JQM forces the icons to right, ignoring my data-iconpos
 }
 
 function renderEventsList() {
@@ -854,12 +861,18 @@ function renderEventsList() {
         // part 2: the details: More Info link, list of locations
         var details = $('<div></div>').addClass('search-result-details').appendTo(li).hide();
 
-        if (item.url) {
-            var link = $('<a></a>').prop('target','_blank').addClass('search-results-moreinfo-hyperlink').prop('href',item.url).html('More Info');
-            $('<div></div>').addClass('ui-li-desc').append(link).appendTo(details);
+        // a sub-list must exist for Locations and for More Info links
+        // not sure if we got one, both, or neither, but here we go
+
+        if (item.locations || item.url) {
+            var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(details);
         }
 
-        // each entry showing the location by name; clicking it goes to the map
+        if (item.url) {
+            var li   = $('<li></li>').attr('data-icon','info').attr('data-iconpos','left').appendTo(sublist);
+            var link = $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url).prop('target','_blank').html('&nbsp; More Info');
+        }
+
         if (item.locations) {
             var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(details);
             for (var ai=0, al=item.locations.length; ai<al; ai++) {
@@ -912,6 +925,7 @@ function renderEventsList() {
     $target.listview('refresh');
     $target.find('ul').listview();
     $target.find('a.maplink').removeClass('ui-btn-icon-right').addClass('ui-btn-icon-left'); // hack: JQM forces the icons to right, ignoring my data-iconpos
+    $target.find('a.infolink').removeClass('ui-btn-icon-right').addClass('ui-btn-icon-left'); // hack: JQM forces the icons to right, ignoring my data-iconpos
 }
 
 function updateEventsAndPlacesDistanceReadouts() {

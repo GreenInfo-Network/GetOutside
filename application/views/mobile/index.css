@@ -168,16 +168,15 @@ div.custom-navbar a[href="#page-home"] {
 .search-result-details {
     margin-left: 3em;
 }
-.search-results-moreinfo-hyperlink {
-    display:inline-block;
-    margin-top:1em;
-    margin-bottom:1em;
-}
 .search-result-details-place-categories {
     margin-top:1em;
     margin-bottom:1em;
 }
 .maplink {
+    font-weight:normal !important;
+    font-size:10pt !important;
+}
+.infolink {
     font-weight:normal !important;
     font-size:10pt !important;
 }
