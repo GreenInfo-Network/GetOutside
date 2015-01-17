@@ -391,6 +391,73 @@ function initSearchResultPanels() {
         });
         return false;
     });
+
+    // delegated event handlers on the results listings
+    // Places result list
+    // - tapping a Show On Map link switches to the map, then zooms to the Marker whose ID is embedded into the maplink
+    // - tapping a result's name/label, looks for a info listing in this listing result (LI) and toggles its visibility
+    // - tapping on a +/- button re-triggers that event on the name/label
+    $('#page-search-results-places-list').on('tap', 'a.maplink', function () {
+        var markid = $(this).data('markerid');
+        switchToMap(function () {
+            handleResultListClick(markid,'Place');
+        });
+    });
+    $('#page-search-results-places-list').on('tap', 'div.resultlabel', function () {
+        var details = $(this).siblings('div.search-result-details');
+        var button  = $(this).siblings('i.fa');
+        if (details.is(':visible')) {
+            details.hide();
+            button.removeClass('fa-minus').addClass('fa-plus');
+        }
+        else {
+            details.show();
+            button.removeClass('fa-plus').addClass('fa-minus');
+        }
+    });
+    $('#page-search-results-places-list').on('tap', 'i.infotoggle', function () {
+        $(this).siblings('div.ui-btn-text').tap();
+    });
+
+    // delegated event handlers on the results listings
+    // Events result list
+    // - tapping a Show On Map link switches to the map, then zooms to the Marker whose ID is embedded into the maplink
+    // - tapping a result's name/label, looks for a info listing in this listing result (LI) and toggles its visibility
+    // - tapping on a +/- button re-triggers that event on the name/label
+    $('#page-search-results-events-list').on('tap', 'a.maplink', function () {
+        var markid = $(this).data('markerid');
+        switchToMap(function () {
+            handleResultListClick(markid,'EventLocation');
+        });
+    });
+    $('#page-search-results-events-list').on('tap', 'infotoggle', function () {
+        var button  = $(this).siblings('div.ui-btn-text').tap();
+    });
+    $('#page-search-results-events-list').on('tap', 'resultlabel', function () {
+        var details = $(this).siblings('div.search-result-details');
+        var button  = $(this).siblings('i.fa');
+        if (details.is(':visible')) {
+            details.hide();
+            button.removeClass('fa-minus').addClass('fa-plus');
+        }
+        else {
+            details.show();
+            button.removeClass('fa-plus').addClass('fa-minus');
+        }
+    });
+
+    // delegated event handlers on the results listings
+    // both Place and Event listings
+    // hack -- intercept all of the external hyperlinks, and have them explicitly call window.open instead of using target=_blank
+    // seems to solve bugs specific to Samsung handsets, that they replace the current window instead of opening a tab, or do nothing at all
+    $('#page-search-results-events-list a.infolink').click(function () {
+        window.open( $(this).prop('href') );
+        return false;
+    });
+    $('#page-search-results-places-list a.infolink').click(function () {
+        window.open( $(this).prop('href') );
+        return false;
+    });
 }
 
 
@@ -742,34 +809,29 @@ function renderPlacesList() {
         var item = items[i];
         var li   = $('<li></li>').data('rawresult',item).attr('data-id',item.id).appendTo($target);
 
-
-        // part 0: the plus-minus icon; not necessary since it's the title that does the toggling, but looks nice
-        var plusminus = $('<i class="fa fa-lg fa-plus"></i>').appendTo(li);
+        // part 0: the plus-minus icon; purely decrative since it's the title that does the toggling, but looks nice
+        // see delegated tap handler in initSearchResultPanels()
+        var plusminus = $('<i class="fa fa-lg fa-plus infotoggle"></i>').appendTo(li);
 
         // part 1: the label of name and distance/heading
-        var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
+        // see delegated tap handler in initSearchResultPanels()
+        var label = $('<div></div>').addClass('ui-btn-text').addClass('resultlabel').appendTo(li);
         $('<span></span>').addClass('ui-li-heading').html(item.name).appendTo(label);
         $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // the distance & bearing aren't loaded yet; see onLocationFound()
 
         // part 2: the details: list of categories, list of activities, ...
         // then the Go To Map button, which for styling purposes is actually in a listview
+        // click handlers here were set as delegates on #page-search-results-places-list itself; see initSearchResultPanels()
         var details = $('<div></div>').addClass('search-result-details').appendTo(li).hide();
         $('<div></div>').addClass('search-result-details-place-categories').text( item.categories.join(' | ') ).appendTo(details);
 
         var sublist = $('<ul></ul>').attr('data-role','listview').attr('data-inset','true').appendTo(details);
-
         var li      = $('<li></li>').attr('data-icon','map').attr('data-iconpos','left').appendTo(sublist);
-        var link    = $('<a></a>').appendTo(li).addClass('maplink').prop('href','javascript:void(0);').html('&nbsp; Go To Map').data('markerid',item.id).data('lat',item.lat).data('lng',item.lng);
-        link.tap(function () {
-            var markid = $(this).data('markerid');
-            switchToMap(function () {
-                handleResultListClick(markid,'Place');
-            });
-        });
+        $('<a></a>').appendTo(li).addClass('maplink').prop('href','javascript:void(0);').html('&nbsp; Go To Map').data('markerid',item.id).data('lat',item.lat).data('lng',item.lng);
 
         if (item.url) {
             var li   = $('<li></li>').attr('data-icon','info').attr('data-iconpos','left').appendTo(sublist);
-            var link = $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url).prop('target','_blank').html('&nbsp; More Info');
+            $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url).prop('target','_blank').html('&nbsp; More Info');
         }
 
         // part 3: activities
@@ -810,23 +872,6 @@ function renderPlacesList() {
                 }
             }
         }
-
-        // super glue: clicking the label toggles the visibility of the details
-        plusminus.tap(function () {
-            var button  = $(this).siblings('div.ui-btn-text').tap();
-        });
-        label.tap(function () {
-            var details = $(this).siblings('div.search-result-details');
-            var button  = $(this).siblings('i.fa');
-            if (details.is(':visible')) {
-                details.hide();
-                button.removeClass('fa-minus').addClass('fa-plus');
-            }
-            else {
-                details.show();
-                button.removeClass('fa-plus').addClass('fa-minus');
-            }
-        });
     }
 
     $target.listview('refresh');
@@ -850,11 +895,13 @@ function renderEventsList() {
         var item = items[i];
         var li   = $('<li></li>').data('rawresult',item).attr('data-id',item.id).appendTo($target);
 
-        // part 0: the plus-minus icon; not necessary since it's the title that does the toggling, but looks nice
-        var plusminus = $('<i class="fa fa-lg fa-plus"></i>').appendTo(li);
+        // part 0: the plus-minus icon; purely decorative since it's the title that does the toggling, but looks nice
+        // see delegated tap handler in initSearchResultPanels()
+        var plusminus = $('<i class="fa fa-lg fa-plus infotoggle"></i>').appendTo(li);
 
         // part 1: the label of name and date-time
-        var label = $('<div></div>').addClass('ui-btn-text').appendTo(li);
+        // see delegated tap handler in initSearchResultPanels()
+        var label = $('<div></div>').addClass('ui-btn-text').addClass('resultlabel').appendTo(li);
         $('<span></span>').addClass('ui-li-heading').html(item.name).appendTo(label);
         $('<div></div>').addClass('ui-li-desc').text(item.datetime).appendTo(label);
 
@@ -870,7 +917,7 @@ function renderEventsList() {
 
         if (item.url) {
             var li   = $('<li></li>').attr('data-icon','info').attr('data-iconpos','left').appendTo(sublist);
-            var link = $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url).prop('target','_blank').html('&nbsp; More Info');
+            $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url).prop('target','_blank').html('&nbsp; More Info');
         }
 
         if (item.locations) {
@@ -886,40 +933,9 @@ function renderEventsList() {
                 var link      = $('<a></a>').addClass('maplink').prop('href','javascript:void(0);').html(titlehtml).data('markerid',markerid).data('lat',loclat).data('lng',loclng);
                 var dislabel  = $('<span></span>').addClass('ui-li-count').text(' ').appendTo(label); // ignores CSS in files, must add it here
                 $('<li></li>').attr('data-icon','map').attr('data-iconpos','left').append(link).append(dislabel).appendTo(sublist);
-
-                link.tap(function () {
-                    var markid = $(this).data('markerid');
-                    switchToMap(function () {
-                        handleResultListClick(markid,'EventLocation');
-                    });
-                });
             }
         }
-
-        // super glue: clicking the label toggles the visibility of the details
-        plusminus.tap(function () {
-            var button  = $(this).siblings('div.ui-btn-text').tap();
-        });
-        label.tap(function () {
-            var details = $(this).siblings('div.search-result-details');
-            var button  = $(this).siblings('i.fa');
-            if (details.is(':visible')) {
-                details.hide();
-                button.removeClass('fa-minus').addClass('fa-plus');
-            }
-            else {
-                details.show();
-                button.removeClass('fa-plus').addClass('fa-minus');
-            }
-        });
     }
-
-    // hack (specific to Samsung?)
-    // intercept all of the hyperlinks on the Events results panel, and have them explicitly call window.open instead of using target=_blank
-    $('#page-search-results-events-list a.search-results-moreinfo-hyperlink').click(function () {
-        window.open( $(this).prop('href') );
-        return false;
-    });
 
     // ready, done, refresh!
     $target.listview('refresh');
