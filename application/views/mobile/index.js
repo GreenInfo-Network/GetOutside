@@ -129,6 +129,9 @@ $(document).ready(function () {
     initMapInfoPanel();
     initSearchForms();
     initSearchResultPanels();
+
+    // now make a show of waiting on their location, with a spinner and all
+    initWaitForLocation();
 });
 
 function initSearchForms() {
@@ -139,9 +142,9 @@ function initSearchForms() {
         performBrowseMap();
     });
     $('#page-home a[name="search-everything"]').tap(function () {
-        // whoa there! if they don't ev/en have a valid location this is about to get ugly; skip out
+        // whoa there! if they don't even have a valid location this is about to get ugly; skip out
         if (! LOCATION.getLatLng().lat) {
-            alert("Still waiting for your location.");
+            alert("Could not find your location. Make sure location is enabled, and try again.");
             return false;
         }
 
@@ -175,7 +178,7 @@ function initSearchForms() {
         switch ( $form.find('select[name="location"]').val() ) {
             case 'gps':
                 if (! LOCATION.getLatLng().lat) {
-                    alert("Still waiting for your location.");
+                    alert("Could not find your location. Make sure location is enabled, and try again.");
                     return false;
                 }
                 break;
@@ -457,6 +460,36 @@ function initSearchResultPanels() {
     $('#page-search-results-places-list a.infolink').click(function () {
         window.open( $(this).prop('href') );
         return false;
+    });
+}
+
+function initWaitForLocation() {
+    // all we do is show a spinner until we got a location for the first time
+    // the map is already tracking location via MAP.locate() and its own onLocationFound() handler
+    // so our only role is to keep the eye busy untikl we're sure that at least one location has come in
+    // naturally, something else could close this spinner before that... not sure what can be done about that
+
+    // sadly desktop browsers do not properly implement the timeout, nor call error callback  https://bugzilla.mozilla.org/show_bug.cgi?id=675533
+    // so we have to use a timeout to wait 10 seconds; if we don't have a location by then something went wrong
+
+    $.mobile.loading('show', { theme:"a", text:"Detecting Location", textonly:false, textVisible:true });
+    var have_location = false;
+
+    setTimeout(function () {
+        if (! have_location) {
+            alert("Could not find your location. Please check that location is enabled, then reload this page.");
+            $.mobile.loading('hide');
+            //document.location.href = BASE_URL + '/mobile';
+        }
+    }, 10000);
+
+    navigator.geolocation.getCurrentPosition(function (position) {
+        have_location = true;
+        $.mobile.loading('hide');
+    }, null, {
+        enableHighAccuracy:true,
+        maximumAge:3600,
+        timeout:10000
     });
 }
 
