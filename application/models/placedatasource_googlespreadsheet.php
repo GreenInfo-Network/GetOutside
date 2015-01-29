@@ -12,10 +12,10 @@ var $option_fields = array(
     'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option3' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Latitude Field", 'help'=>"Which field has the latitude of this location?"),
     'option4' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Longitude Field", 'help'=>"Which field has the longitude of this location?"),
-    'option5' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"URL Field", 'help'=>"Which field contains a URL for more info about these locations?"),
+    'option5' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"URL Field", 'help'=>"Which field contains a URL where one can get info about each place?"),
     'option6' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"URL Button Text", 'help'=>"For the mobile app, what text appears in the &quot;Go to website&quot; button? Only applicable if you choose an URL Field option.", 'maxlength'=>15, 'default'=>"Website"),
-    'option7' => NULL,
-    'option8' => NULL,
+    'option7' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"URL Field (More Info)", 'help'=>"Like URL Field above, but a second website. Useful if a second site has hours, events, or tickets."),
+    'option8' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"URL Button Text", 'help'=>"Like the URL Button Text above, but this text applies to the More Info button. Only applicable if you pick a second URL Field above for More Info.", 'maxlength'=>15, 'default'=>"More Info"),
     'option9' => NULL,
 );
 
@@ -61,6 +61,8 @@ public function reloadContent() {
     $lonfield       = $this->option4;
     $urlfield       = $this->option5;
     $urltext        = $this->option6;
+    $urlfield2      = $this->option7;
+    $urltext2       = $this->option8;
     if (! $namefield) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
     if (! $latfield)  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Latitude field') );
     if (! $lonfield)  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Longitude field') );
@@ -70,6 +72,7 @@ public function reloadContent() {
     if (!in_array($lonfield,$fields))  throw new PlaceDataSourceErrorException( array('Chosen Longitude field ($lonfield) does not exist in the spreadsheet.') );
     if ($descfield and !in_array($descfield,$fields)) throw new PlaceDataSourceErrorException( array('Chosen Description field ($descfield) does not exist in the spreadsheet.') );
     if ($urlfield  and !in_array($urlfield,$fields))  throw new PlaceDataSourceErrorException( array('Chosen URL field ($urlfield) does not exist in the spreadsheet.') );
+    if ($urlfield2 and !in_array($urlfield2,$fields)) throw new PlaceDataSourceErrorException( array('Chosen More Info URL field ($urlfield) does not exist in the spreadsheet.') );
 
     // compose the URL and fetch the spreadsheet content
     // then check for nonsense: no data, non-XML data
@@ -119,6 +122,7 @@ public function reloadContent() {
         if ($rownumber==1 and $value == $latfield)  $column_lat  = $colletter;
         if ($rownumber==1 and $value == $lonfield)  $column_lon  = $colletter;
         if ($rownumber==1 and $value == $urlfield)  $column_url  = $colletter;
+        if ($rownumber==1 and $value == $urlfield2) $column_url2 = $colletter;
 
         // if this cell is in row 1 then we have found a column label, e.g. B=>Park Name
         if ($rownumber==1) $colnames[$colletter] = $value;
@@ -161,6 +165,7 @@ public function reloadContent() {
         $lon      = (float) @$cells["{$column_lon}{$i}"];
         $lat      = (float) @$cells["{$column_lat}{$i}"];
         $url      = @$cells["{$column_url}{$i}"];
+        $url2     = @$cells["{$column_url2}{$i}"];
         if ($url and substr($url,0,4) != 'http') $url = "http://$url";
 
         // all attributes including and excluding those key ones targeted above; use the list of $colnames and make a simple assoc
@@ -205,6 +210,8 @@ public function reloadContent() {
         $place->longitude        = $lon;
         $place->url              = $url;
         $place->urltext          = $urltext;
+        $place->url2             = $url2;
+        $place->urltext2         = $urltext2;
         $place->attributes_json  = json_encode($attributes);
         $place->save();
     }
