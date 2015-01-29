@@ -7,13 +7,13 @@ var $has_one          = array();
 var $has_many         = array('place',);
 
 var $option_fields = array(
-    'url'     => array('required'=>TRUE, 'name'=>"Spreadsheet URL", 'help'=>'The URL of the Google Drive spreadsheet.<br/>Example: <a target="_blank" href="https://docs.google.com/spreadsheets/d/1e4rbpYv8KNAKrsCilHcxjaqhtpx4osgfYRAtqNCp0fI/pubhtml">https://docs.google.com/spreadsheets/d/1e4rbpYv8KNAKrsCilHcxjaqhtpx4osgfYRAtqNCp0fI/pubhtml</a><br/>The spreadsheet must be <i>Published to the web</i>. Note that &quot;Published to the web&quot; and &quot;Public on the web&quot; are not the same thing.'),
+    'url'     => array('required'=>TRUE, 'isfield'=>FALSE, 'name'=>"Spreadsheet URL", 'help'=>'The URL of the Google Drive spreadsheet.<br/>Example: <a target="_blank" href="https://docs.google.com/spreadsheets/d/1e4rbpYv8KNAKrsCilHcxjaqhtpx4osgfYRAtqNCp0fI/pubhtml">https://docs.google.com/spreadsheets/d/1e4rbpYv8KNAKrsCilHcxjaqhtpx4osgfYRAtqNCp0fI/pubhtml</a><br/>The spreadsheet must be <i>Published to the web</i>. Note that &quot;Published to the web&quot; and &quot;Public on the web&quot; are not the same thing.'),
     'option1' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Name/Title Field", 'help'=>"Which field contains the name/title for these locations?"),
     'option2' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Description Field", 'help'=>"Which field contains the description for these locations?"),
     'option3' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Latitude Field", 'help'=>"Which field has the latitude of this location?"),
     'option4' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Longitude Field", 'help'=>"Which field has the longitude of this location?"),
     'option5' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"URL Field", 'help'=>"Which field contains a URL for more info about these locations?"),
-    'option6' => NULL,
+    'option6' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"URL Button Text", 'help'=>"For the mobile app, what text appears in the &quot;Go to website&quot; button? Only applicable if you choose an URL Field option.", 'maxlength'=>15, 'default'=>"More Info"),
     'option7' => NULL,
     'option8' => NULL,
     'option9' => NULL,

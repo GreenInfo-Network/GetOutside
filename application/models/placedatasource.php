@@ -96,6 +96,10 @@ var $has_many         = array('place','placecategoryrule',);
 //                                  if this is set, the UI will make this entry a selection, from a list of fields present in the data source
 //      title => text               on the editing page, the title of this field, e.g. "API Key"
 //      help => text                on the editing page, this forms the text instructions for the field, e.g. "Contact your CSR for more info..."
+//      default => text             on the editing page, the default text value that would be used
+//                                  only applicable when isfield=FALSE such that a text field is used
+//      maxlength => integer        on the editing page, the maximum length of the text that may be entered
+//                                  only applicable when isfield=FALSE such that a text field is used
 // The text fields accept HTML and will not be escaped. Tip: If you include hyperlinks, use target=_blank so they don't lose the admin UI.
 var $option_fields = array(
     'url'     => array('required'=>TRUE, 'name'=>"URL", 'help'=>"Enter the URL of the remote feed."),

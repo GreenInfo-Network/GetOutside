@@ -497,6 +497,16 @@ public function ajax_create_place_source() {
     $source->url  = '';
     $source->save();
 
+    // look up the driver class for this new data source, and look through its options
+    // any that have a default setting, go ahead and set them right now
+    $driver = $source->convertToDriver();
+    foreach ($driver->option_fields as $optname=>$optinfo) {
+        if (! $optinfo['isfield'] and @$optinfo['default']) {
+            $source->{$optname} = $optinfo['default'];
+            $source->save();
+        }
+    }
+
     // AJAX endpoint: just say OK
     print $source->id;
 }
