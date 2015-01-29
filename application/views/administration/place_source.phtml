@@ -75,8 +75,12 @@ em {
         <tr>
             <td><?= $source->option_fields['option1']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option1']['isfield'] and $fields and is_array($fields)) { ?>
-                    <?= form_dropdown('option1',$fields,$source->option1) ?>
+                <?php if (@$source->option_fields['option1']['isfield'] and $required_fields and is_array($required_fields)) { ?>
+                    <?php if ($source->option_fields['option1']['required']) { ?>
+                        <?= form_dropdown('option1',$required_fields,$source->option1) ?>
+                    <?php } else { ?>
+                        <?= form_dropdown('option1',$optional_fields,$source->option1) ?>
+                    <?php } ?>
                 <?php } else { ?>
                     <input type="text" name="option1" value="<?= $source->option1 ?>" size="100" maxlength="500" />
                 <?php } ?>
@@ -89,8 +93,12 @@ em {
         <tr>
             <td><?= $source->option_fields['option2']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option2']['isfield'] and $fields and is_array($fields)) { ?>
-                    <?= form_dropdown('option2',$fields,$source->option2) ?>
+                <?php if (@$source->option_fields['option2']['isfield'] and $required_fields and is_array($required_fields)) { ?>
+                    <?php if ($source->option_fields['option2']['required']) { ?>
+                        <?= form_dropdown('option2',$required_fields,$source->option2) ?>
+                    <?php } else { ?>
+                        <?= form_dropdown('option2',$optional_fields,$source->option2) ?>
+                    <?php } ?>
                 <?php } else { ?>
                     <input type="text" name="option2" value="<?= $source->option2 ?>" size="100" maxlength="500" />
                 <?php } ?>
@@ -103,8 +111,12 @@ em {
         <tr>
             <td><?= $source->option_fields['option3']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option3']['isfield'] and $fields and is_array($fields)) { ?>
-                    <?= form_dropdown('option3',$fields,$source->option3) ?>
+                <?php if (@$source->option_fields['option3']['isfield'] and $required_fields and is_array($required_fields)) { ?>
+                    <?php if ($source->option_fields['option3']['required']) { ?>
+                        <?= form_dropdown('option3',$required_fields,$source->option3) ?>
+                    <?php } else { ?>
+                        <?= form_dropdown('option3',$optional_fields,$source->option3) ?>
+                    <?php } ?>
                 <?php } else { ?>
                     <input type="text" name="option3" value="<?= $source->option3 ?>" size="100" maxlength="500" />
                 <?php } ?>
@@ -117,8 +129,12 @@ em {
         <tr>
             <td><?= $source->option_fields['option4']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option4']['isfield'] and $fields and is_array($fields)) { ?>
-                    <?= form_dropdown('option4',$fields,$source->option4) ?>
+                <?php if (@$source->option_fields['option4']['isfield'] and $required_fields and is_array($required_fields)) { ?>
+                    <?php if ($source->option_fields['option4']['required']) { ?>
+                        <?= form_dropdown('option4',$required_fields,$source->option4) ?>
+                    <?php } else { ?>
+                        <?= form_dropdown('option4',$optional_fields,$source->option4) ?>
+                    <?php } ?>
                 <?php } else { ?>
                     <input type="text" name="option4" value="<?= $source->option4 ?>" size="100" maxlength="500" />
                 <?php } ?>
@@ -131,8 +147,12 @@ em {
         <tr>
             <td><?= $source->option_fields['option5']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option5']['isfield'] and $fields and is_array($fields)) { ?>
-                    <?= form_dropdown('option5',$fields,$source->option5) ?>
+                <?php if (@$source->option_fields['option5']['isfield'] and $required_fields and is_array($required_fields)) { ?>
+                    <?php if ($source->option_fields['option5']['required']) { ?>
+                        <?= form_dropdown('option5',$required_fields,$source->option5) ?>
+                    <?php } else { ?>
+                        <?= form_dropdown('option5',$optional_fields,$source->option5) ?>
+                    <?php } ?>
                 <?php } else { ?>
                     <input type="text" name="option5" value="<?= $source->option5 ?>" size="100" maxlength="500" />
                 <?php } ?>
@@ -145,8 +165,12 @@ em {
         <tr>
             <td><?= $source->option_fields['option6']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option6']['isfield'] and $fields and is_array($fields)) { ?>
-                    <?= form_dropdown('option6',$fields,$source->option6) ?>
+                <?php if (@$source->option_fields['option6']['isfield'] and $required_fields and is_array($required_fields)) { ?>
+                    <?php if ($source->option_fields['option6']['required']) { ?>
+                        <?= form_dropdown('option6',$required_fields,$source->option6) ?>
+                    <?php } else { ?>
+                        <?= form_dropdown('option6',$optional_fields,$source->option6) ?>
+                    <?php } ?>
                 <?php } else { ?>
                     <input type="text" name="option6" value="<?= $source->option6 ?>" size="100" maxlength="500" />
                 <?php } ?>
@@ -159,8 +183,12 @@ em {
         <tr>
             <td><?= $source->option_fields['option7']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option7']['isfield'] and $fields and is_array($fields)) { ?>
-                    <?= form_dropdown('option7',$fields,$source->option7) ?>
+                <?php if (@$source->option_fields['option7']['isfield'] and $required_fields and is_array($required_fields)) { ?>
+                    <?php if ($source->option_fields['option7']['required']) { ?>
+                        <?= form_dropdown('option7',$required_fields,$source->option7) ?>
+                    <?php } else { ?>
+                        <?= form_dropdown('option7',$optional_fields,$source->option7) ?>
+                    <?php } ?>
                 <?php } else { ?>
                     <input type="text" name="option7" value="<?= $source->option7 ?>" size="100" maxlength="500" />
                 <?php } ?>
@@ -173,8 +201,12 @@ em {
         <tr>
             <td><?= $source->option_fields['option8']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option8']['isfield'] and $fields and is_array($fields)) { ?>
-                    <?= form_dropdown('option8',$fields,$source->option8) ?>
+                <?php if (@$source->option_fields['option8']['isfield'] and $required_fields and is_array($required_fields)) { ?>
+                    <?php if ($source->option_fields['option8']['required']) { ?>
+                        <?= form_dropdown('option8',$required_fields,$source->option8) ?>
+                    <?php } else { ?>
+                        <?= form_dropdown('option8',$optional_fields,$source->option8) ?>
+                    <?php } ?>
                 <?php } else { ?>
                     <input type="text" name="option8" value="<?= $source->option8 ?>" size="100" maxlength="500" />
                 <?php } ?>
@@ -187,8 +219,12 @@ em {
         <tr>
             <td><?= $source->option_fields['option9']['name'] ?></td>
             <td>
-                <?php if (@$source->option_fields['option9']['isfield'] and $fields and is_array($fields)) { ?>
-                    <?= form_dropdown('option9',$fields,$source->option9) ?>
+                <?php if (@$source->option_fields['option9']['isfield'] and $required_fields and is_array($required_fields)) { ?>
+                    <?php if ($source->option_fields['option9']['required']) { ?>
+                        <?= form_dropdown('option9',$required_fields,$source->option9) ?>
+                    <?php } else { ?>
+                        <?= form_dropdown('option9',$optional_fields,$source->option9) ?>
+                    <?php } ?>
                 <?php } else { ?>
                     <input type="text" name="option9" value="<?= $source->option9 ?>" size="100" maxlength="500" />
                 <?php } ?>

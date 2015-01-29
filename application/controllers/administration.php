@@ -455,16 +455,20 @@ public function place_source($id) {
 
     // get the list of fields too, and convert to an assocarray, so they can pick from the list for any options that are 'isfield'
     // or so they can specify filters for the placedatasource's association to placecategories
-    $data['fields']      = array();
-    $data['rule_fields'] = array(''=>'', '__ALLRECORDS'=>'ALL RECORDS');
+    $data['required_fields'] = array();
+    $data['optional_fields'] = array(''=>'(none)');
+    $data['rule_fields']     = array(''=>'', '__ALLRECORDS'=>'ALL RECORDS');
     try {
         // get the list of fields, and express it in two different but similar ways:
         $fields = $data['source']->listFields();;
 
-        // A. an assoc of the fields, used to generate SELECT elements
-        foreach ($fields as $f) $data['fields'][$f] = $f;
+        // A. an assoc of the fields, used to generate SELECT elements for fields that are required
+        // B. that same assoc of fields but with a blank option prepended so they can select Nothing
+        foreach ($fields as $f) $data['required_fields'][$f] = $f;
+        foreach ($fields as $f) $data['optional_fields'][$f] = $f;
 
-        // B. that same assoc but with a blank option
+        // C. that same assoc of field names, but with a blank option and ALL RECORDS option
+        // used for defining categorization rules
         foreach ($fields as $f) $data['rule_fields'][$f] = $f;
     } catch (PlaceDataSourceErrorException $e) {
         $data['warning'] = $e->getMessage();
