@@ -55,6 +55,7 @@ public function index() {
             latitude FLOAT NOT NULL,
             longitude FLOAT NOT NULL,
             url VARCHAR(1000),
+            urltext VARCHAR(25) DEFAULT \"Website\",
             PRIMARY KEY (id),
             KEY datasource_id_idx (placedatasource_id)
         )

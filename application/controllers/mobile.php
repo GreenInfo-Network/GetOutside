@@ -125,9 +125,6 @@ public function fetchdata() {
     $places = new Place();
     $places->where_related('placedatasource','enabled',1)->get();
 
-    // the data source must not be disabled
-    // disabling a data source should "hide" these markers from the front-facing map
-
     foreach ($places as $place) {
         // invalid coordinates, skip it
         if (! (float) $place->longitude or ! (float) $place->latitude) continue;
@@ -151,6 +148,7 @@ public function fetchdata() {
         $thisone['url']     = $place->url;
         $thisone['lat']     = (float) $place->latitude;
         $thisone['lng']     = (float) $place->longitude;
+        $thisone['urltext'] = $place->url ? ($place->urltext ? $place->urltext : "Website") : "";
 
         // add the list of categories
         $thisone['categories'] = array();

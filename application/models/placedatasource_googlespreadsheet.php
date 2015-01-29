@@ -13,7 +13,7 @@ var $option_fields = array(
     'option3' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Latitude Field", 'help'=>"Which field has the latitude of this location?"),
     'option4' => array('required'=>TRUE, 'isfield'=>TRUE, 'name'=>"Longitude Field", 'help'=>"Which field has the longitude of this location?"),
     'option5' => array('required'=>FALSE, 'isfield'=>TRUE, 'name'=>"URL Field", 'help'=>"Which field contains a URL for more info about these locations?"),
-    'option6' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"URL Button Text", 'help'=>"For the mobile app, what text appears in the &quot;Go to website&quot; button? Only applicable if you choose an URL Field option.", 'maxlength'=>15, 'default'=>"More Info"),
+    'option6' => array('required'=>FALSE, 'isfield'=>FALSE, 'name'=>"URL Button Text", 'help'=>"For the mobile app, what text appears in the &quot;Go to website&quot; button? Only applicable if you choose an URL Field option.", 'maxlength'=>15, 'default'=>"Website"),
     'option7' => NULL,
     'option8' => NULL,
     'option9' => NULL,
@@ -55,11 +55,12 @@ public function reloadContent() {
 
     // check that the Name and Description and Lat & Lon fields, are all represented
     // why check when they had to pick from a list? cuz the spreadsheet may have changed since they set those options, or maybe they "hacked" and submitted some invalid field name
-    $namefield = $this->option1;
-    $descfield = $this->option2;
-    $latfield  = $this->option3;
-    $lonfield  = $this->option4;
-    $urlfield  = $this->option5;
+    $namefield      = $this->option1;
+    $descfield      = $this->option2;
+    $latfield       = $this->option3;
+    $lonfield       = $this->option4;
+    $urlfield       = $this->option5;
+    $urltext        = $this->option6;
     if (! $namefield) throw new PlaceDataSourceErrorException( array('Blank or invalid field: Name field') );
     if (! $latfield)  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Latitude field') );
     if (! $lonfield)  throw new PlaceDataSourceErrorException( array('Blank or invalid field: Longitude field') );
@@ -203,6 +204,7 @@ public function reloadContent() {
         $place->latitude         = $lat;
         $place->longitude        = $lon;
         $place->url              = $url;
+        $place->urltext          = $urltext;
         $place->attributes_json  = json_encode($attributes);
         $place->save();
     }

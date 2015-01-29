@@ -864,7 +864,7 @@ function renderPlacesList() {
 
         if (item.url) {
             var li   = $('<li></li>').attr('data-icon','info').attr('data-iconpos','left').appendTo(sublist);
-            $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url).prop('target','_blank').html('&nbsp; More Info');
+            $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url).prop('target','_blank').html('&nbsp; ' + item.urltext);
         }
 
         // part 3: activities
