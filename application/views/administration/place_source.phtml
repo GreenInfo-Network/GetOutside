@@ -82,7 +82,7 @@ em {
                         <?= form_dropdown('option1',$optional_fields,$source->option1) ?>
                     <?php } ?>
                 <?php } else { ?>
-                    <input type="text" name="option1" value="<?= $source->option1 ?>" size="100" maxlength="500" />
+                    <input type="text" name="option1" value="<?= $source->option1 ?>" size="<?= @$source->option_fields['option1']['maxlength'] ? (integer) $source->option_fields['option1']['maxlength'] : 100 ?>" maxlength="<?= @$source->option_fields['option1']['maxlength'] ? (integer) $source->option_fields['option1']['maxlength'] : 100 ?>" />
                 <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option1']['help'] ?></em>
@@ -100,7 +100,7 @@ em {
                         <?= form_dropdown('option2',$optional_fields,$source->option2) ?>
                     <?php } ?>
                 <?php } else { ?>
-                    <input type="text" name="option2" value="<?= $source->option2 ?>" size="100" maxlength="500" />
+                    <input type="text" name="option2" value="<?= $source->option2 ?>" size="<?= @$source->option_fields['option2']['maxlength'] ? (integer) $source->option_fields['option2']['maxlength'] : 100 ?>" maxlength="<?= @$source->option_fields['option2']['maxlength'] ? (integer) $source->option_fields['option2']['maxlength'] : 100 ?>" />
                 <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option2']['help'] ?></em>
@@ -118,7 +118,7 @@ em {
                         <?= form_dropdown('option3',$optional_fields,$source->option3) ?>
                     <?php } ?>
                 <?php } else { ?>
-                    <input type="text" name="option3" value="<?= $source->option3 ?>" size="100" maxlength="500" />
+                    <input type="text" name="option3" value="<?= $source->option3 ?>" size="<?= @$source->option_fields['option3']['maxlength'] ? (integer) $source->option_fields['option3']['maxlength'] : 100 ?>" maxlength="<?= @$source->option_fields['option3']['maxlength'] ? (integer) $source->option_fields['option3']['maxlength'] : 100 ?>" />
                 <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option3']['help'] ?></em>
@@ -136,7 +136,7 @@ em {
                         <?= form_dropdown('option4',$optional_fields,$source->option4) ?>
                     <?php } ?>
                 <?php } else { ?>
-                    <input type="text" name="option4" value="<?= $source->option4 ?>" size="100" maxlength="500" />
+                    <input type="text" name="option4" value="<?= $source->option4 ?>" size="<?= @$source->option_fields['option4']['maxlength'] ? (integer) $source->option_fields['option4']['maxlength'] : 100 ?>" maxlength="<?= @$source->option_fields['option4']['maxlength'] ? (integer) $source->option_fields['option4']['maxlength'] : 100 ?>" />
                 <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option4']['help'] ?></em>
@@ -154,7 +154,7 @@ em {
                         <?= form_dropdown('option5',$optional_fields,$source->option5) ?>
                     <?php } ?>
                 <?php } else { ?>
-                    <input type="text" name="option5" value="<?= $source->option5 ?>" size="100" maxlength="500" />
+                    <input type="text" name="option5" value="<?= $source->option5 ?>" size="<?= @$source->option_fields['option5']['maxlength'] ? (integer) $source->option_fields['option5']['maxlength'] : 100 ?>" maxlength="<?= @$source->option_fields['option5']['maxlength'] ? (integer) $source->option_fields['option5']['maxlength'] : 100 ?>" />
                 <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option5']['help'] ?></em>
@@ -172,7 +172,7 @@ em {
                         <?= form_dropdown('option6',$optional_fields,$source->option6) ?>
                     <?php } ?>
                 <?php } else { ?>
-                    <input type="text" name="option6" value="<?= $source->option6 ?>" size="100" maxlength="500" />
+                    <input type="text" name="option6" value="<?= $source->option6 ?>" size="<?= @$source->option_fields['option6']['maxlength'] ? (integer) $source->option_fields['option6']['maxlength'] : 100 ?>" maxlength="<?= @$source->option_fields['option6']['maxlength'] ? (integer) $source->option_fields['option6']['maxlength'] : 100 ?>" />
                 <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option6']['help'] ?></em>
@@ -190,7 +190,7 @@ em {
                         <?= form_dropdown('option7',$optional_fields,$source->option7) ?>
                     <?php } ?>
                 <?php } else { ?>
-                    <input type="text" name="option7" value="<?= $source->option7 ?>" size="100" maxlength="500" />
+                    <input type="text" name="option7" value="<?= $source->option7 ?>" size="<?= @$source->option_fields['option7']['maxlength'] ? (integer) $source->option_fields['option7']['maxlength'] : 100 ?>" maxlength="<?= @$source->option_fields['option7']['maxlength'] ? (integer) $source->option_fields['option7']['maxlength'] : 100 ?>" />
                 <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option7']['help'] ?></em>
@@ -208,7 +208,7 @@ em {
                         <?= form_dropdown('option8',$optional_fields,$source->option8) ?>
                     <?php } ?>
                 <?php } else { ?>
-                    <input type="text" name="option8" value="<?= $source->option8 ?>" size="100" maxlength="500" />
+                    <input type="text" name="option8" value="<?= $source->option8 ?>" size="<?= @$source->option_fields['option8']['maxlength'] ? (integer) $source->option_fields['option8']['maxlength'] : 100 ?>" maxlength="<?= @$source->option_fields['option8']['maxlength'] ? (integer) $source->option_fields['option8']['maxlength'] : 100 ?>" />
                 <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option8']['help'] ?></em>
@@ -226,7 +226,7 @@ em {
                         <?= form_dropdown('option9',$optional_fields,$source->option9) ?>
                     <?php } ?>
                 <?php } else { ?>
-                    <input type="text" name="option9" value="<?= $source->option9 ?>" size="100" maxlength="500" />
+                    <input type="text" name="option9" value="<?= $source->option9 ?>" size="<?= @$source->option_fields['option9']['maxlength'] ? (integer) $source->option_fields['option9']['maxlength'] : 100 ?>" maxlength="<?= @$source->option_fields['option9']['maxlength'] ? (integer) $source->option_fields['option9']['maxlength'] : 100 ?>" />
                 <?php } ?>
                 <br/>
                 <em><?= $source->option_fields['option9']['help'] ?></em>
