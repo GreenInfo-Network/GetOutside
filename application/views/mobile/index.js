@@ -406,7 +406,7 @@ function initSearchResultPanels() {
             handleResultListClick(markid,'Place');
         });
     });
-    $('#page-search-results-places-list').on('tap', 'div.resultlabel', function () {
+    $('#page-search-results-events-list').on('tap', 'div.resultlabel', function () {
         var details = $(this).siblings('div.search-result-details');
         var button  = $(this).siblings('i.fa');
         if (details.is(':visible')) {
@@ -941,6 +941,7 @@ function renderEventsList() {
         var label = $('<div></div>').addClass('ui-btn-text').addClass('resultlabel').appendTo(li);
         $('<span></span>').addClass('ui-li-heading').html(item.name).appendTo(label);
         $('<div></div>').addClass('ui-li-desc').text(item.datetime).appendTo(label);
+//gda delegated click handler right?
 
         // part 2: the details: More Info link, list of locations
         var details = $('<div></div>').addClass('search-result-details').appendTo(li).hide();
