@@ -129,9 +129,6 @@ $(document).ready(function () {
     initMapInfoPanel();
     initSearchForms();
     initSearchResultPanels();
-
-    // now make a show of waiting on their location, with a spinner and all
-    initWaitForLocation();
 });
 
 function initSearchForms() {
@@ -177,8 +174,43 @@ function initSearchForms() {
         var $form = $('#page-search form');
         switch ( $form.find('select[name="location"]').val() ) {
             case 'gps':
-                if (! LOCATION.getLatLng().lat) {
-                    alert("Could not find your location. Make sure location is enabled, and try again.");
+                // if they DO NOT have a location, then explicitly do a geolocation hit here and try to carry on with the search
+                // work around a bug in Firefox and IE, that the error callback is never called if the user declines to share location (desktop browsers also ignore timeout option)
+                // so that in 10 seconds we bail anyway, albeit through a different mechanism
+                if (LOCATION.getLatLng().lat) {
+                    // save to the text fields which is what we in fact use for sorting the results
+                    $('#page-search input[name="lat"]').val(LOCATION.getLatLng().lat);
+                    $('#page-search input[name="lng"]').val(LOCATION.getLatLng().lng);
+                } else {
+                    $.mobile.loading('show', {theme:"a", text:"Finding Your Location", textonly:false, textVisible:true });
+                    setTimeout(function () {
+                        if (! LOCATION.getLatLng().lat ) {
+                            $.mobile.loading('hide');
+                            alert("Could not find your location. Please check that location is enabled.");
+                            //document.location.href = BASE_URL + '/mobile';
+                        }
+                    }, 10000);
+
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        // Leaflet won't necessarily hear about this (Firefox bug?) so make sure it does
+                        // this will have a side effect of updating LOCATION and will allow us to proceed with a search
+                        $.mobile.loading('hide');
+
+                        var event = { latlng:L.latLng([position.coords.latitude,position.coords.longitude]) , accuracy:position.coords.accuracy };
+                        onLocationFound(event);
+
+                        // save to the text fields which is what we in fact use for sorting the results
+                        $('#page-search input[name="lat"]').val(position.coords.latitude);
+                        $('#page-search input[name="lng"]').val(position.coords.longitude);
+
+                        setTimeout(performSearch,500);
+                    }, null, {
+                        maximumAge:3600,
+                        timeout:10000
+                    });
+
+                    // at any rate, do NOT proceed to a search right now
+                    // let the callbacks do it once we have a location
                     return false;
                 }
                 break;
@@ -463,35 +495,6 @@ function initSearchResultPanels() {
     });
 }
 
-function initWaitForLocation() {
-    // all we do is show a spinner until we got a location for the first time
-    // the map is already tracking location via MAP.locate() and its own onLocationFound() handler
-    // so our only role is to keep the eye busy untikl we're sure that at least one location has come in
-    // naturally, something else could close this spinner before that... not sure what can be done about that
-
-    // sadly desktop browsers do not properly implement the timeout, nor call error callback  https://bugzilla.mozilla.org/show_bug.cgi?id=675533
-    // so we have to use a timeout to wait 10 seconds; if we don't have a location by then something went wrong
-
-    $.mobile.loading('show', { theme:"a", text:"Detecting Location", textonly:false, textVisible:true });
-    var have_location = false;
-
-    setTimeout(function () {
-        if (! have_location) {
-            alert("Could not find your location. Please check that location is enabled, then reload this page.");
-            $.mobile.loading('hide');
-            //document.location.href = BASE_URL + '/mobile';
-        }
-    }, 10000);
-
-    navigator.geolocation.getCurrentPosition(function (position) {
-        have_location = true;
-        $.mobile.loading('hide');
-    }, null, {
-        enableHighAccuracy:true,
-        maximumAge:3600,
-        timeout:10000
-    });
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -941,7 +944,6 @@ function renderEventsList() {
         var label = $('<div></div>').addClass('ui-btn-text').addClass('resultlabel').appendTo(li);
         $('<span></span>').addClass('ui-li-heading').html(item.name).appendTo(label);
         $('<div></div>').addClass('ui-li-desc').text(item.datetime).appendTo(label);
-//gda delegated click handler right?
 
         // part 2: the details: More Info link, list of locations
         var details = $('<div></div>').addClass('search-result-details').appendTo(li).hide();
@@ -986,8 +988,12 @@ function updateEventsAndPlacesDistanceReadouts() {
     // prep
     // figure up the origin for the distance & bearing; whatever was our last search
     // if they somehow got here and never did a search of any sort, just bail; should never happen
-    var origin = L.latLng([ $('#page-search input[name="lat"]').val() , $('#page-search input[name="lng"]').val() ]);
-    if (! origin) return;
+    try {
+        var origin = L.latLng([ $('#page-search input[name="lat"]').val() , $('#page-search input[name="lng"]').val() ]);
+        if (! origin) return;
+    } catch (e) {
+        return;
+    }
 
     // part 1
     // Events list gets distance and bearing... for anything which in fact has a lat & lon
