@@ -866,6 +866,10 @@ function renderPlacesList() {
             var li   = $('<li></li>').attr('data-icon','info').attr('data-iconpos','left').appendTo(sublist);
             $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url).prop('target','_blank').html('&nbsp; ' + item.urltext);
         }
+        if (item.url2) {
+            var li   = $('<li></li>').attr('data-icon','info').attr('data-iconpos','left').appendTo(sublist);
+            $('<a></a>').appendTo(li).addClass('infolink').prop('href',item.url2).prop('target','_blank').html('&nbsp; ' + item.urltext2);
+        }
 
         // part 3: activities
         // if this Place has activities, create a inset listview (a second listview)

@@ -142,13 +142,15 @@ public function fetchdata() {
 
         // guess it's a hit!
         $thisone = array();
-        $thisone['id']      = 'place-' . $place->id;
-        $thisone['name']    = $place->name;
-        $thisone['desc']    = $place->description;
-        $thisone['url']     = $place->url;
-        $thisone['lat']     = (float) $place->latitude;
-        $thisone['lng']     = (float) $place->longitude;
-        $thisone['urltext'] = $place->url ? ($place->urltext ? $place->urltext : "Website") : "";
+        $thisone['id']          = 'place-' . $place->id;
+        $thisone['name']        = $place->name;
+        $thisone['desc']        = $place->description;
+        $thisone['lat']         = (float) $place->latitude;
+        $thisone['lng']         = (float) $place->longitude;
+        $thisone['url']         = $place->url;
+        $thisone['urltext']     = $place->url ? ($place->urltext ? $place->urltext : "Website") : "";
+        $thisone['url2']        = $place->url2;
+        $thisone['urltext2']    = $place->url2 ? ($place->urltext2 ? $place->urltext2 : "More Info") : "";
 
         // add the list of categories
         $thisone['categories'] = array();
