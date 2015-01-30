@@ -406,7 +406,7 @@ function initSearchResultPanels() {
             handleResultListClick(markid,'Place');
         });
     });
-    $('#page-search-results-events-list').on('tap', 'div.resultlabel', function () {
+    $('#page-search-results-places-list').on('tap', 'div.resultlabel', function () {
         var details = $(this).siblings('div.search-result-details');
         var button  = $(this).siblings('i.fa');
         if (details.is(':visible')) {
@@ -433,10 +433,10 @@ function initSearchResultPanels() {
             handleResultListClick(markid,'EventLocation');
         });
     });
-    $('#page-search-results-events-list').on('tap', 'infotoggle', function () {
+    $('#page-search-results-events-list').on('tap', 'i.infotoggle', function () {
         var button  = $(this).siblings('div.ui-btn-text').tap();
     });
-    $('#page-search-results-events-list').on('tap', 'resultlabel', function () {
+    $('#page-search-results-events-list').on('tap', 'div.resultlabel', function () {
         var details = $(this).siblings('div.search-result-details');
         var button  = $(this).siblings('i.fa');
         if (details.is(':visible')) {
