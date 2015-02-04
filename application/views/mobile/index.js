@@ -1104,7 +1104,7 @@ function clickMarker_EventLocation(marker) {
 
     // update the Directions link to navigate to this marker, and the More Info link to open a new browser window
     updateNavigationLinkFromMarker(marker);
-    updateWebsiteLinkFromMarker(marker);
+    updateWebsiteLinksFromMarker(marker);
 
     // expand the info panel, then show only this one subpanel for the marker type
     var panel = $('#map_infopanel').show();
@@ -1145,7 +1145,7 @@ function clickMarker_Place(marker) {
 
     // update the Directions link to navigate to this marker, and the More Info link to open a new browser window
     updateNavigationLinkFromMarker(marker);
-    updateWebsiteLinkFromMarker(marker);
+    updateWebsiteLinksFromMarker(marker);
 
     // expand the info panel, then show only this one subpanel for the marker type
     var panel = $('#map_infopanel').show();
@@ -1194,7 +1194,7 @@ function highlightMarker(marker) {
 function updateNavigationLinkFromMarker(marker) {
     // this hyperlink is triggered on click, to open the navigation/directions to the given point; see also see initMapInfoPanel() 
     // updateNavigationLinkFromMarker() should be called from the clickMarker_ family of functions, to bring the nav link into line with the marker being displayed
-    var target = $('#map_infopanel a[data-icon="navigation"]');
+    var target = $('#map_infopanel a[data-intent="navigation"]');
     var there  = marker.getLatLng();
 
     if (is_ios()) {
@@ -1218,12 +1218,25 @@ function updateNavigationLinkFromMarker(marker) {
     }
 }
 
-function updateWebsiteLinkFromMarker(marker) {
-    var target = $('#map_infopanel a[data-icon="info"]');
+function updateWebsiteLinksFromMarker(marker) {
+    // there are TWO hyperlinks to update: Website (url) and More Info (url2)
+    // in both cases the urltext supplies the intended text
+    // big catch url2 and urltext concepts are only for Places, not Events, so handle this delicately
+
+    var target = $('#map_infopanel a[data-intent="website"]');
     var url    = marker.attributes.url;
-    
-    if (url) {
-      target.prop('href',url).show();
+    var text   = marker.attributes.urltext; if (! text) text = "Website";
+    if (url && typeof url !== 'undefined') {
+      target.prop('href',url).text(text).show();
+    } else {
+      target.prop('href','javascript:void(0);').hide();
+    }
+
+    var target = $('#map_infopanel a[data-intent="moreinfo"]');
+    var url    = marker.attributes.url2;
+    var text   = marker.attributes.urltext2; if (! text) text = "More Info";
+    if (url && typeof url !== 'undefined') {
+      target.prop('href',url).text(text).show();
     } else {
       target.prop('href','javascript:void(0);').hide();
     }

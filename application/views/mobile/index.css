@@ -158,6 +158,11 @@ div.custom-navbar a[href="#page-home"] {
     white-space:normal;
 }
 
+#map_infopanel a[data-intent] {
+    display:block;
+    margin-bottom:0;
+}
+
 
 /*** RESULT LISTINGS including very specific positions for the ui-li-count distance readouts ***/
 
