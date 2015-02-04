@@ -50,8 +50,7 @@ public function reloadContent() {
         preg_match('!https://docs.google.com/spreadsheets/\w+/([\w\_\-]+)/pubhtml!i', $this->url, $tablekey );
     }
     $tablekey = @$tablekey[1];
-
-    //gda//if (! $tablekey) throw new PlaceDataSourceErrorException( array("That URL does not appear to point to a Google Drive Spreadsheet.") );
+    if (! $tablekey) throw new PlaceDataSourceErrorException( array("That URL does not appear to point to a Google Drive Spreadsheet.") );
 
     // check that the Name and Description and Lat & Lon fields, are all represented
     // why check when they had to pick from a list? cuz the spreadsheet may have changed since they set those options, or maybe they "hacked" and submitted some invalid field name
