@@ -201,12 +201,22 @@ public function reloadContent() {
         if (! $url) $url = @$entry->homePageUrlAdr;
         if (! $url) $url = @$entry->registrationUrlAdr;
 
+        // compose a name: many events have a hierarchical name: Summer - Family - Kids - Basket Weaving
+        // this may or may not be a idiosyncracy of StPaul's data; they're the target client here
+        $event_name = $entry->assetName;
+        if (strpos(' - ', $event_name) != -1) {
+            $event_name = explode(' - ',$event_name);
+            $event_name = $event_name[ sizeof($event_name)-1 ];
+        }
+        $event_name = substr($event_name,0,100);
+
+        // ready!
         $event = new Event();
         $event->eventdatasource_id  = $this->id;
         $event->remoteid            = $entry->assetGuid;
         $event->starts              = strtotime($entry->activityStartDate); // Unix timestamp
         $event->ends                = strtotime($entry->activityEndDate); // Unix timestamp
-        $event->name                = substr($entry->assetName,0,100);
+        $event->name                = $event_name;
         $event->url                 = $url;
         $event->description         = ""; // real-world descriptions are multi-kilobyte HTML, looks awful
         //$event->description         = (string) @$entry->assetDescriptions[0]->description;
