@@ -116,7 +116,12 @@ public function reloadContent() {
         $details[] = sprintf("Parsing %s", $url );
 
         $content = @json_decode(@file_get_contents($url));
-        foreach ($content->results as $entry) $collected_events[] = $entry;
+        foreach ($content->results as $entry) {
+            // skip out any any which have child components: these are event containers and not actual events
+            if (@$entry->assetComponents and sizeof($entry->assetComponents) ) continue;
+
+            $collected_events[] = $entry;
+        }
     }
     //throw new EventDataSourceErrorException(array( sprintf("Collected %d raw entries", sizeof($collected_events) ) ));
 
@@ -132,23 +137,38 @@ public function reloadContent() {
     $details[] = "Clearing out: $howmany_old old Event records";
 
     // ... then load the new ones
+    // Tip: as we go through and geocode, we cache the lat/lng by address, so that a second geocode on the same address will not hit the geocoder service
+    //      this helps runtimes (and API usage counts!) if the events tend to repeat at the same locations a lot, which is quite often true for park-n-rec things
+    $geo_cache    = array();
+
     $success      = 0;
     $failed       = 0;
     $nolocation   = 0;
     $nocategory   = 0;
     $skiplocation = 0;
     foreach ($collected_events as $entry) {
-        // if this Event lacks a location, bail
-        // this is later used to generate an EventLocation
-        // and we only want events which can be plotted onto the map
+        // if we have specified a place GUID to exclude from results, then do so
         if ($exclude_place_guid and @$entry->place->placeGuid == $exclude_place_guid) {
             $skiplocation++;
             $details[] = "Skipping event at specified Place GUID: {$entry->assetGuid}";
             continue;
         }
+
+        // if this Event lacks a location, bail     we only want events which can be plotted onto the map
+        // prefer to use the event's place-lat and place-lon when possible,
+        // otherwise, try to geocode the given address
         $lat = (float) @$entry->place->geoPoint->lat;
         $lon = (float) @$entry->place->geoPoint->lon;
-        if (! $lat or ! $lon) {
+        if ( (!$lat or !$lon) and @$entry->place->addressLine1Txt) {
+            $where = sprintf("%s, %s, %s, %s", $entry->place->addressLine1Txt, $entry->place->cityName, $entry->place->stateProvinceCode, $entry->place->countryCode );
+            if ( ! array_key_exists($where,$geo_cache)) {
+                $geo_cache[$where] = $this->_geocode($where);
+            }
+            $lat = $geo_cache[$where] ? $geo_cache[$where]['lat'] : NULL;
+            $lon = $geo_cache[$where] ? $geo_cache[$where]['lng'] : NULL;
+        }
+        if (!$lat or !$lon) {
+            // still nothing? forget it
             $nolocation++;
             $details[] = "Bad location: No lat/lon given for {$entry->assetGuid}";
             continue;
@@ -276,6 +296,83 @@ public function reloadContent() {
     throw new EventDataSourceSuccessException($messages,$info);
 }
 
+
+
+// the geocoder
+// sadly this violates MVC and model separation pretty thoroughly
+// the driver needs to be passed a siteconfig, to know which geocoder to use
+// "this is why we can't have nice UML diagrams"  :)
+private function _geocode($address) {
+    switch ( $this->siteconfig->get('preferred_geocoder') ) {
+        case 'bing':
+            return $this->_geocode_bing($address);
+            break;
+        case 'google':
+            return $this->_geocode_google($address);
+            break;
+        default:
+            return print "No geocoder enabled?";
+            break;
+    }
+}
+
+private function _geocode_google($address) {
+    // key is optional and is added to params if given; address is required
+    $key = $this->siteconfig->get('google_api_key');
+    if (! $address) return NULL;
+
+    // compose the request and grab it
+    $params = array();
+    if ($key) $params['key'] = $key;
+    $params['address']       =  $address;
+    $params['bounds']        = sprintf("%f,%f|%f,%f", $this->siteconfig->get('bbox_s'), $this->siteconfig->get('bbox_w'), $this->siteconfig->get('bbox_n'), $this->siteconfig->get('bbox_e') );
+    $url = sprintf("https://maps.googleapis.com/maps/api/geocode/json?%s", http_build_query($params) );
+    $result = json_decode(file_get_contents($url));
+    if (! @$result->results[0]) return NULL;
+
+    // start building output
+    $latlng = array();
+    $latlng['lng']  = (float)  $result->results[0]->geometry->location->lng;
+    $latlng['lat']  = (float)  $result->results[0]->geometry->location->lat;
+    $latlng['s']    = (float)  $result->results[0]->geometry->viewport->southwest->lat;
+    $latlng['w']    = (float)  $result->results[0]->geometry->viewport->southwest->lng;
+    $latlng['n']    = (float)  $result->results[0]->geometry->viewport->northeast->lat;
+    $latlng['e']    = (float)  $result->results[0]->geometry->viewport->northeast->lng;
+    $latlng['name'] = (string) $result->results[0]->formatted_address;
+    return $latlng;
+}
+
+private function _geocode_bing($address) {
+    // for Bing geocoding, the API key is required, so bail if it's lacking
+    $key = $this->siteconfig->get('bing_api_key');
+    if (! $key) return NULL;
+    if (! $address) return NULL;
+
+    // hit the service, grok the reply
+    $urltemplate = "http://dev.virtualearth.net/REST/v1/Locations?key=%s&output=json&query=%s";
+    $geocode     = sprintf($urltemplate, $key, urlencode($address) );
+    $geocode     = @json_decode(file_get_contents($geocode));
+    $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+    $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+
+    // if we got nothing, then try again; this time, strip off the first comma-joined element
+    // this (sorta) addresses a common use case of prepending the location name:  Cathedral of Saint Paul, 239 Selby Ave, St Paul, MN 55102, United States
+    if (! $lat and ! $lng) {
+        $address = implode(",", array_slice(explode(",",$address),1) );
+        $geocode = sprintf($urltemplate, $key, urlencode($address) );
+        $geocode = @json_decode(file_get_contents($geocode));
+        $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+        $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+    }
+
+    // done!
+    if ($lat and $lng) {
+        return array('lat'=>$lat, 'lng'=>$lng);
+    } else {
+        return NULL;
+    }
+
+}
 
 /**********************************************************************************************
  * STATIC FUNCTIONS
