@@ -438,7 +438,7 @@ public function place_source($id) {
     $data['source'] = $data['source']->convertToDriver();
     if (! $data['source']->id) return redirect(site_url('administration/place_sources#tab_sources'));
 
-    // list of categories, for the list of auto-categoization rules
+    // list of categories, for the list of auto-categorization rules
     $data['categories'] = new PlaceCategory();
     $data['categories']->get();
 
@@ -449,7 +449,7 @@ public function place_source($id) {
     $data['rule_fields']     = array(''=>'', '__ALLRECORDS'=>'ALL RECORDS');
     try {
         // get the list of fields, and express it in two different but similar ways:
-        $fields = $data['source']->listFields();;
+        $fields = $data['source']->listFields();
 
         // A. an assoc of the fields, used to generate SELECT elements for fields that are required
         // B. that same assoc of fields but with a blank option prepended so they can select Nothing
