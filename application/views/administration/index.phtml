@@ -1,20 +1,50 @@
 <? $this->load->view('administration/header.phtml') ?>
 
 <div class="container">
-    <h2>Menu Items</h2>
-    <ul>
-        <li><b>Settings</b> -- Adjust general settings such as the color theme and website title.</li>
-        <li><b>Event Sources</b> -- Define data sources from which events will be loaded.</li>
-        <li><b>Place Sources</b> -- Define data sources from which locations will be loaded.</li>
-        <li><b>Users</b> -- Decide who can use this administration panel.</li>
-    </ul>
+    <h2>Get Outside! - Connecting People and Parks</h2>
+    
+    <p>Using the GetOutside tool, cities can easily publish a <a href="http://websites.greeninfo.org/knight/getoutside/stpaul1/mobile" target="_blank">mobile website and map</a> that residents can use to find nearby parks, recreation centers and events.</p>
+    
+    <h4>HOW IT WORKS</h4>
+    
+    <p>Get Outside aggregates your parks and events data and displays it in a searchable mobile map.  To save time, tool is designed to work with your existing data sources such as Google Drive Spreadsheets, Google Calendar, GIS map services, etc. </p>
+    
+    <p>There are two types of data sources: <ul>
+           <li><b>Places</b> - Parks and recreation centers, along with amentity information</li>
+           <li><b>Events</b> - Events occuring on a specific day</li>
+    </p>
 </div>
 
+
 <div class="container">
-    <h2>Instructions &amp; Concepts</h2>
-    <p>The <?= $this->config->item('app_title') ?> system is built on the assumption that you already have your data stored in Google Drive spreadsheets, a Google Calendar, events posted on Facebook, and so on. Rather than duplicate this same information into <?= $this->config->item('app_title') ?> and maintain two copies, you define these as <i>data sources</i> within <?= $this->config->item('app_title') ?> and allow it to load the content automatically. You can think of <?= $this->config->item('app_title') ?> as an &quot;aggregator&quot; of your location and event data, unifying it into one website, calendar, and map.</p>
-    <p>There are two types of data sources: <i>places</i> and <i>events</i>. Events have a specific date and time and thus expire from the website, while places do not &quot;expire&quot;. Places (and some Events) have a location which can be displayed on the map.</p>
-    <p>If you are just getting started, the first thing you'll want to do is define some data sources using the menus at the top.</p>
+    <h4>GETTING STARTED</h4>
+    <ol>
+        <li><b>Add Places</b> 
+                <p>
+             Step 1: Specify search categories (eg. baseball, bbq grills, etc)
+            <ul>
+                <li>Click on Places, then Categories. </li>
+                <li>Click on New </li>
+            </ul>
+        </p>
+        <p>
+             Step 2: Add parks data source(s)  
+            <ul>
+                <li>Click on Places, then Sources. </li>
+                <li>Click on New </li>
+                <li>Follow prompts to add your data. <br /><br />
+                    Note: To create parks data from scratch, you can use this <a href="https://docs.google.com/spreadsheets/d/1e4rbpYv8KNAKrsCilHcxjaqhtpx4osgfYRAtqNCp0fI/pubhtml#" target="_blank">Google Spreadsheet example </a> as a guide.</li>
+                </ul>
+        </p>
+        
+        </li>
+        <li><b>Add Events</b> <p>Define data sources from which events will be loaded.</p></li>
+        <li><b>Customize Your Application</b> <p>Add your logo, choose colors and map icons. <br/>
+            Click on <b>Settings</b> and explore options within each of the categories: Map Services, Map Icons, Mobile Site.  </p>
+        </li>
+        
+        <li><b>Add Users</b> <p>Decide who can use this administration panel.</p></li>
+    </ol>
 </div>
 
 <? $this->load->view('administration/footer.phtml') ?>
