@@ -66,16 +66,6 @@ $config['DEFAULT_GEOCODER'] = 'google';
 
 /*
 |--------------------------------------------------------------------------
-| Starting Text for HTML Pages
-|--------------------------------------------------------------------------
-*/
-
-$config['FRONTPAGE_TEXT'] = '<h1>GetOutside!</h1>\n<p>Your new installation is up and running. To fill in this page, visit the <a href="administration">administration panel.</a></p>';
-$config['ABOUTPAGE_TEXT'] = 'GetOutside! is a project of <a target="_blank" href="http://www.greeninfo.org/">GreenInfo Network</a> made possible by a grant for <a target="_blank" href="http://www.knightfoundation.org/">The Knight Foundation</a>.';
-
-
-/*
-|--------------------------------------------------------------------------
 | Mobile Theme Settings
 |--------------------------------------------------------------------------
 */

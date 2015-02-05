@@ -231,8 +231,6 @@ public function index() {
     $siteconfig->set('company_url',                 $defaults['COMPANY_URL'] );
     $siteconfig->set('jquitheme',                   $defaults['JQUITHEME'] );
     $siteconfig->set('feedback_url',                $defaults['FEEDBACK_URL'] );
-    $siteconfig->set('html_frontpage',              $defaults['FRONTPAGE_TEXT'] );
-    $siteconfig->set('html_about',                  $defaults['ABOUTPAGE_TEXT'] );
     $siteconfig->set('bbox_w',                      $defaults['BBOX_W'] );
     $siteconfig->set('bbox_s',                      $defaults['BBOX_S'] );
     $siteconfig->set('bbox_e',                      $defaults['BBOX_E'] );

@@ -94,13 +94,9 @@ public function ajax_save_settings() {
     $this->siteconfig->set('jquitheme', $_POST['jquitheme']);
     $this->siteconfig->set('title', $_POST['title']);
     $this->siteconfig->set('feedback_url', $_POST['feedback_url']);
-
     $this->siteconfig->set('timezone', $_POST['timezone']);
-
     $this->siteconfig->set('company_name', $_POST['company_name']);
     $this->siteconfig->set('company_url', $_POST['company_url']);
-    $this->siteconfig->set('html_about', $_POST['html_about']);
-    $this->siteconfig->set('html_frontpage', $_POST['html_frontpage']);
 
     $this->siteconfig->set('bbox_w', $_POST['bbox_w']);
     $this->siteconfig->set('bbox_s', $_POST['bbox_s']);

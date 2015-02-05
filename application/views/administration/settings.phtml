@@ -67,7 +67,6 @@ div.basemap_option {
     <div class="tabs container" style="width:100%; padding:0;">
         <ul>
             <li><a href="#settingsform_tab_basic">Web Site Title &amp; Theme</a></li>
-            <li style="display:none;"><a href="#settingsform_tab_html">HTML Web Pages</a></li><!-- hack they decided there's no website anymore! trivial details, right? but they'll want it back! -->
             <li><a href="#settingsform_tab_extent">Map Services</a></li>
             <li><a href="#settingsform_tab_icons">Map Icons</a></li>
             <li><a href="#settingsform_tab_mobile">Mobile Site</a></li>
@@ -103,24 +102,6 @@ div.basemap_option {
             <tr>
                 <td>Time Zone<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="What time zone should be used to report dates and times? This is particularly important for events."></div></td>
                 <td><?= form_dropdown('timezone', $timezones, $siteconfig['timezone'] ) ?></td>
-            </tr>
-            </table>
-        </div>
-        <div id="settingsform_tab_html" style="display:none;"><!-- hack they decided there's no website anymore! trivial details, right? but they'll want it back! -->
-            <p>This panel allows you to define the HTML content for various pages of your website, such as the opening page.</p>
-
-            <table class="table-condensed">
-            <tr>
-                <td>HTML for the front page <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This HTML will form the content of the front page of your site at <?= htmlentities(site_url()) ?>"></div></td>
-                <td>
-                    <textarea name="html_frontpage"><?= htmlspecialchars($siteconfig['html_frontpage']) ?></textarea>
-                    </td>
-            </tr>
-            <tr>
-                <td>HTML for the &quot;About&quot; page <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This HTML will form the content of the About page."></div></td>
-                <td>
-                    <textarea name="html_about"><?= htmlspecialchars($siteconfig['html_about']) ?></textarea>
-                </td>
             </tr>
             </table>
         </div>
