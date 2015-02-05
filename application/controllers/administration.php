@@ -357,14 +357,8 @@ public function ajax_save_event_source() {
     if ($source->option_fields['option8'] and $source->option_fields['option8']['required'] and !$_POST['option8'])  return print "Missing required field: {$source->option_fields['option8']['name']}";
     if ($source->option_fields['option9'] and $source->option_fields['option9']['required'] and !$_POST['option9'])  return print "Missing required field: {$source->option_fields['option9']['name']}";
 
-    // validation: color must be #XXXXXX
-    if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['color'])) return print "Select a valid color.";
-    if (! preg_match('/^\#[1234567890ABCDEFabcdef]{6}/', $_POST['bgcolor'])) return print "Select a valid color.";
-
     // save it
     $source->name          = $_POST['name'];
-    $source->color         = $_POST['color'];
-    $source->bgcolor       = $_POST['bgcolor'];
     $source->url           = $_POST['url'];
     $source->option1       = $_POST['option1'];
     $source->option2       = $_POST['option2'];
@@ -375,7 +369,6 @@ public function ajax_save_event_source() {
     $source->option7       = $_POST['option7'];
     $source->option8       = $_POST['option8'];
     $source->option9       = $_POST['option9'];
-    $source->on_by_default = $_POST['on_by_default'];
     $source->enabled       = $_POST['enabled'];
     $source->save();
 

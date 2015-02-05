@@ -51,28 +51,6 @@ em {
                 If disabled, this data source will not appear on the Calendar page, and will not be reloaded when you use Reload All. This is useful if the data source is down for maintenance or is a work in progress.
             </td>
         </tr>
-        <tr>
-            <td>On by default?</td>
-            <td>
-                <?= form_dropdown('on_by_default', array('1'=>'Yes', '0'=>'No'),$source->on_by_default) ?>
-                <br/>
-                On the Calendar page, should these events be visible (checked) when the page loads?
-            </td>
-        </tr>
-        <tr>
-            <td>Text Color</td>
-            <td>
-                <input type="text" name="color" value="<?= htmlspecialchars($source->color) ?>" size="7" maxlength="7" style="color:white;" />
-                When these events are displayed on the Calendar page, this color will be used for the event's text.
-            </td>
-        </tr>
-        <tr>
-            <td>Background Color</td>
-            <td>
-                <input type="text" name="bgcolor" value="<?= htmlspecialchars($source->bgcolor) ?>" size="7" maxlength="7" style="color:white;" />
-                When these events are displayed on the Calendar page, this color will be used for the event's background.
-            </td>
-        </tr>
 
         <?php if ($source->option_fields['url']) { ?>
         <tr>
