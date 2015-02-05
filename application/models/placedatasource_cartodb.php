@@ -221,9 +221,12 @@ public function listFields() {
     $username  = $this->option1;
     $apikey    = $this->option2;
     $tablename = $this->option3;
-    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB Username') );
-    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB API Key') );
-    if (! preg_match('/^\w+$/', $username) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB Table Name') );
+    if (! $username ) throw new PlaceDataSourceErrorException( array('Start by entering your CartoDB Username, API Key, and Table Name') );
+    if (! $apikey   ) throw new PlaceDataSourceErrorException( array('Start by entering your CartoDB Username, API Key, and Table Name') );
+    if (! $tablename) throw new PlaceDataSourceErrorException( array('Start by entering your CartoDB Username, API Key, and Table Name') );
+    if (! preg_match('/^\w+$/', $username ) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB Username') );
+    if (! preg_match('/^\w+$/', $apikey   ) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB API Key') );
+    if (! preg_match('/^\w+$/', $tablename) ) throw new PlaceDataSourceErrorException( array('Blank or invalid field: CartoDB Table Name') );
 
     // compose the URL to fetch 1 row; we don't care which, as long as we get its field listing
     // uncertain about failure mode: via browser a bad table name gives an object with an error attribute (array of errmsgs) but via file_get_contents() gets a Bad Request HTTP code

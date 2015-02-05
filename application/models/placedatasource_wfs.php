@@ -255,6 +255,10 @@ public function reloadContent() {
  * Connect to the data source and grab a list of field names. Return an array of string field names.
  */
 public function listFields() {
+    // no URL at all? maybe they just now created a stub entry and they know they've not entered an URL
+    // that's fine; just make the errmsg a bit simpler for them, and don't bother with the imminent failures below
+    if (! $this->url) throw new PlaceDataSourceErrorException( array("Start by entering the URL of the Web Feature Service (WFS).") );
+
     // any URL allowed and no hard standard on the term "wfs" being in the URL, so we can't do a lot of validation beyond it being HTTP/HTTPS
     $url = $this->url;
     if (! preg_match('!^https?://[\w\-\.]+?/!i',$url)) throw new PlaceDataSourceErrorException( array('Check the WFS service URL. Only HTTP and HTTPS URLs are supported.') );

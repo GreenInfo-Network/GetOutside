@@ -257,6 +257,10 @@ public function reloadContent() {
  * Connect to the data source and grab a list of field names. Return an array of string field names.
  */
 public function listFields() {
+    // no URL at all? maybe they just now created a stub entry and they know they've not entered an URL
+    // that's fine; just make the errmsg a bit simpler for them, and don't bother with the imminent failures below
+    if (! $this->url) throw new PlaceDataSourceErrorException( array("Start by entering the URL of your Google Spreadsheet.") );
+
     // grok the table key from the URL given; be strict about the URL, making sure it's really over at Google Docs
     $tablekey = null;
     preg_match('!https://docs.google.com/spreadsheet/ccc/?\?key=([\w\_\-]+)!i', $this->url, $tablekey );

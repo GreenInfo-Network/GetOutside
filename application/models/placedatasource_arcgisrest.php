@@ -200,6 +200,10 @@ public function reloadContent() {
  * Connect to the data source and grab a list of field names. Return an array of string field names.
  */
 public function listFields() {
+    // no URL at all? maybe they just now created a stub entry and they know they've not entered an URL
+    // that's fine; just make the errmsg a bit simpler for them, and don't bother with the imminent failures below
+    if (! $this->url) throw new PlaceDataSourceErrorException( array("Start by entering the URL of your ArcGIS REST API service.") );
+
     // make sure no shenanigans: ArcGIS REST services fit a pattern
     $url = $this->url;
     if (! preg_match('!^https?://[^\/]+/arcgis/rest/services/[\w\-\.]+/[\w\-\.]+/MapServer/\d+$!i',$url)) throw new PlaceDataSourceErrorException( array('That URL does not fit the format for a REST endpoint.') );
