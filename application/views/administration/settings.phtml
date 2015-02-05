@@ -66,10 +66,10 @@ div.basemap_option {
 <form id="settingsform" action="<?= site_url() ?>administration/ajax_save_settings" method="post" enctype="multipart/form-data">
     <div class="tabs container" style="width:100%; padding:0;">
         <ul>
-            <li><a href="#settingsform_tab_basic">Web Site Title &amp; Theme</a></li>
-            <li><a href="#settingsform_tab_extent">Map Services</a></li>
+            <li><a href="#settingsform_tab_basic">Site Title &amp; Admin Site</a></li>
+            <li><a href="#settingsform_tab_mobile">Site Color Theme</a></li>
             <li><a href="#settingsform_tab_icons">Map Icons</a></li>
-            <li><a href="#settingsform_tab_mobile">Mobile Site</a></li>
+            <li><a href="#settingsform_tab_extent">Map Services</a></li>
         </ul>
         <div id="settingsform_tab_basic">
             <p>These basic settings define the title and general color scheme of your admin website.</p>
@@ -78,14 +78,6 @@ div.basemap_option {
             <tr>
                 <td>Web Site Title <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This title appears in the browser's navigation tab and in bookmarks. In most other places, you would manually enter the title like any other website content."></div></td>
                 <td><input type="text" name="title" size="50" maxlength="50" value="<?= htmlspecialchars( $siteconfig['title'] ) ?>" /></td>
-            </tr>
-            <tr>
-                <td>Web Site Theme <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Select a color theme for your website."></div></td>
-                <td>
-                    <?= form_dropdown('jquitheme', $themes, $siteconfig['jquitheme'] ) ?>
-                    <br/>
-                    <img id="jquitheme_swatch" src="about:blank;" title="This is an example of the selected color scheme." />
-                </td>
             </tr>
             <tr>
                 <td>Organization Name <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="In the bottom-left of pages, this organization name will appear as a hyperlink to your main website."></div></td>
@@ -102,6 +94,143 @@ div.basemap_option {
             <tr>
                 <td>Time Zone<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="What time zone should be used to report dates and times? This is particularly important for events."></div></td>
                 <td><?= form_dropdown('timezone', $timezones, $siteconfig['timezone'] ) ?></td>
+            </tr>
+            <tr>
+                <td>Admin Color Theme <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Select a color theme for your website."></div></td>
+                <td>
+                    <?= form_dropdown('jquitheme', $themes, $siteconfig['jquitheme'] ) ?>
+                    <br/>
+                    <img id="jquitheme_swatch" src="about:blank;" title="This is an example of the selected color scheme." />
+                </td>
+            </tr>
+            </table>
+        </div>
+        <div id="settingsform_tab_mobile">
+            <p>Use this panel to set colors and other options for the site.</p>
+
+            <table class="table-condensed">
+            <tr>
+                <td colspan="2"><h3>Colors</h3></td>
+            </tr>
+            <tr>
+                <td>General Background Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="The global background color. This is used site-wide, except as overridden below."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_bgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_bgcolor'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>General Text &amp; Trim Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="The global foreground (text) color. This is used site-wide, except as overridden below."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_fgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_fgcolor'] ) ?>" /></td>
+            </tr>
+
+            <tr>
+                <td>Button Color (Fill)<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Default buttons: Background color. This means most buttons and selector widgets."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_buttonbgcolor1" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonbgcolor1'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Button Color (Text)<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Default buttons: Foreground (text) color. This means most buttons and selector widgets."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_buttonfgcolor1" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonfgcolor1'] ) ?>" /></td>
+            </tr>
+
+            <tr>
+                <td>Alternate Button Color (Fill)<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Alternate buttons: Background color. Alternate buttons are a few special ones on the Search panel."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_buttonbgcolor2" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonbgcolor2'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Alternate Button Color (Text)<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Alternate buttons: Foreground (text) color. Alternate buttons are a few special ones on the Search panel."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_buttonfgcolor2" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonfgcolor2'] ) ?>" /></td>
+            </tr>
+
+            <tr>
+                <td>Highlight BG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Highlight: Background color. Highlights include special alert buttons, as well as the currently-selected tab."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_alertbgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_alertbgcolor'] ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>Highlight FG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Highlight: Foreground (text) color. Highlights include special alert buttons, as well as the currently-selected tab."></div></td>
+                <td><input type="text" class="color" style="color:white;" name="mobile_alertfgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_alertfgcolor'] ) ?>" /></td>
+            </tr>
+
+            <tr>
+                <td colspan="2"><h3>Branding</h3></td>
+            </tr>
+            <tr>
+                <td>Main Logo<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This logo will be shown at the top-center of the landing page (which is also the search page). The size should be approximately 230 x 120. Tip: Using a logo wider than 320px or taller than 150px may not look good on small devices."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/logo" />
+                    <br/>
+                    <?= $siteconfig['mobile_logo_width'] ?> x <?= $siteconfig['mobile_logo_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current logo, select the file here.<br/>
+                    The size should be approximately 230 x 120.<br/>
+                    Using a logo wider than 320px or taller than 150px may not look good on small devices.<br/>
+                    Tip: The background should be transparent, or else complementary to your background color.<br/>
+                    <input type="file" name="mobile_logo" size="50" />
+                </td>
+            </tr>
+
+            </table>
+        </div>
+        <div id="settingsform_tab_icons">
+            <table class="table-condensed">
+            <tr>
+                <td>Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate places on the map. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_place" />
+                    <br/>
+                    <?= $siteconfig['place_marker_width'] ?> x <?= $siteconfig['place_marker_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="place_marker" size="50" />
+                    <br/>
+                    Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for a place, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="place_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['place_markerglowcolor'] ) ?>" />
+                </td>
+            </tr>
+            <tr>
+                <td>Event Location Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate event locations on the map. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_event" />
+                    <br/>
+                    <?= $siteconfig['event_marker_width'] ?> x <?= $siteconfig['event_marker_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="event_marker" size="50" />
+                    <br/>
+                    Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for an event, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="event_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['event_markerglowcolor'] ) ?>" />
+                </td>
+            </tr>
+            <tr>
+                <td>Event &amp; Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate a location with both EVents and Places. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_both" />
+                    <br/>
+                    <?= $siteconfig['both_marker_width'] ?> x <?= $siteconfig['both_marker_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="both_marker" size="50" />
+                </td>
+            </tr>
+            <tr>
+                <td>GPS Marker<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to show the user's location. This should be a PNG file, no more than 25 x 45 in size."></div></td>
+                <td>
+                    <img src="<?= site_url() ?>/mobile/image/marker_gps" />
+                    <br/>
+                    <?= $siteconfig['marker_gps_width'] ?> x <?= $siteconfig['marker_gps_height'] ?>
+                    <br/>
+                    <br/>
+                    If you want to replace the current marker, select the file here.<br/>
+                    This should be a PNG file, no more than 25 x 45 in size.<br/>
+                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
+                    <input type="file" name="mobile_marker_gps" size="50" />
+                    <br/>
+                </td>
             </tr>
             </table>
         </div>
@@ -193,135 +322,6 @@ div.basemap_option {
                 <td>Metric or Imperial? <div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Report distances in metric (kilometers) or Imperial (miles) ?"></div></td>
                 <td><?= form_dropdown('metric_units', array('0'=>'Imperial (miles)', '1'=>'Metric (kilometers)'), $siteconfig['metric_units'] ) ?></td>
             </tr>
-            </table>
-        </div>
-        <div id="settingsform_tab_icons">
-            <table class="table-condensed">
-            <tr>
-                <td>Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate places on the map. This should be a PNG file, no more than 25 x 45 in size."></div></td>
-                <td>
-                    <img src="<?= site_url() ?>/mobile/image/marker_place" />
-                    <br/>
-                    <?= $siteconfig['place_marker_width'] ?> x <?= $siteconfig['place_marker_height'] ?>
-                    <br/>
-                    <br/>
-                    If you want to replace the current marker, select the file here.<br/>
-                    This should be a PNG file, no more than 25 x 45 in size.<br/>
-                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="place_marker" size="50" />
-                    <br/>
-                    Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for a place, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="place_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['place_markerglowcolor'] ) ?>" />
-                </td>
-            </tr>
-            <tr>
-                <td>Event Location Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate event locations on the map. This should be a PNG file, no more than 25 x 45 in size."></div></td>
-                <td>
-                    <img src="<?= site_url() ?>/mobile/image/marker_event" />
-                    <br/>
-                    <?= $siteconfig['event_marker_width'] ?> x <?= $siteconfig['event_marker_height'] ?>
-                    <br/>
-                    <br/>
-                    If you want to replace the current marker, select the file here.<br/>
-                    This should be a PNG file, no more than 25 x 45 in size.<br/>
-                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="event_marker" size="50" />
-                    <br/>
-                    Glow Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="When info is being shown for an event, the marker has a glow effect added to it. Pick the color for this glow."></div> <input type="text" class="color" style="color:white;" name="event_markerglowcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['event_markerglowcolor'] ) ?>" />
-                </td>
-            </tr>
-            <tr>
-                <td>Event &amp; Place Markers<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to indicate a location with both EVents and Places. This should be a PNG file, no more than 25 x 45 in size."></div></td>
-                <td>
-                    <img src="<?= site_url() ?>/mobile/image/marker_both" />
-                    <br/>
-                    <?= $siteconfig['both_marker_width'] ?> x <?= $siteconfig['both_marker_height'] ?>
-                    <br/>
-                    <br/>
-                    If you want to replace the current marker, select the file here.<br/>
-                    This should be a PNG file, no more than 25 x 45 in size.<br/>
-                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="both_marker" size="50" />
-                </td>
-            </tr>
-            <tr>
-                <td>GPS Marker<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This marker will be used to show the user's location. This should be a PNG file, no more than 25 x 45 in size."></div></td>
-                <td>
-                    <img src="<?= site_url() ?>/mobile/image/marker_gps" />
-                    <br/>
-                    <?= $siteconfig['marker_gps_width'] ?> x <?= $siteconfig['marker_gps_height'] ?>
-                    <br/>
-                    <br/>
-                    If you want to replace the current marker, select the file here.<br/>
-                    This should be a PNG file, no more than 25 x 45 in size.<br/>
-                    Tip: Use a transparent background, or a solid rectangular shape.<br/>
-                    <input type="file" name="mobile_marker_gps" size="50" />
-                    <br/>
-                </td>
-            </tr>
-            </table>
-        </div>
-        <div id="settingsform_tab_mobile">
-            <p>Users on mobile devices will automatically be redirected to <a target="_blank" href="<?= site_url() ?>/mobile">the mobile site</a>. Use this panel to set colors and other options for the mobile site.</p>
-
-            <table class="table-condensed">
-            <tr>
-                <td colspan="2"><h3>Colors</h3></td>
-            </tr>
-            <tr>
-                <td>General Background Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="The global background color. This is used site-wide, except as overridden below."></div></td>
-                <td><input type="text" class="color" style="color:white;" name="mobile_bgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_bgcolor'] ) ?>" /></td>
-            </tr>
-            <tr>
-                <td>General Text &amp; Trim Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="The global foreground (text) color. This is used site-wide, except as overridden below."></div></td>
-                <td><input type="text" class="color" style="color:white;" name="mobile_fgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_fgcolor'] ) ?>" /></td>
-            </tr>
-
-            <tr>
-                <td>Button Color (Fill)<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Default buttons: Background color. This means most buttons and selector widgets."></div></td>
-                <td><input type="text" class="color" style="color:white;" name="mobile_buttonbgcolor1" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonbgcolor1'] ) ?>" /></td>
-            </tr>
-            <tr>
-                <td>Button Color (Text)<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Default buttons: Foreground (text) color. This means most buttons and selector widgets."></div></td>
-                <td><input type="text" class="color" style="color:white;" name="mobile_buttonfgcolor1" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonfgcolor1'] ) ?>" /></td>
-            </tr>
-
-            <tr>
-                <td>Alternate Button Color (Fill)<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Alternate buttons: Background color. Alternate buttons are a few special ones on the Search panel."></div></td>
-                <td><input type="text" class="color" style="color:white;" name="mobile_buttonbgcolor2" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonbgcolor2'] ) ?>" /></td>
-            </tr>
-            <tr>
-                <td>Alternate Button Color (Text)<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Alternate buttons: Foreground (text) color. Alternate buttons are a few special ones on the Search panel."></div></td>
-                <td><input type="text" class="color" style="color:white;" name="mobile_buttonfgcolor2" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_buttonfgcolor2'] ) ?>" /></td>
-            </tr>
-
-            <tr>
-                <td>Highlight BG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Highlight: Background color. Highlights include special alert buttons, as well as the currently-selected tab."></div></td>
-                <td><input type="text" class="color" style="color:white;" name="mobile_alertbgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_alertbgcolor'] ) ?>" /></td>
-            </tr>
-            <tr>
-                <td>Highlight FG Color<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="Highlight: Foreground (text) color. Highlights include special alert buttons, as well as the currently-selected tab."></div></td>
-                <td><input type="text" class="color" style="color:white;" name="mobile_alertfgcolor" size="7" maxlength="7" value="<?= htmlspecialchars( $siteconfig['mobile_alertfgcolor'] ) ?>" /></td>
-            </tr>
-
-            <tr>
-                <td colspan="2"><h3>Branding</h3></td>
-            </tr>
-            <tr>
-                <td>Main Logo<div class="ui-icon ui-icon-info" data-toggle="tooltip" title="This logo will be shown at the top-center of the landing page (which is also the search page). The size should be approximately 230 x 120. Tip: Using a logo wider than 320px or taller than 150px may not look good on small devices."></div></td>
-                <td>
-                    <img src="<?= site_url() ?>/mobile/image/logo" />
-                    <br/>
-                    <?= $siteconfig['mobile_logo_width'] ?> x <?= $siteconfig['mobile_logo_height'] ?>
-                    <br/>
-                    <br/>
-                    If you want to replace the current logo, select the file here.<br/>
-                    The size should be approximately 230 x 120.<br/>
-                    Using a logo wider than 320px or taller than 150px may not look good on small devices.<br/>
-                    Tip: The background should be transparent, or else complementary to your background color.<br/>
-                    <input type="file" name="mobile_logo" size="50" />
-                </td>
-            </tr>
-
             </table>
         </div>
 
