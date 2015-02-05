@@ -29,22 +29,6 @@ em {
             <td>Name</td>
             <td><input type="text" name="name" value="<?= htmlspecialchars($category->name) ?>" size="50" maxlength="50" /></td>
         </tr>
-        <tr>
-            <td>Show on Map page?</td>
-            <td>
-                <?= form_dropdown('enabled', array('1'=>'Enabled', '0'=>'Disabled'),$category->enabled) ?>
-                <br/>
-                If disabled, this category will not appear on the Map page.<br/>Suitable for seasonal shutdowns, temporary closures, etc.
-            </td>
-        </tr>
-        <tr>
-            <td>Checked by default?</td>
-            <td>
-                <?= form_dropdown('on_by_default', array('1'=>'Yes', '0'=>'No'),$category->on_by_default) ?>
-                <br/>
-                On the Map page, should this category be checked when the page loads?
-            </td>
-        </tr>
 
         <!-- DONE -->
         <tr>
