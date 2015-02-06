@@ -78,7 +78,11 @@ public function reloadContent() {
     // - the &bbox= param does not work (always empty resultset) so use &lat_lon= and &radius=    (too bad, would be great to use the selected area in the admin panel)
     // - no need to filter by start_date and end_date as expired events won't be in the feed anyway
     // - see below; the &quot= parameter seems not to work properly, doesn't actually filter by event name
-    //      so the filter is also applies when we iterate over events below
+    //      so the filter is also applied when we iterate over events to collect $collected_events below
+    // - API has a &start_date= parameter, but filtering by start date would exclude an event which started yesterday and perhaps is ongoing into today and tomorrow
+    //      so no easy out for us: accept past events in the feed and skip over them when we iterate over events to collect $collected_events below
+
+    $today = date('Y-m-d', time() );
 
     $params = array();
     $params['sort']         = 'date_asc';
@@ -125,6 +129,10 @@ public function reloadContent() {
             // skip this one if we gave a kqyword-query but the assetName does not match
             // this works around Active.com seeming to return results that don't match the &query= parameter  (not sure what on their end it matches against, if anything)
             if ($keyword_filter and FALSE===strpos($entry->assetName,$keyword_filter) ) continue;
+
+            // skip this event if it's in already over
+            // the Active.com API lets you sort by startDate but not endDate
+            if ( substr($entry->activityEndDate,0,10) < $today) continue;
 
             // okay, good
             $collected_events[] = $entry;
