@@ -77,6 +77,8 @@ public function reloadContent() {
     // - filter by Org ID (all org events) or else by region (bounding box of the city, 50 miles radius)
     // - the &bbox= param does not work (always empty resultset) so use &lat_lon= and &radius=    (too bad, would be great to use the selected area in the admin panel)
     // - no need to filter by start_date and end_date as expired events won't be in the feed anyway
+    // - see below; the &quot= parameter seems not to work properly, doesn't actually filter by event name
+    //      so the filter is also applies when we iterate over events below
 
     $params = array();
     $params['sort']         = 'date_asc';
@@ -117,9 +119,14 @@ public function reloadContent() {
 
         $content = @json_decode(@file_get_contents($url));
         foreach ($content->results as $entry) {
-            // skip out any any which have child components: these are event containers and not actual events
+            // skip any which have child components: these are event containers and not actual events
             if (@$entry->assetComponents and sizeof($entry->assetComponents) ) continue;
 
+            // skip this one if we gave a kqyword-query but the assetName does not match
+            // this works around Active.com seeming to return results that don't match the &query= parameter  (not sure what on their end it matches against, if anything)
+            if ($keyword_filter and FALSE===strpos($entry->assetName,$keyword_filter) ) continue;
+
+            // okay, good
             $collected_events[] = $entry;
         }
     }
@@ -202,11 +209,13 @@ public function reloadContent() {
         if (! $url) $url = @$entry->registrationUrlAdr;
 
         // compose a name: many events have a hierarchical name: Summer - Family - Kids - Basket Weaving
-        // this may or may not be a idiosyncracy of StPaul's data; they're the target client here
+        // strip off the last 2 of these and use them as the event name
+        // this may or may not be a idiosyncracy of StPaul's data; they're the target client here so real goal is to make their data look good and not worry about anyone else's
         $event_name = $entry->assetName;
         if (strpos(' - ', $event_name) != -1) {
             $event_name = explode(' - ',$event_name);
-            $event_name = $event_name[ sizeof($event_name)-1 ];
+            $event_name = array_slice($event_name,-2);
+            $event_name = implode(' - ', $event_name);
         }
         $event_name = substr($event_name,0,100);
 
