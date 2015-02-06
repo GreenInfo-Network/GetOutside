@@ -125,6 +125,13 @@ public function fetchdata() {
     $places = new Place();
     $places->where_related('placedatasource','enabled',1)->get();
 
+    // if they filter by categories, use a WHERE IN query to filtrer by a Place fitting ANY of the given categories
+    // tip: using an AND version to match ALL, gives unintuitive results: more interests means fewer hits, and often gives No Results if a place doesn't have both baseball AND dancing
+    if (is_array(@$_POST['categories'])) {
+        $places->where_in_related('placecategory', 'id', $_POST['categories'] );
+    }
+    $places->distinct()->get();
+
     foreach ($places as $place) {
         // invalid coordinates, skip it
         if (! (float) $place->longitude or ! (float) $place->latitude) continue;
@@ -132,13 +139,6 @@ public function fetchdata() {
         // distance filter
         $distance_squared = ( ($_POST['lng']-$place->longitude) * ($_POST['lng']-$place->longitude) ) + ( ($_POST['lat']-$place->latitude) * ($_POST['lat']-$place->latitude) );
         if ($distance_squared > $max_distance_squared) continue;
-
-        // filter by categories: Places fitting *all* of these category numbers
-        if (is_array(@$_POST['categories'])) {
-            $placecats = array(); foreach ($place->placecategory as $c) $placecats[] = $c->id;
-            $missing   = array_diff($_POST['categories'],$placecats);
-            if (sizeof($missing)) continue;
-        }
 
         // guess it's a hit!
         $thisone = array();
