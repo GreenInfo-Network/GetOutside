@@ -581,6 +581,7 @@ public function ajax_save_place_source() {
     // AJAX endpoint, just say OK if we get that far
     // these fields are saved after the main attributes are saved, to solver a chicken-and-egg problem of having a bad URL or field name,
     // preventing us from finding valid field names, preventing this from being saved so we can find the right field names on the next load
+    /*
     if ($source->option_fields['url']     and $source->option_fields['url']['required']     and !@$_POST['url'])      return print "Missing required field: {$source->option_fields['url']['name']}";
     if ($source->option_fields['option1'] and $source->option_fields['option1']['required'] and !@$_POST['option1'])  return print "Missing required field: {$source->option_fields['option1']['name']}";
     if ($source->option_fields['option2'] and $source->option_fields['option2']['required'] and !@$_POST['option2'])  return print "Missing required field: {$source->option_fields['option2']['name']}";
@@ -591,6 +592,7 @@ public function ajax_save_place_source() {
     if ($source->option_fields['option7'] and $source->option_fields['option7']['required'] and !@$_POST['option7'])  return print "Missing required field: {$source->option_fields['option7']['name']}";
     if ($source->option_fields['option8'] and $source->option_fields['option8']['required'] and !@$_POST['option8'])  return print "Missing required field: {$source->option_fields['option8']['name']}";
     if ($source->option_fields['option9'] and $source->option_fields['option9']['required'] and !@$_POST['option9'])  return print "Missing required field: {$source->option_fields['option9']['name']}";
+    */
 
     print 'ok';
 }

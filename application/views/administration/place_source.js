@@ -12,6 +12,14 @@ $(document).ready(function () {
         saveAndFetch();
     });
 
+    // a twist on the Save And Exit button: we may have got to this page with a brand-spankin'-new data source that lacks data, so it can't possibly work
+    // we need for any required field which changes from not having a value to having a value,
+    // to result in the page saving your changes for you and then reloading the page,
+    // so that the reload will fetch field listings and fill in field-based selectors, or else generate amore appropriate error message (e.g. URL filled in but no data)
+    $('#editform input[required][value=""]').change(function () {
+        saveAndReload();
+    });
+
     // enable the "Fetching..." and "Waiting" dialogs
     $('#dialog_fetching').dialog({
         modal:true, closeOnEsc:false, autoOpen:false, width:'auto', height:'auto',
@@ -77,6 +85,19 @@ function saveAndExit() {
         $('#dialog_waiting').dialog('close');
         if (reply != 'ok') return alert(reply);
         document.location.href = BASE_URL + 'administration/place_sources';
+    });
+}
+
+
+function saveAndReload() {
+    var url    = BASE_URL + 'administration/ajax_save_place_source';
+    var params = $('#editform').serialize();
+
+    $('#dialog_waiting').dialog('open');
+    $.post(url, params, function (reply) {
+        $('#dialog_waiting').dialog('close');
+        if (reply != 'ok') return alert(reply);
+        document.location.href = document.location.href;
     });
 }
 
