@@ -710,7 +710,7 @@ function performSearchReally(options) {
 
 function performSearchAfterGeocode(address) {
     var params = { address:address };
-    $.get(BASE_URL + 'site/geocode', params, function (result) {
+    $.get(BASE_URL + 'mobile/geocode', params, function (result) {
         $('#page-search input[name="lat"]').val( result.lat );
         $('#page-search input[name="lng"]').val( result.lng );
         performSearchReally();

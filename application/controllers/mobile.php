@@ -307,5 +307,84 @@ public function fetchdata() {
 }
 
 
+// the geocode abstrcator: look in our siteconfig and figure out which geocoder to use, and hand back a known format despite whomever we're using
+// this is used by both desktop and mobile
+public function geocode() {
+    // check that we got all params
+    $address = trim(@$_GET['address']);
+    if (! $address) return print "No address given";
+
+    // have a sub-method hit up the appropriate service
+    switch ( $this->siteconfig->get('preferred_geocoder') ) {
+        case 'bing':
+            $result = $this->_geocode_bing($address);
+            break;
+        case 'google':
+            $result = $this->_geocode_google($address);
+            break;
+        default:
+            return print "No geocoder enabled?";
+            break;
+    }
+
+    // spit it out as JSON
+    header('Content-type: application/json');
+    print json_encode($result);
+}
+
+private function _geocode_google($address) {
+    // compose the request to the REST service; the inclusion of a GMAPI key is optional
+    $key = $this->siteconfig->get('google_api_key');
+    $params = array();
+    if ($key) $params['key'] = $key;
+    $params['address']       =  $address;
+    $params['bounds']        = sprintf("%f,%f|%f,%f", $this->siteconfig->get('bbox_s'), $this->siteconfig->get('bbox_w'), $this->siteconfig->get('bbox_n'), $this->siteconfig->get('bbox_e') );
+    $url = sprintf("https://maps.googleapis.com/maps/api/geocode/json?%s", http_build_query($params) );
+
+    // send it off, parse it, make sure it's valid
+    $result = json_decode(file_get_contents($url));
+    if (! @$result->results[0]) return print "Could not find that address";
+
+    // start building output
+    $output = array();
+    $output['lng']  = (float)  $result->results[0]->geometry->location->lng;
+    $output['lat']  = (float)  $result->results[0]->geometry->location->lat;
+    $output['s']    = (float)  $result->results[0]->geometry->viewport->southwest->lat;
+    $output['w']    = (float)  $result->results[0]->geometry->viewport->southwest->lng;
+    $output['n']    = (float)  $result->results[0]->geometry->viewport->northeast->lat;
+    $output['e']    = (float)  $result->results[0]->geometry->viewport->northeast->lng;
+    $output['name'] = (string) $result->results[0]->formatted_address;
+
+    return $output;
+}
+
+private function _geocode_bing($address) {
+    // compose the request to the REST service
+    $params = array();
+    $params['key']          = $this->siteconfig->get('bing_api_key');
+    $params['output']       = 'json';
+    $params['maxResults']   = 1;
+    $params['query']        =  $address;
+    $params['userMapView']  = sprintf("%f,%f,%f,%f", $this->siteconfig->get('bbox_s'), $this->siteconfig->get('bbox_w'), $this->siteconfig->get('bbox_n'), $this->siteconfig->get('bbox_e') );
+    $url = sprintf("http://dev.virtualearth.net/REST/v1/Locations?%s", http_build_query($params) );
+
+    // send it off, parse it, make sure it's valid
+    $result = json_decode(file_get_contents($url));
+    if ($result->authenticationResultCode != 'ValidCredentials') return print "Bing Maps API key is invalid";
+    if (! @$result->resourceSets[0]->resources[0]) return print "Could not find that address";
+
+    // start building output
+    $output = array();
+    $output['lng']  = (float)  $result->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+    $output['lat']  = (float)  $result->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+    $output['s']    = (float)  $result->resourceSets[0]->resources[0]->bbox[0];
+    $output['w']    = (float)  $result->resourceSets[0]->resources[0]->bbox[1];
+    $output['n']    = (float)  $result->resourceSets[0]->resources[0]->bbox[2];
+    $output['e']    = (float)  $result->resourceSets[0]->resources[0]->bbox[3];
+    $output['name'] = (string) $result->resourceSets[0]->resources[0]->name;
+
+    return $output;
+}
+
 
 } // end of Controller
