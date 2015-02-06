@@ -190,8 +190,10 @@ public function ajax_save_user() {
     if (@$_POST['password']) $_POST['password'] = User::encryptPassword($_POST['password']);
 
     // save it!
+    // hack: all users are Admin level; at this time we do not want to move forward with Website and Manager level distinctions
     $data['user']->username = $_POST['username'];
-    $data['user']->level    = (integer) $_POST['level'];
+    //$data['user']->level    = (integer) $_POST['level'];
+    $data['user']->level    = USER_LEVEL_ADMIN;
     if (@$_POST['password']) $data['user']->password = $_POST['password'];
     $data['user']->save();
 
