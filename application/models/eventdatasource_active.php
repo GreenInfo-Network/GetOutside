@@ -211,9 +211,12 @@ public function reloadContent() {
         if (! $include_meetings and array_key_exists($category,$categories_meetings))  { $nocategory++; $details[] = "Skipping meetings: {$event->name}"; continue; }
 
         // find an URL
-        $url = @$entry->assetLegacyData->seoUrl;
+        $url = @$entry->preferredUrlAdr;
+        if (! $url) $url = @$entry->assetLegacyData->seoUrl;
+        if (! $url) $url = @$entry->seoUrl;
         if (! $url) $url = @$entry->urlAdr;
         if (! $url) $url = @$entry->homePageUrlAdr;
+        if (! $url) $url = @$entry->resultsUrlAdr;
         if (! $url) $url = @$entry->registrationUrlAdr;
 
         // compose a name: many events have a hierarchical name: Summer - Family - Kids - Basket Weaving
