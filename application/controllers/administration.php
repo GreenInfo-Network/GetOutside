@@ -13,6 +13,10 @@ public function __construct() {
 
     $this->load->model('SiteConfig');
     $this->siteconfig = new SiteConfig();
+
+    // set the timezone
+    // particularly important for Events, both when loading from non-timezone-aware sources but also for rendering those dates both in admin and to public
+    date_default_timezone_set( $this->siteconfig->get('timezone') );
 }
 
 

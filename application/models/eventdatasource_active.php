@@ -227,15 +227,30 @@ public function reloadContent() {
         }
         $event_name = substr($event_name,0,100);
 
+        // timezone conversion
+        // Active hands them back in GMT and also gives the timezone of the event, so you can do your own math to get GMT
+        // store times as GMT so they can be converted to local timezone at runtime (siteconfig timezone)
+        $start = explode('T',$entry->activityStartDate);
+        $end   = explode('T',$entry->activityEndDate);
+
+        $start = new DateTime("{$start[0]} {$start[1]} +00");
+        $end   = new DateTime("{$end[0]} {$end[1]} +00");
+
+        $start->setTimezone(new DateTimeZone($entry->localTimeZoneId));
+        $end->setTimezone(new DateTimeZone($entry->localTimeZoneId));
+
+        $entry->activityUnixStartDate = $start->format('U');
+        $entry->activityUnixEndDate   = $end->format('U');
+
         // ready!
         $event = new Event();
         $event->eventdatasource_id  = $this->id;
         $event->remoteid            = $entry->assetGuid;
-        $event->starts              = strtotime($entry->activityStartDate); // Unix timestamp
-        $event->ends                = strtotime($entry->activityEndDate); // Unix timestamp
+        $event->starts              = $entry->activityUnixStartDate; // Unix timestamp
+        $event->ends                = $entry->activityUnixEndDate; // Unix timestamp
         $event->name                = $event_name;
         $event->url                 = $url;
-        $event->description         = ""; // real-world descriptions are multi-kilobyte HTML, looks awful
+        $event->description         = ""; // real-world descriptions are multi-kilobyte HTML, looks awful; better to skip- it and let the event's web page tell the story
         //$event->description         = (string) @$entry->assetDescriptions[0]->description;
 
         // name is required

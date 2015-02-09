@@ -14,8 +14,9 @@ public function __construct() {
     $this->siteconfig = new SiteConfig();
     if (! $this->siteconfig->get('title') ) die( redirect(site_url('setup')) );
 
-    // set the timezone; particularly for time output in Events, but potentially for other unforeseen functions such as manually-entered events
-    //date_default_timezone_set( $this->siteconfig->get('timezone') );
+    // set the timezone
+    // particularly important for Events, both when loading from non-timezone-aware sources but also for rendering those dates both in admin and to public
+    date_default_timezone_set( $this->siteconfig->get('timezone') );
 }
 
 
