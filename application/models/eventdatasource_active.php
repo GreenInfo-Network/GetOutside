@@ -115,6 +115,7 @@ public function reloadContent() {
     for ($page=1; $page<=$pages; $page++) {
         $params['current_page'] = $page;
         $url     = sprintf('http://api.amp.active.com/v2/search?api_key=%s&%s', $apikey, http_build_query($params) );
+        //throw new EventDataSourceErrorException( array($url) );
 
         $details[] = sprintf("Parsing %s", $url );
 
@@ -263,15 +264,29 @@ public function reloadContent() {
         // name is required
         if (!$event->name) { $failed++; $details[] = "Name missing: Event ID {$event->remoteid}"; continue; }
 
-        // now, figure out what weekdays intersect this event's duration; sat  sun  mon  ...
-        // these are used to quickly search for "events on a Saturday"
+        // now, on what days of the week does this event happen? these are used to quickly search for "events on a Saturday"
+        // tricker than it sounds
+        //      the start-end dates may indicate a multi-day event (a fair that runs for one full week)
+        //      OR they may indicate a recurring event with a longer span (only on Sat & Sun, but starts in March and ends in July)
+        // distinguishing characteristic is recurrence info
+        // note that we do not attempt to process activityExclusions for specific dates on which the event would not occur
         $event->mon = $event->tue = $event->wed = $event->thu = $event->fri = $event->sat = $event->sun = 0;
-        for ($thistime=$event->starts; $thistime<$event->ends; $thistime+=86400) {
-            $wday = strtolower(date('D',$thistime));
-            $event->{$wday} = 1;
+        if (sizeof($entry->activityRecurrences)) {
+            if ( strpos($entry->activityRecurrences[0]->days,'Sunday')    !== FALSE ) $event->sun = 1;
+            if ( strpos($entry->activityRecurrences[0]->days,'Monday')    !== FALSE ) $event->mon = 1;
+            if ( strpos($entry->activityRecurrences[0]->days,'Tuesday')   !== FALSE ) $event->tue = 1;
+            if ( strpos($entry->activityRecurrences[0]->days,'Wednesday') !== FALSE ) $event->wed = 1;
+            if ( strpos($entry->activityRecurrences[0]->days,'Thursday')  !== FALSE ) $event->thu = 1;
+            if ( strpos($entry->activityRecurrences[0]->days,'Friday')    !== FALSE ) $event->fri = 1;
+            if ( strpos($entry->activityRecurrences[0]->days,'Saturday')  !== FALSE ) $event->sat = 1;
+        } else {
+            for ($thistime=$event->starts; $thistime<$event->ends; $thistime+=86400) {
+                $wday = strtolower(date('D',$thistime));
+                $event->{$wday} = 1;
 
-            // tip: if all 7 days are a Yes by now, just skip the rest
-            if ($event->mon and $event->tue and $event->wed and $event->thu and $event->fri and $event->sat and $event->sun) break;
+                // tip: if all 7 days are a Yes by now, just skip the rest
+                if ($event->mon and $event->tue and $event->wed and $event->thu and $event->fri and $event->sat and $event->sun) break;
+            }
         }
 
         // Gender requirements?   Active.com API has regReqGenderCd which may be M F or blank
