@@ -211,7 +211,14 @@ public function reloadContent() {
         if (! $include_meetings and array_key_exists($category,$categories_meetings))  { $nocategory++; $details[] = "Skipping meetings: {$event->name}"; continue; }
 
         // find an URL
-        $url = @$entry->preferredUrlAdr;
+        // a few iterations here, trying to find something that for the largest majority of events,
+        //      will not bounce to a login or registration page
+        $url = NULL;
+        if ($entry->assetLegacyData->substitutionUrl) {
+            preg_match('/activity_id=(\d+)/', $entry->assetLegacyData->substitutionUrl, $url);
+            if ($url) $url = "https://apm.activecommunities.com/saintpaul/Activity_Search/{$url[1]}";
+        }
+        if (! $url) $url = @$entry->preferredUrlAdr;
         if (! $url) $url = @$entry->assetLegacyData->seoUrl;
         if (! $url) $url = @$entry->seoUrl;
         if (! $url) $url = @$entry->urlAdr;
