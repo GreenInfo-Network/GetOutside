@@ -14,7 +14,7 @@ var $option_fields = array(
     'option4' => NULL,
     'option5' => NULL,
     'option6' => NULL,
-    'option7' => array('required'=>FALSE, 'name'=>"Keyword query", 'help'=>"Optional: A query phrase to filter results, e.g. &quot;Citywide Special Events&quot;" ),
+    'option7' => array('required'=>FALSE, 'name'=>"Keyword query", 'help'=>"Optional: A phrase used to filter results, e.g. &quot;Citywide Special Events&quot; Events will be skipped if their title does not contain this." ),
     'option8' => array('required'=>FALSE, 'name'=>"Include classes and workshops?", 'help'=>"When fetching events, should classes be included or excluded?", 'options'=>array('0'=>'Excluded', '1'=>'Included') ),
     'option9' => array('required'=>FALSE, 'name'=>"Include conferences and meetings?", 'help'=>"When fetching events, should meetings be included or excluded?", 'options'=>array('0'=>'Excluded', '1'=>'Included') ),
 );
@@ -88,9 +88,6 @@ public function reloadContent() {
     $params['sort']         = 'date_asc';
     $params['category']     = 'event';
     $params['per_page']     = 0;
-    if ($keyword_filter) {
-        $params['query'] = urlencode(trim($keyword_filter));
-    }
     if ($orgid) {
         $params['org_id'] = $orgid;
     } else {
