@@ -137,10 +137,136 @@ public function reloadContent() {
         }
     }
     //throw new EventDataSourceErrorException(array( sprintf("Collected %d raw entries", sizeof($collected_events) ) ));
-
     $details[] = sprintf("Found %d Event records to process", sizeof($collected_events) );
 
-    // guess we're good! delete the existing Events in this source...
+    // preprocessing for recurring events
+    // analyze the list of $collected_events and look for any which have activityRecurrences data
+    // use this information to create copies of the event $entry and append them to the $collected_events as if they were brand-new events
+    // just to keep things interesting, some events have a start date that's specifically invalid for their stated schedule,
+    //      e.g. every Wednesday starting January 7 2015.... except for Jan 7 2015
+    // tip: do not alter an array while iterating over it, unless you're careful about capping $length first
+    /*
+    [activityRecurrences] => Array (
+            [0] => stdClass Object (
+                [activityStartDate] => 2014-12-01T00:00:00
+                [startTime] => 8:00:00
+                [activityEndDate] => 2015-03-28T00:00:00
+                [endTime] => 20:00:00
+                [frequencyInterval] => 1
+                [frequency] => stdClass Object (
+                    [frequencyName] => Weekly
+                )
+                [days] => Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+                [activityExclusions] => Array (
+                    [0] => stdClass Object (
+                        [exclusionStartDate] => 2015-01-24T08:00:00
+                        [exclusionEndDate] => 2015-01-24T20:00:00
+                    )
+                    [1] => stdClass Object (
+                        [exclusionStartDate] => 2015-01-04T08:00:00
+                        [exclusionEndDate] => 2015-01-04T20:00:00
+                    )
+                )
+            )
+        )
+    */
+    $collected_events_after_recurrence_calculations = array();
+    for ($i=0, $length=sizeof($collected_events); $i<$length; $i++) {
+        // not a recurring event? never mind; just stick it ono the finished list as-is
+        if (! sizeof($collected_events[$i]->activityRecurrences) ) {
+            $collected_events_after_recurrence_calculations[] = $collected_events[$i];
+            continue;
+        }
+
+        // what a nuisance: the recurrence block has time in local, while normal events have it in GMT
+        // we'll need to clip the start/end times here, then recompose them below for the recurrence dates... and add the +00 timezone to match normal events
+        foreach ($collected_events[$i]->activityRecurrences as $recurinfo) {
+            // make up timestamps for the first instance: snip together the date and time, cuz for some reason they didn't see fit to put them together
+            // don't forget to include the local timezone which may or may not be same as this server, right?
+            // then convert to a Unix timestamp so we can do math on it
+            $tz = sprintf("%s%02d", $collected_events[$i]->place->timezoneOffset < 0 ? '-' : '+', abs($collected_events[$i]->place->timezoneOffset));
+            $first_start = explode(':',$recurinfo->startTime);
+            $first_start = sprintf("%sT%02d:%02d:%02d%s", substr($recurinfo->activityStartDate,0,10), $first_start[0], $first_start[1], $first_start[2], $tz );
+            $first_end = explode(':',$recurinfo->endTime);
+            $first_end = sprintf("%sT%02d:%02d:%02d%s", substr($recurinfo->activityStartDate,0,10), $first_end[0], $first_end[1], $first_end[2], $tz );
+
+            $first_start_unix = new DateTime($first_start); $first_start_unix = $first_start_unix->format('U');
+            $first_end_unix   = new DateTime($first_end);   $first_end_unix   = $first_end_unix->format('U');
+            //print "{$collected_events[$i]->assetName} : First instance start/end time, Text: $first_start - $first_end <br/>\n";
+            //print "{$collected_events[$i]->assetName} : First instance start/end time, Unix: $first_start_unix - $first_end_unix <br/>\n";
+
+            // figure out the Unix time of the very last of the series: the end of the end
+            $theveryend = explode(':',$recurinfo->endTime);
+            $theveryend = substr($recurinfo->activityEndDate,0,10);
+            //print "{$collected_events[$i]->assetName} : The very end of the whole series: $theveryend <br/>\n";
+
+            // exclusions: compose an assoc of dates on which recurrences will not happen
+            // this will be compared against calculated recurrence dates, to not make then occur at that time
+            $exclude_ymd = array();
+            foreach ($recurinfo->activityExclusions as $ex) $exclude_ymd[ substr($ex->exclusionStartDate,0,10) ] = TRUE;
+            //print_r($exclude_ymd);
+
+            // there are different typres of recurrence, so we have to take a roundabout approach
+            // loop over the start-to-end range (unix times) by one-day increments and see if that day matches
+            // besides, we have exclusions to deal with so this technique is safer, esp as we discover new recurrence types and exclusions types
+            // tip: Weekly does not mean once per week, but that the same set of days recurs weekly, e.g. Weekly - Mon, Wed, Fri
+            $dayoffset = -1;
+            while (TRUE) {
+                // this recurrence (if it happens) would take place from what time to what time?
+                $dayoffset++;
+                $thisstart_unix = $first_start_unix + 86400 * $dayoffset;
+                $thisend_unix   = $first_end_unix   + 86400 * $dayoffset;
+                $thiswday       = date('l',$thisstart_unix);
+                $thisymd        = date('Y-m-d',$thisstart_unix);
+                //print "{$collected_events[$i]->assetName} : Day $dayoffset: $thisymd $thiswday<br/>\n";
+
+                // have we reached the end?
+                // is today specifically excluded?
+                $done    = strcasecmp($thisymd,$theveryend) > 0;
+                $exclude = array_key_exists($thisymd,$exclude_ymd);
+                if ($done) break;
+                if ($exclude) continue;
+
+                // make up the weekday and the YYYY-MM-DD in the local timezone
+                // so we can compare the date to the exclusion list (local time) and the weekday to the event's known-to-recur weekdays (local time)
+                // is this day specifically listed as not happening? if so then we're done here
+
+                // does this weekday fit the listed recurrences?
+                //print "{$collected_events[$i]->assetName} : Checking $thisymd which is a $thiswday against {$recurinfo->frequency->frequencyName} {$recurinfo->days}<br/>\n";
+                $copy_event_to_today = FALSE;
+                switch ($recurinfo->frequency->frequencyName) {
+                    case 'Daily':
+                        // event is Daily so today is known to be a match; there is a "days" entry but it's not of use here
+                        $copy_event_to_today = TRUE;
+                        break;
+                    case 'Weekly':
+                        // Weekly does not mean once per week, but that the same set of days recurs weekly, e.g. Weekly - Mon, Wed, Fri
+                        // so the logic is: is today's Day-of-week on the list?
+                        $copy_event_to_today = ( FALSE !== strpos($recurinfo->days,$thiswday) );
+                        break;
+                }
+                if (! $copy_event_to_today) continue;
+                //print "Event should recur on $thisymd which is a $thiswday <br/>\n";
+
+                // this recurrence does happen on this day
+                // create a copy of the event, override the start and end time, stick it onto the list
+                $copied = clone($collected_events[$i]);
+                $copied->activityStartDate = date('c', $thisstart_unix);
+                $copied->activityEndDate   = date('c', $thisend_unix);
+                $collected_events_after_recurrence_calculations[] = $copied;
+            } // end of this potential day for a recurrence
+        } // end of this event's recurrence type
+    } // end of this event
+
+    // swap them into place: originals plus copies
+    // why did we do this? we skipped a few along the way: originals of recurrences, should not be in the final output
+    // e.g. event starts Jan 7 but Jan 7 is a recurrence exclusion!  (yes really)
+    //foreach ($collected_events_after_recurrence_calculations as $entry) {
+    //    print "{$entry->assetName} @ {$entry->activityStartDate}  - {$entry->activityEndDate} <br/>\n";
+    //}
+    $collected_events = $collected_events_after_recurrence_calculations;
+
+    // guess we're ready! delete the existing Events in this source...
     // and also any EventLocations, cuz MySQL isn't smart enough to cacade-delete...
     $howmany_old = $this->event->count();
     foreach ($this->event as $old) {
@@ -238,11 +364,8 @@ public function reloadContent() {
         // timezone conversion
         // Active hands them back in GMT and also gives the timezone of the event, so you can do your own math to get GMT
         // store times as GMT so they can be converted to local timezone at runtime (siteconfig timezone)
-        $start = explode('T',$entry->activityStartDate);
-        $end   = explode('T',$entry->activityEndDate);
-
-        $start = new DateTime("{$start[0]} {$start[1]} +00");
-        $end   = new DateTime("{$end[0]} {$end[1]} +00");
+        $start = explode('T',$entry->activityStartDate); $start = new DateTime("{$start[0]} {$start[1]} +00");
+        $end   = explode('T',$entry->activityEndDate);   $end   = new DateTime("{$end[0]} {$end[1]} +00");
 
         $start->setTimezone(new DateTimeZone($entry->localTimeZoneId));
         $end->setTimezone(new DateTimeZone($entry->localTimeZoneId));
@@ -264,29 +387,19 @@ public function reloadContent() {
         // name is required
         if (!$event->name) { $failed++; $details[] = "Name missing: Event ID {$event->remoteid}"; continue; }
 
-        // now, on what days of the week does this event happen? these are used to quickly search for "events on a Saturday"
-        // tricker than it sounds
-        //      the start-end dates may indicate a multi-day event (a fair that runs for one full week)
-        //      OR they may indicate a recurring event with a longer span (only on Sat & Sun, but starts in March and ends in July)
-        // distinguishing characteristic is recurrence info
-        // note that we do not attempt to process activityExclusions for specific dates on which the event would not occur
-        $event->mon = $event->tue = $event->wed = $event->thu = $event->fri = $event->sat = $event->sun = 0;
-        if (sizeof($entry->activityRecurrences)) {
-            if ( strpos($entry->activityRecurrences[0]->days,'Sunday')    !== FALSE ) $event->sun = 1;
-            if ( strpos($entry->activityRecurrences[0]->days,'Monday')    !== FALSE ) $event->mon = 1;
-            if ( strpos($entry->activityRecurrences[0]->days,'Tuesday')   !== FALSE ) $event->tue = 1;
-            if ( strpos($entry->activityRecurrences[0]->days,'Wednesday') !== FALSE ) $event->wed = 1;
-            if ( strpos($entry->activityRecurrences[0]->days,'Thursday')  !== FALSE ) $event->thu = 1;
-            if ( strpos($entry->activityRecurrences[0]->days,'Friday')    !== FALSE ) $event->fri = 1;
-            if ( strpos($entry->activityRecurrences[0]->days,'Saturday')  !== FALSE ) $event->sat = 1;
-        } else {
-            for ($thistime=$event->starts; $thistime<$event->ends; $thistime+=86400) {
-                $wday = strtolower(date('D',$thistime));
-                $event->{$wday} = 1;
+        // tag the event as being recurring or not
+        // internally this is not used for date calculations (except for that preprocessing step where we created new $entry items anyway)
+        // but can be useful for metadata purposes, e.g. notifying folks that they should read the schedule
+        $event->recurs = sizeof($entry->activityRecurrences) ? 1 : 0;
 
-                // tip: if all 7 days are a Yes by now, just skip the rest
-                if ($event->mon and $event->tue and $event->wed and $event->thu and $event->fri and $event->sat and $event->sun) break;
-            }
+        // now, on what days of the week does this event happen? these are used to quickly search for "events on a Saturday"
+        $event->mon = $event->tue = $event->wed = $event->thu = $event->fri = $event->sat = $event->sun = 0;
+        for ($thistime=$event->starts; $thistime<$event->ends; $thistime+=86400) {
+            $wday = strtolower(date('D',$thistime));
+            $event->{$wday} = 1;
+
+            // tip: if all 7 days are a Yes by now, just skip the rest
+            if ($event->mon and $event->tue and $event->wed and $event->thu and $event->fri and $event->sat and $event->sun) break;
         }
 
         // Gender requirements?   Active.com API has regReqGenderCd which may be M F or blank
@@ -323,6 +436,14 @@ public function reloadContent() {
             $event->audience_age = '2';
         } else if ($entry->regReqMaxAge <= 3) {
             $event->audience_age = '1';
+        }
+
+        // on what days of the week does this event happen? these are used to quickly search for "events on a Saturday"
+        for ($thistime=$event->starts; $thistime<$event->ends; $thistime+=86400) {
+            $wday = strtolower(date('D',$thistime));
+            $event->{$wday} = 1;
+            // tip: if all 7 days are a Yes by now, just skip the rest
+            if ($event->mon and $event->tue and $event->wed and $event->thu and $event->fri and $event->sat and $event->sun) break;
         }
 
         // ready!
