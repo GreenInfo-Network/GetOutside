@@ -173,7 +173,7 @@ public function reloadContent() {
     */
     $collected_events_after_recurrence_calculations = array();
     for ($i=0, $length=sizeof($collected_events); $i<$length; $i++) {
-        // not a recurring event? never mind; just stick it ono the finished list as-is
+        // not a recurring event? never mind; just stick it onto the finished list as-is
         if (! sizeof($collected_events[$i]->activityRecurrences) ) {
             $collected_events_after_recurrence_calculations[] = $collected_events[$i];
             continue;
