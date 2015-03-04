@@ -187,8 +187,12 @@ public function reloadContent() {
             // then convert to a Unix timestamp so we can do math on it
             $tz = sprintf("%s%02d", $collected_events[$i]->place->timezoneOffset < 0 ? '-' : '+', abs($collected_events[$i]->place->timezoneOffset));
             $first_start = explode(':',$recurinfo->startTime);
+            $first_end   = explode(':',$recurinfo->endTime);
+            if (!$first_start or sizeof($first_start) < 3 or !$first_end or sizeof($first_end) < 3) {
+                $details[] = sprintf("Skipping event recurrence due to missing StartTime and EndTime: %s", $collected_events[$i]->assetName );
+                continue;
+            }
             $first_start = sprintf("%sT%02d:%02d:%02d%s", substr($recurinfo->activityStartDate,0,10), $first_start[0], $first_start[1], $first_start[2], $tz );
-            $first_end = explode(':',$recurinfo->endTime);
             $first_end = sprintf("%sT%02d:%02d:%02d%s", substr($recurinfo->activityStartDate,0,10), $first_end[0], $first_end[1], $first_end[2], $tz );
 
             $first_start_unix = new DateTime($first_start); $first_start_unix = $first_start_unix->format('U');
