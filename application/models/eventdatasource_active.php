@@ -173,8 +173,19 @@ public function reloadContent() {
     */
     $collected_events_after_recurrence_calculations = array();
     for ($i=0, $length=sizeof($collected_events); $i<$length; $i++) {
-        // not a recurring event? never mind; just stick it onto the finished list as-is
+        // not a recurring event?
+        // then stick it onto the final list, having converted its time out of UTC and into local timezone
         if (! sizeof($collected_events[$i]->activityRecurrences) ) {
+            $start = explode('T',$collected_events[$i]->activityStartDate);
+            $start = new DateTime("{$start[0]} {$start[1]} +00");
+            $start->setTimezone(new DateTimeZone($collected_events[$i]->localTimeZoneId));
+            $collected_events[$i]->activityUnixStartDate = $start->format('U');
+
+            $end   = explode('T',$collected_events[$i]->activityEndDate);
+            $end   = new DateTime("{$end[0]} {$end[1]} +00");
+            $end->setTimezone(new DateTimeZone($collected_events[$i]->localTimeZoneId));
+            $collected_events[$i]->activityUnixEndDate   = $end->format('U');
+
             $collected_events_after_recurrence_calculations[] = $collected_events[$i];
             continue;
         }
@@ -182,84 +193,79 @@ public function reloadContent() {
         // what a nuisance: the recurrence block has time in local, while normal events have it in GMT
         // we'll need to clip the start/end times here, then recompose them below for the recurrence dates... and add the +00 timezone to match normal events
         foreach ($collected_events[$i]->activityRecurrences as $recurinfo) {
-            // make up timestamps for the first instance: snip together the date and time, cuz for some reason they didn't see fit to put them together
-            // don't forget to include the local timezone which may or may not be same as this server, right?
-            // then convert to a Unix timestamp so we can do math on it
-            $tz = sprintf("%s%02d", $collected_events[$i]->place->timezoneOffset < 0 ? '-' : '+', abs($collected_events[$i]->place->timezoneOffset));
-            $first_start = explode(':',$recurinfo->startTime);
-            $first_end   = explode(':',$recurinfo->endTime);
-            if (!$first_start or sizeof($first_start) < 3 or !$first_end or sizeof($first_end) < 3) {
-                $details[] = sprintf("Skipping event recurrence due to missing StartTime and EndTime: %s", $collected_events[$i]->assetName );
-                continue;
-            }
-            $first_start = sprintf("%sT%02d:%02d:%02d%s", substr($recurinfo->activityStartDate,0,10), $first_start[0], $first_start[1], $first_start[2], $tz );
-            $first_end = sprintf("%sT%02d:%02d:%02d%s", substr($recurinfo->activityStartDate,0,10), $first_end[0], $first_end[1], $first_end[2], $tz );
+            // fetch the first recurrence which has the date and time... as separate fields for some reason
+            // paste them together BUT DO NOT simply assume yyyy-mm-ddThh:mmTZ because that would not account for daylight savings (thank goodness it's early March and we see this during testing!)
+            // and DO NOT iterate adding 86400 to form each new day, since DST changeovers are 3600 seconds longer or shorter than normal days. Argh!
+            // best bet is to compose a string and let strtotime() handle it since it understands DST using the given date
 
-            $first_start_unix = new DateTime($first_start); $first_start_unix = $first_start_unix->format('U');
-            $first_end_unix   = new DateTime($first_end);   $first_end_unix   = $first_end_unix->format('U');
-            //print "{$collected_events[$i]->assetName} : First instance start/end time, Text: $first_start - $first_end <br/>\n";
-            //print "{$collected_events[$i]->assetName} : First instance start/end time, Unix: $first_start_unix - $first_end_unix <br/>\n";
-
-            // figure out the Unix time of the very last of the series: the end of the end
-            $theveryend = explode(':',$recurinfo->endTime);
-            $theveryend = substr($recurinfo->activityEndDate,0,10);
-            //print "{$collected_events[$i]->assetName} : The very end of the whole series: $theveryend <br/>\n";
-
-            // exclusions: compose an assoc of dates on which recurrences will not happen
-            // this will be compared against calculated recurrence dates, to not make then occur at that time
+            // phase 0
+            // collect the list of no-recurrence dates, e.g. every Monday except 2015-03-02
             $exclude_ymd = array();
             foreach ($recurinfo->activityExclusions as $ex) $exclude_ymd[ substr($ex->exclusionStartDate,0,10) ] = TRUE;
             //print_r($exclude_ymd);
 
-            // there are different typres of recurrence, so we have to take a roundabout approach
-            // loop over the start-to-end range (unix times) by one-day increments and see if that day matches
-            // besides, we have exclusions to deal with so this technique is safer, esp as we discover new recurrence types and exclusions types
-            // tip: Weekly does not mean once per week, but that the same set of days recurs weekly, e.g. Weekly - Mon, Wed, Fri
-            $dayoffset = -1;
-            while (TRUE) {
-                // this recurrence (if it happens) would take place from what time to what time?
+            // phase 1
+            // compose a list of dates on which this activity would occur, activityStartDate through activityEndDate
+            // but minus any $exclude_ymd
+            // and minus any which do not fit the recurrence statement, e.g. Tuesdays and Thursdays but this is a Monday
+            $dates = array();
+            $date_min   = substr($recurinfo->activityStartDate,0,10);
+            $date_max   = substr($recurinfo->activityEndDate,0,10);
+
+            $thisymd    = '0000-00-00';
+            $dayoffset  = -1;
+            while ($thisymd < $date_max) {
                 $dayoffset++;
-                $thisstart_unix = $first_start_unix + 86400 * $dayoffset;
-                $thisend_unix   = $first_end_unix   + 86400 * $dayoffset;
-                $thiswday       = date('l',$thisstart_unix);
-                $thisymd        = date('Y-m-d',$thisstart_unix);
-                //print "{$collected_events[$i]->assetName} : Day $dayoffset: $thisymd $thiswday<br/>\n";
+                $thisunix = mktime(0, 0, 0, substr($date_min,5,2), substr($date_min,8,2) + $dayoffset,  substr($date_min,0,4) );
+                $thisymd  = date('Y-m-d', $thisunix);
+                $thiswday = date('l',$thisunix);
 
-                // have we reached the end?
-                // is today specifically excluded?
-                $done    = strcasecmp($thisymd,$theveryend) > 0;
-                $exclude = array_key_exists($thisymd,$exclude_ymd);
-                if ($done) break;
-                if ($exclude) continue;
-
-                // make up the weekday and the YYYY-MM-DD in the local timezone
-                // so we can compare the date to the exclusion list (local time) and the weekday to the event's known-to-recur weekdays (local time)
-                // is this day specifically listed as not happening? if so then we're done here
+                // if this date is specifically excluded, then skip it
+                if (array_key_exists($thisymd,$exclude_ymd)) continue;
 
                 // does this weekday fit the listed recurrences?
-                //print "{$collected_events[$i]->assetName} : Checking $thisymd which is a $thiswday against {$recurinfo->frequency->frequencyName} {$recurinfo->days}<br/>\n";
-                $copy_event_to_today = FALSE;
+                $recurrence_fits_thisday = FALSE;
                 switch ($recurinfo->frequency->frequencyName) {
                     case 'Daily':
                         // event is Daily so today is known to be a match; there is a "days" entry but it's not of use here
-                        $copy_event_to_today = TRUE;
+                        $recurrence_fits_thisday = TRUE;
                         break;
                     case 'Weekly':
                         // Weekly does not mean once per week, but that the same set of days recurs weekly, e.g. Weekly - Mon, Wed, Fri
                         // so the logic is: is today's Day-of-week on the list?
-                        $copy_event_to_today = ( FALSE !== strpos($recurinfo->days,$thiswday) );
+                        $recurrence_fits_thisday = ( FALSE !== strpos($recurinfo->days,$thiswday) );
                         break;
                 }
-                if (! $copy_event_to_today) continue;
-                //print "Event should recur on $thisymd which is a $thiswday <br/>\n";
+                if (! $recurrence_fits_thisday) continue;
 
-                // this recurrence does happen on this day
-                // create a copy of the event, override the start and end time, stick it onto the list
+                // well then, I guess the event really would happen on this yyyy-mm-dd
+                $dates[] = $thisymd;
+            }
+            //print_r($dates);
+
+            // phase 2
+            // now that we have a list of dates, concatenate each to the start time and end time
+            // these are in local time, and if we stick it alongside each date we have a string that strtotime() can handle, accounting for DST on that date
+            // so take a clone of this original event entry, change the time and date, and stick it onto the list as if it were a unique event
+            // tip: the 'l' version is not wholly reliable, as it won't necessarily carry over the timezone and account for DST; that's why we go with Unix stamp instead
+            $time_start = substr($recurinfo->startTime,0,5);
+            $time_end   = substr($recurinfo->endTime  ,0,5);
+            $timezone   = $collected_events[$i]->place->timezone;
+
+            foreach ($dates as $thisymd) {
+                $this_start      = sprintf("%s %s %s", $thisymd, $time_start, $timezone);
+                $this_end        = sprintf("%s %s %s", $thisymd, $time_end  , $timezone);
+
                 $copied = clone($collected_events[$i]);
-                $copied->activityStartDate = date('c', $thisstart_unix);
-                $copied->activityEndDate   = date('c', $thisend_unix);
+
+                $copied->activityUnixStartDate  = strtotime($this_start);
+                $copied->activityUnixEndDate    = strtotime($this_end);
+                $copied->activityStartDate      = date('l', strtotime($this_start) );
+                $copied->activityEndDate        = date('l', strtotime($this_end) );
+                //print "Event time: $this_start -- $this_end TRANSLATES TO {$copied->activityStartDate} -- {$copied->activityEndDate}\n";
+
                 $collected_events_after_recurrence_calculations[] = $copied;
-            } // end of this potential day for a recurrence
+            }
         } // end of this event's recurrence type
     } // end of this event
 
@@ -365,18 +371,6 @@ public function reloadContent() {
             $event_name = implode(' - ', $event_name);
         }
         $event_name = substr($event_name,0,100);
-
-        // timezone conversion
-        // Active hands them back in GMT and also gives the timezone of the event, so you can do your own math to get GMT
-        // store times as GMT so they can be converted to local timezone at runtime (siteconfig timezone)
-        $start = explode('T',$entry->activityStartDate); $start = new DateTime("{$start[0]} {$start[1]} +00");
-        $end   = explode('T',$entry->activityEndDate);   $end   = new DateTime("{$end[0]} {$end[1]} +00");
-
-        $start->setTimezone(new DateTimeZone($entry->localTimeZoneId));
-        $end->setTimezone(new DateTimeZone($entry->localTimeZoneId));
-
-        $entry->activityUnixStartDate = $start->format('U');
-        $entry->activityUnixEndDate   = $end->format('U');
 
         // ready!
         $event = new Event();
