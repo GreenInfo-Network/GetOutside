@@ -22,7 +22,7 @@ $config['TITLE']          = 'Get Outside!';
 $config['COMPANY_NAME']   = '';
 $config['COMPANY_URL']    = '';
 
-$config['JQUITHEME'] = 'pepper-grinder';
+$config['JQUITHEME'] = 'get-outside';
 
 $config['TIMEZONE'] = "America/Los_Angeles"; // aka Pacific time
 
