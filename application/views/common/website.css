@@ -17,7 +17,7 @@ a.link {
 /* navbars, such as the header and footer */
 
 div.navbar {
-    margin-bottom:0;
+    margin-bottom:10px;
 }
 
 .footer_credits {
