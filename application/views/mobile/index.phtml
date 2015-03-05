@@ -165,6 +165,7 @@
             </div>
         </div>
         </span>
+        <?php if ($enable_events) { ?>
         <div data-role="collapsible">
             <h2>Find Events &amp; Activities</h2>
             <div data-role="controlgroup" data-mini="true">
@@ -181,6 +182,12 @@
                 <label><input type="checkbox" name="weekdays" value="sun" /> On Sundays</label>
             </div>
         </div>
+        <?php } else { ?>
+        <!-- Events are not enabled, so hide this -->
+        <div style="display:none;">
+            <input type="checkbox" name="eventdays" value="30" />
+        </div>
+        <?php } ?>
     </div>
     </form>
 </div>
@@ -192,7 +199,7 @@
         <a href="#page-home"><i class="fa fa-2x fa-home"></i></a>
         <a href="#page-search" class="backward"><i class="fa fa-lg fa-chevron-left"></i> Search Options</a> &nbsp;|&nbsp; <a href="#page-map" class="forward">See On Map <i class="fa fa-lg fa-chevron-right"></i></a>
     </div>
-    <div class="ui-grid-a search-results-navbar">
+    <div class="ui-grid-a search-results-navbar" <?php if (! $enable_events) { ?> style="display:none;" <?php } ?> >
         <div class="ui-block-a active"><a href="#page-search-results-places">Parks &amp; Places</a></div>
         <div class="ui-block-b"><a href="#page-search-results-events">Events &amp; Activities</a></div>
     </div>
@@ -203,7 +210,8 @@
 
 
 
-<div data-role="page" id="page-search-results-events" class="page-results">
+
+<div data-role="page" id="page-search-results-events" class="page-results" <?php if (! $enable_events) { ?> style="display:none;" <?php } ?>>
     <div class="custom-navbar">
         <a href="#page-home"><i class="fa fa-2x fa-home"></i></a>
         <a href="#page-search" class="backward"><i class="fa fa-lg fa-chevron-left"></i> Search Options</a> &nbsp;|&nbsp; <a href="#page-map" class="forward">See On Map <i class="fa fa-lg fa-chevron-right"></i></a>

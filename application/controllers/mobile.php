@@ -39,6 +39,11 @@ public function index() {
     $siteconfig = new SiteConfig();
     $data['siteconfig'] = $siteconfig->all();
 
+    // do we in fact have any enabled EventDataSources? if not, then it doesn't make sense to show the Events results tab
+    $has_event_sources = new EventDataSource();
+    $has_event_sources = $has_event_sources->where('enabled',1)->count();
+    $data['enable_events'] = (boolean) $has_event_sources;;
+
     // ready, display!
     $this->load->view('mobile/index.phtml',$data);
 }
