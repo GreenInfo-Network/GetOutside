@@ -78,6 +78,7 @@ public function reloadContent() {
         'orderby' => 'starttime',
     );
     $url = sprintf("%s/%s?%s", $url, 'basic', http_build_query($params) );
+    //throw new EventDataSourceErrorException( array($url) );
     $xml = @file_get_contents($url);
     if (substr($xml,0,6) != '<?xml ') throw new EventDataSourceErrorException( array('Non-XML response from the given URL (basic). Not a calendar feed?') );
 
