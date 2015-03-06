@@ -268,8 +268,10 @@
 
             <label><img src="<?= site_url('mobile/image/marker_gps') ?>" /> Your location</label>
             <br/>
+            <?php if ($enable_events) { ?>
             <label><img src="<?= site_url('mobile/image/marker_event') ?>" /> Events</label>
             <br/>
+            <?php } ?>
             <label><img src="<?= site_url('mobile/image/marker_place') ?>" /> Places</label>
         </div>
 
