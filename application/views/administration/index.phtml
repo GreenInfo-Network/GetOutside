@@ -1,50 +1,47 @@
 <? $this->load->view('administration/header.phtml') ?>
 
-<div class="container">
-    <h2>Get Outside! - Connecting People and Parks</h2>
-    
-    <p>Using the GetOutside tool, cities can easily publish a <a href="http://websites.greeninfo.org/knight/getoutside/stpaul1/mobile" target="_blank">mobile website and map</a> that residents can use to find nearby parks, recreation centers and events.</p>
-    
-    <h4>HOW IT WORKS</h4>
-    
-    <p>Get Outside aggregates your parks and events data and displays it in a searchable mobile map.  To save time, tool is designed to work with your existing data sources such as Google Drive Spreadsheets, Google Calendar, GIS map services, etc. </p>
-    
-    <p>There are two types of data sources: <ul>
-           <li><b>Places</b> - Parks and recreation centers, along with amentity information</li>
-           <li><b>Events</b> - Events occuring on a specific day</li>
-    </p>
+<div class="float_right">
+    <img src="<?= site_url('application/views/images/GetOutside_Screenshot_Home.png') ?>" title="Mobile home screenshot">
+        <br />
+    <img src="<?= site_url('application/views/images/GetOutside_Screenshot_Map.png') ?>"  title="Mobile map screenshot">
 </div>
 
-
 <div class="container">
-    <h4>GETTING STARTED</h4>
-    <ol>
-        <li><b>Add Places</b> 
-                <p>
-             Step 1: Specify search categories (eg. baseball, bbq grills, etc)
-            <ul>
-                <li>Click on Places, then Categories. </li>
-                <li>Click on New </li>
-            </ul>
-        </p>
-        <p>
-             Step 2: Add parks data source(s)  
-            <ul>
-                <li>Click on Places, then Sources. </li>
-                <li>Click on New </li>
-                <li>Follow prompts to add your data. <br /><br />
-                    Note: To create parks data from scratch, you can use this <a href="https://docs.google.com/spreadsheets/d/1e4rbpYv8KNAKrsCilHcxjaqhtpx4osgfYRAtqNCp0fI/pubhtml#" target="_blank">Google Spreadsheet example </a> as a guide.</li>
-                </ul>
-        </p>
+    <h2 class="brand-heading">Get Outside</h2>
+    
+    <p>Using the GetOutside tool, cities can quickly launch a fully-designed, ready to use <a href="http://websites.greeninfo.org/knight/getoutside/stpaul1/mobile" target="_blank">mobile park and recreation event finder</a> that anyone can use to find nearby parks and events.</p>
+    
+    <br><h4>How It Works</h4>
+    
+    <p>Get Outside aggregates your parks and events data and displays it in a searchable mobile application.  The tool is designed to link directly with your existing data such as Google Spreadsheets, Google Calendar, GIS map services... </p>
+    
+    <p>Get Outside works with the following types of data: <br />
+        <div class="indent">
+           <b>Places</b> - Parks and recreation centers, along with amentity information <br />
+           <b>Events</b> - Events occuring on a specific day
+        </div>
+    </p>
+
+   <h4>Getting Started</h4>
+    <ol class="boxes-list">
+        <li><b>Add Places</b> <br />
+                First, set up search categories (baseball, bbq grills...)             
+             <div class="indent"><i>Click on Places, then Categories. Click on New. </i></div>
+
+                    <br />  Next, add parks data <br />
+             <div class="indent"><i>Click on Places, then Sources. Click on New.  Follow prompts to add your data.</i> <br>
+                    Note: To create parks data from scratch, you can use this <a target="_blank" href="https://docs.google.com/spreadsheets/d/1e4rbpYv8KNAKrsCilHcxjaqhtpx4osgfYRAtqNCp0fI/pubhtml#">Google Spreadsheet example </a> as a guide.
+             </div>
         
         </li>
         <li><b>Add Events</b> <p>Define data sources from which events will be loaded.</p></li>
-        <li><b>Customize Your Application</b> <p>Add your logo, choose colors and map icons. <br/>
+        <li><b>Customize Your Application</b> <p>Add your logo, choose colors and map icons. <br>
             Click on <b>Settings</b> and explore options within each of the categories: Map Services, Map Icons, Mobile Site.  </p>
         </li>
         
         <li><b>Add Users</b> <p>Decide who can use this administration panel.</p></li>
     </ol>
 </div>
+
 
 <? $this->load->view('administration/footer.phtml') ?>

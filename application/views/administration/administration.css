@@ -5,3 +5,50 @@ td,th {
 table.sortable thead th {
     cursor:pointer;
 }
+.float_right{float:right;
+margin-top: 60px;}
+.indent {margin-left: 30px;}
+
+h4{background-color:#4ca3d5;
+color:#ffffff;
+padding: 5px;}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0px 0px 15px;
+    text-transform: uppercase;
+    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+ol.boxes-list {
+    list-style-type: none;
+    list-style-type: decimal !ie; /*IE 7- hack*/
+     
+    margin: 0;
+    margin-left: 3em;
+    padding: 0;
+     
+    counter-reset: li-counter;
+}
+ol.boxes-list > li{
+    position: relative;
+    margin-bottom: 15px;
+    padding: 5px;
+}
+ol.boxes-list > li:before {
+    position: absolute;
+    top: 0;
+    left: -1em;
+    width: 0.94em;
+    height: 0.94em;
+     
+    font-size: 3em;
+    line-height: 0.94;
+    text-align: center;
+    color: #f5f5f5;
+ 
+    background-color: #464646;
+    content: counter(li-counter);
+    counter-increment: li-counter;
+}
