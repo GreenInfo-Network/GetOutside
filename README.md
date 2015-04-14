@@ -1,19 +1,27 @@
-#Get Outside!
+#Get Outside
 
-Get Outside! is a framework and application template, enabling communities to post events and ongoing services and amenities.
+_Get Outside_ is a free, open source toolkit that enables any park and recreation department to:
 
-Key components of a Get Outside! installation include:
+* Quickly launch a fully-designed, ready to use mobile park and recreation event finder.
+* Allow anyone with a smart phone to find nearby parks and events.
 
-* Lists and Open Street Map (OSM)-based maps of these events and facilities, and mechanisms to search and filter to find those of interest.
-* An administrative interface by which events are loaded from pre-existing remote data sources such as Facebook events, Google Drive spreadsheets, and ActiveNet's REST API v2.
-* An administrative interface by which facility locations are uploaded, accepting a variety of formats including Excel spreadsheets and Google Drive spreadsheets.
+_Get Outside_ has tools that make it easy to aggregate data from multiple sources into one application. It uses open source technology and is built to run on common, low-cost web hosting services.
 
-The intended audience is parks and recreation departments, community centers, and other local organizations who have a collection of event and/or facility data, but who don't necessarily have the budget or personnel to deploy as custom-designed interactive GIS mapping website.
+
+#Key Components
+
+* A mobile friendly web site for easily viewing a map and lists of parks and events, with search by location, amenity and date - the web site is already fully styled and can be customized with agency logos, and is developed with responsive programming to adapt to desktop, tablet or phone devices.
+* An administrative interface for:
+  * Loading parks and events from existing data sources.
+  * Customizing the look and feel of the application.
+* A template that can be customized to quickly create park, activity and event data, if needed.
+
+GreenInfo Network is releasing Get Outside as a fully-functional prototype - we welcome feedback. 
 
 
 #Requirements
 
-Get Outside! is designed to use standard PHP extensions and the MySQL database server, so it may be deployed on common, low-cost web hosting services.
+Get Outside is designed to use standard PHP extensions and the MySQL database server, so it may be deployed on common, low-cost web hosting services.
 
 * PHP 5.2 or later
 * PHP PDO and PDO-MySQL extensions
@@ -24,7 +32,7 @@ Get Outside! is designed to use standard PHP extensions and the MySQL database s
 
 #Getting Started
 
-1. Download the ZIP file of the Get Outside! source code, and unpack it on your PC.
+1. Download the ZIP file of the Get Outside source code, and unpack it on your PC.
 2. Edit application/config/config.php, following the instructions in the file.
 3. Edit application/config/database.php, following the instructions in the file.
 4. Upload the source code to your website hosting service.
@@ -37,7 +45,7 @@ Additional documentation is in the _docs_ subfolder.
 
 Thanks to [http://www.knightfoundation.org/](The Knight Foundation) for funding this project.
 
-As with most open source software, this builds from many other packages. These packages have been bundled with Get Outside! so the exact versions are available, and so we can include the individual licenses.
+As with most open source software, this builds from many other packages. These packages have been bundled with Get Outside so the exact versions are available, and so we can include the individual licenses.
 
 These packages include:
 
