@@ -227,7 +227,7 @@ public function fetchdata() {
     $events->where_related('eventdatasource','enabled',1);
 
     // ready!
-    $events->get();
+    $events->order_by('starts')->get();
     foreach ($events as $event) {
         // the time filter: if it doesn't start this week, or ended last week, it's outta here
         // this filter is done first as it typically eliminates the largest proportion
