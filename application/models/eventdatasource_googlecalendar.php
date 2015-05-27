@@ -70,12 +70,12 @@ public function reloadContent() {
     $date  = (integer) date('d');
     $year  = (integer) date('Y');
     $params = array(
-        'singleevents' => 'true',
-        'start-min' => date(DATE_ATOM, mktime(0, 0, 0, $month, 1, $year) ),
-        'start-max' => date(DATE_ATOM, mktime(0, 0, 0, $month+6, $date, $year) ),
-        'prettyprint' => 'true',
-        'max-results' => 250,
-        'orderby' => 'starttime',
+        'singleevents'  => 'true',
+        'start-min'     => date(DATE_ATOM, mktime(0, 0, 0, $month, 1, $year) ),
+        'start-max'     => date(DATE_ATOM, mktime(0, 0, 0, $month+6, $date, $year) ),
+        'prettyprint'   => 'true',
+        'max-results'   => 10000,
+        'orderby'       => 'starttime',
     );
     $url = sprintf("%s/%s?%s", $url, 'basic', http_build_query($params) );
     //throw new EventDataSourceErrorException( array($url) );
