@@ -18,17 +18,6 @@ public function index() {
     /////
 
     $this->db->query("
-        CREATE TABLE IF NOT EXISTS sessions (
-            session_id varchar(40) DEFAULT '0' NOT NULL,
-            ip_address varchar(45) DEFAULT '0' NOT NULL,
-            user_agent varchar(120) NOT NULL,
-            last_activity int(10) unsigned DEFAULT 0 NOT NULL,
-            user_data text NOT NULL,
-            PRIMARY KEY (session_id),
-            KEY last_activity_idx (last_activity)
-        )
-    ");
-    $this->db->query("
         CREATE TABLE IF NOT EXISTS users (
             id integer NOT NULL AUTO_INCREMENT,
             username varchar(50) NOT NULL,
@@ -107,6 +96,7 @@ public function index() {
         CREATE TABLE IF NOT EXISTS placecategories (
             id INTEGER AUTO_INCREMENT NOT NULL,
             name varchar(50) NOT NULL,
+            enabled BOOLEAN NOT NULL DEFAULT true,
             PRIMARY KEY (id)
         )
     ");
@@ -248,7 +238,6 @@ public function index() {
     $siteconfig->set('mobile_buttonbgcolor2',       $defaults['MOBILE_COLORS']['buttonbgcolor2'] );
     $siteconfig->set('mobile_alertfgcolor',         $defaults['MOBILE_COLORS']['alertfgcolor'] );
     $siteconfig->set('mobile_alertbgcolor',         $defaults['MOBILE_COLORS']['alertbgcolor'] );
-    $siteconfig->set('mobile_markerglowcolor',      $defaults['MOBILE_COLORS']['markerglowcolor'] );
     $siteconfig->set('place_markerglowcolor',       $defaults['PLACE_MARKERGLOWCOLOR'] );
     $siteconfig->set('event_markerglowcolor',       $defaults['EVENT_MARKERGLOWCOLOR'] );
     $siteconfig->set('mobile_logo',                 $defaults['MOBILE_LOGO']['content'] );

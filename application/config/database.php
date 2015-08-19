@@ -9,7 +9,7 @@ $active_group = 'default';
 $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
-$db['default']['username'] = 'getoutside_template';
+$db['default']['username'] = 'getoutside_tmpt';
 $db['default']['database'] = 'getoutside_template';
 $db['default']['password'] = 'superdupersecret';
 $db['default']['dbdriver'] = 'mysql';
