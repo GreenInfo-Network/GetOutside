@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <!-- jQuery and jQuery Mobile -->
-    <script type="text/javascript" src="<?= site_url() ?>/application/views/common/jquery-1.10.2.min.js"></script>
-    <link rel="stylesheet" href="<?= site_url() ?>/application/views/mobile/jquerymobile-1.4.2/jquery.mobile-1.4.2.css" />
-    <script src="<?= site_url() ?>/application/views/mobile/jquerymobile-1.4.2/jquery.mobile-1.4.2.min.js"></script>
-    <script type="text/javascript" src="<?= site_url() ?>/application/views/common/jquery.sort.js"></script>
+    <script type="text/javascript" src="<?= site_url('application/views/common/jquery-1.10.2.min.js') ?>"></script>
+    <link rel="stylesheet" href="<?= site_url('application/views/mobile/jquerymobile-1.4.2/jquery.mobile-1.4.2.css') ?>" />
+    <script src="<?= site_url('application/views/mobile/jquerymobile-1.4.2/jquery.mobile-1.4.2.min.js') ?>"></script>
+    <script type="text/javascript" src="<?= site_url('application/views/common/jquery.sort.js') ?>"></script>
 
     <!-- Leaflet map framework -->
-    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url('application/views/common/leaflet-0.6.4/leaflet.css') ?>" />
     <!--[if lte IE 8]>
-    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.ie.css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url('application/views/common/leaflet-0.6.4/leaflet.ie.css') ?>" />
     <![endif]-->
-    <script src="<?=site_url()  ?>/application/views/common/leaflet-0.6.4/leaflet.js"></script>
+    <script src="<?=site_url('application/views/common/leaflet-0.6.4/leaflet.js') ?>"></script>
 
     <!-- FontAwesome icons for map controls; see this index.phtml file and also leaflet.custommobilecontrols.js-->
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
@@ -30,18 +30,18 @@
     <script type="text/javascript" src="<?= site_url('application/views/common/leaflet.bing.js') ?>"></script>
 
     <!-- the control panel in the corner, has custom controls -->
-    <script src="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.js"></script>
-    <link rel="stylesheet" type="text/css" href="<?=site_url()  ?>/application/views/mobile/leaflet.custommobilecontrols.css" />
+    <script src="<?=site_url('application/views/mobile/leaflet.custommobilecontrols.js') ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?=site_url('application/views/mobile/leaflet.custommobilecontrols.css') ?>" />
 
     <!-- marker clustering for Leaflet and marker labeling for Leaflet -->
-    <script src="<?= site_url() ?>/application/views/common/leaflet.prunecluster/PruneCluster.js"></script>
-    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/leaflet.prunecluster/LeafletStyleSheet.css" />
+    <script src="<?= site_url('application/views/common/leaflet.prunecluster/PruneCluster.js') ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?= site_url('application/views/common/leaflet.prunecluster/LeafletStyleSheet.css') ?>" />
 
-    <script src="<?= site_url() ?>/application/views/common/Leaflet.label-0.2.1/dist/leaflet.label.js"></script>
-    <!--<link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/common/Leaflet.label-0.2.1/dist/leaflet.label.css" />-->
+    <script src="<?= site_url('application/views/common/Leaflet.label-0.2.1/dist/leaflet.label.js') ?>"></script>
+    <!--<link rel="stylesheet" type="text/css" href="<?= site_url('application/views/common/Leaflet.label-0.2.1/dist/leaflet.label.css') ?>" />-->
 
     <!-- the custom, admin-generated stylesheet -->
-    <link rel="stylesheet" type="text/css" href="<?=site_url() ?>mobile/css" />
+    <link rel="stylesheet" type="text/css" href="<?=site_url('mobile/css') ?>" />
 
     <script type="text/javascript">
     var BASE_URL = <?= json_encode(site_url()) ?>;
@@ -71,21 +71,16 @@
     var GPS_MARKER_HEIGHT       = <?= $siteconfig['marker_gps_height'] ?>;
     </script>
 
-    <!-- remote debugging for mobile apps; please use your own weinre server! -->
-    <!--
-    <script type="text/javascript" src="http://weinre.greeninfo.org:8080/target/target-script-min.js#getoutside"></script>
-    -->
-
     <!-- sitewide styling overriding the selected theme and providing common code & style to the front-facing site -->
-    <link rel="stylesheet" type="text/css" href="<?= site_url() ?>/application/views/mobile/index.css" />
-    <script type="text/javascript" src="<?= site_url() ?>/application/views/mobile/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="<?= site_url('application/views/mobile/index.css') ?>" />
+    <script type="text/javascript" src="<?= site_url('application/views/mobile/index.js') ?>"></script>
 </head>
 <body>
 
 
 <div data-role="page" id="page-home">
     <div class="center">
-        <img src="<?= site_url() ?>/mobile/image/logo" />
+        <img src="<?= site_url('mobile/image/logo') ?>" />
     </div>
 
     <h3 class="center">Find Parks, Amenities, and Recreational Events &amp; Activities</h3>
