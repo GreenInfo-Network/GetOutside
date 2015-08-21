@@ -574,14 +574,16 @@ public function ajax_save_place_source() {
 
     // more stuff to be saved EVEN IF we're about to encounter an error
     // this is the "rules" for this data source as pertaining to each PlaceCategory
-    foreach ($_POST['categorization'] as $categoryid=>$field_and_value) {
-        $rule = new PlaceCategoryRule();
-        $rule->where('placecategory_id',$categoryid)->where('placedatasource_id',$source->id)->get();
-        $rule->placecategory_id   = $categoryid;
-        $rule->placedatasource_id = $source->id;
-        $rule->field              = $field_and_value['field'];
-        $rule->value              = $field_and_value['value'];
-        $rule->save();
+    if (is_array(@$_POST['categorization'])) {
+        foreach ($_POST['categorization'] as $categoryid=>$field_and_value) {
+            $rule = new PlaceCategoryRule();
+            $rule->where('placecategory_id',$categoryid)->where('placedatasource_id',$source->id)->get();
+            $rule->placecategory_id   = $categoryid;
+            $rule->placedatasource_id = $source->id;
+            $rule->field              = $field_and_value['field'];
+            $rule->value              = $field_and_value['value'];
+            $rule->save();
+        }
     }
 
     // AJAX endpoint, just say OK if we get that far
