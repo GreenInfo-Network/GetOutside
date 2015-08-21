@@ -100,10 +100,6 @@ public function index() {
             PRIMARY KEY (id)
         )
     ");
-    $this->db->query("INSERT INTO placecategories (name,enabled) VALUES ('Parks',1)");
-    $this->db->query("INSERT INTO placecategories (name,enabled) VALUES ('Swimming',1)");
-    $this->db->query("INSERT INTO placecategories (name,enabled) VALUES ('Community Centers',1)");
-
     $this->db->query("
         CREATE TABLE IF NOT EXISTS placecategories_places (
             placecategory_id INTEGER NOT NULL,
@@ -145,10 +141,6 @@ public function index() {
             KEY placedatasource_id_idx (placedatasource_id),
             KEY placecategory_id_idx (placecategory_id)
         )
-    ");
-
-    $this->db->query("
-        INSERT INTO placedatasources (type, name, enabled, url, option1, option2, option3) VALUES ('ArcGIS REST API', 'Brooklyn Park ArcGIS Service', 1, 'https://cityview.brooklynpark.org/arcgis/rest/services/Public/Parks_wAmenities/MapServer/0', 'NAME', 'STREETNM', '')
     ");
 
     $this->db->query("
