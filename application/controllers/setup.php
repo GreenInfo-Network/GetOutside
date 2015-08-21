@@ -87,6 +87,10 @@ public function index() {
             longitude float,
             name varchar(50) NOT NULL,
             description text NOT NULL DEFAULT '',
+            url       TEXT,
+            urltext   TEXT,
+            url2      TEXT,
+            urltext2  TEXT,
             attributes_json TEXT,
             PRIMARY KEY (id),
             KEY datasource_id_idx (placedatasource_id)
