@@ -71,8 +71,8 @@ public function index() {
             fri BOOLEAN NOT NULL DEFAULT false,
             sat BOOLEAN NOT NULL DEFAULT false,
             sun BOOLEAN NOT NULL DEFAULT false,
-            audience_gender ENUM('0','1','2') DEFAULT 0,
-            audience_age    ENUM('0','1','2','3','4','5') DEFAULT 0,
+            audience_gender ENUM('0','1','2') DEFAULT '0',
+            audience_age    ENUM('0','1','2','3','4','5') DEFAULT '0',
             PRIMARY KEY (id),
             KEY datasource_id_idx (eventdatasource_id)
         )
