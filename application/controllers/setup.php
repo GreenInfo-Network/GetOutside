@@ -270,6 +270,17 @@ public function index() {
 
 
     /////
+    ///// initial sets of categories
+    ///// so they're not stuck with no categories and no idea that they're supposed to define those first
+    /////
+
+    foreach ( array('Baseball', 'Basketball', 'BBQ Facilities', 'Football', 'Ice Skating', 'Picnic Area', 'Playground', 'Restroom', 'Soccer', 'Softball', 'Tennis', 'Swimming') as $thisname) {
+        $category = new PlaceCategory();
+        $category->name = $thisname;
+        $category->save();
+    }
+
+    /////
     ///// done!
     /////
     $this->load->view('setup/index.phtml',$data);
