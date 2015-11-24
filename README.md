@@ -34,9 +34,10 @@ Get Outside is designed to use standard PHP extensions and the MySQL database se
 
 1. Download the ZIP file of the Get Outside source code, and unpack it on your PC.
 2. Edit application/config/config.php, following the instructions in the file.
-3. Edit application/config/database.php, following the instructions in the file.
-4. Upload the source code to your website hosting service.
-5. Point your web browser at the folder you just uploaded. You will be walked through the setup process.
+3. Create a database, and make note of the database name, user name and password.
+4. Edit application/config/database.php, following the instructions in the file.
+5. Upload the source code to your website hosting service.
+6. Point your web browser at the folder you just uploaded. You will be walked through the setup process.
 
 Additional documentation is in the _docs_ subfolder.
 
