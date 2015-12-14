@@ -241,8 +241,12 @@ class ICal
             $event_timestmap_offset = $end_timestamp - $start_timestamp;
             // Get Interval
             $interval = (isset($rrules['INTERVAL']) && $rrules['INTERVAL'] != '') ? $rrules['INTERVAL'] : 1;
-            // Get Until
-            $until = $this->iCalDateToUnixTimestamp( isset($rrules['UNTIL']) ? $rrules['UNTIL'] : '29991231T235959Z');
+            // Get Until; the UNTIL is a MAY in the specification, but realistically we need it, so we set it to a default
+            // pro tip: do not set a default UNTIL to something outlandish such as 29991231T235959Z   this will create a zillion recurrences, exhaust system memory, and crash
+            //          instead set merely one year so it's 365 events max
+            if (! isset($rrules['UNTIL']) ) {
+                $rrules['UNTIL'] = date('YmdT235959Z', time() + 86400 * 365 );
+            }
             // Decide how often to add events and do so
             switch ($rrules['FREQ']) {
               case 'DAILY':
