@@ -34,23 +34,6 @@ public function index() {
             PRIMARY KEY (keyword)
         )
     ");
-    $this->db->query("
-        CREATE TABLE IF NOT EXISTS places (
-            id INTEGER AUTO_INCREMENT NOT NULL,
-            placedatasource_id integer NOT NULL,
-            remoteid varchar(250),
-            name varchar(50) NOT NULL,
-            description text NOT NULL DEFAULT '',
-            latitude FLOAT NOT NULL,
-            longitude FLOAT NOT NULL,
-            url VARCHAR(1000),
-            urltext VARCHAR(25) DEFAULT 'Website',
-            url2 VARCHAR(1000),
-            urltext2 VARCHAR(25) DEFAULT 'More Info',
-            PRIMARY KEY (id),
-            KEY datasource_id_idx (placedatasource_id)
-        )
-    ");
 
     $this->db->query("
         CREATE TABLE IF NOT EXISTS events (
