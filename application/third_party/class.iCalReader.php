@@ -242,7 +242,7 @@ class ICal
             // Get Interval
             $interval = (isset($rrules['INTERVAL']) && $rrules['INTERVAL'] != '') ? $rrules['INTERVAL'] : 1;
             // Get Until
-            $until = $this->iCalDateToUnixTimestamp($rrules['UNTIL']);
+            $until = $this->iCalDateToUnixTimestamp( isset($rrules['UNTIL']) ? $rrules['UNTIL'] : '29991231T235959Z');
             // Decide how often to add events and do so
             switch ($rrules['FREQ']) {
               case 'DAILY':

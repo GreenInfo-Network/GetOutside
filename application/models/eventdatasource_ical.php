@@ -77,17 +77,9 @@ public function reloadContent() {
         $url = substr(@$entry['URL'], 0, 250);
         if (! $url and strpos($uid,'http')!==FALSE) $url = $uid;
 
-        // if it's lacking an URL or a title or a time, something's not right
-        if (! $name or ! $url or ! $start) {
-            $failed++;
-            $details[] = "Skipping: Name and/or website missing, {$event->name}";
-            continue;
-        }
-        if (! $name or ! $url or ! $start) {
-            $failed++;
-            $details[] = "Skipping: No date information found for {$event->name}";
-            continue;
-        }
+        // if it's lacking a title or a time, something's not right
+        if (! $name ) { $failed++; $details[] = "Skipping: Event missing a name, " . print_r($entry,TRUE); continue; }
+        if (! $start) { $failed++; $details[] = "Skipping: No start time found for event: {$event->name}"; continue; }
 
         // remove the \ escapes which litter VCALENDAR content
         $name = str_replace('\\', '', $name);

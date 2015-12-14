@@ -16,7 +16,7 @@ class EventDataSource extends DataMapper {
 
 /**********************************************************************************************
  * SUBCLASSING THIS DATA SOURCE
- * To create new drivers such as the EventDataSource_GoogleCalendar follow these steps:
+ * To create new drivers such as the EventDataSource_Atom follow these steps:
  * - Define the class in a class file, same as any other DataMapper ORM class
  *      Be sure it implements the necessary interface as described in the INSTANCE METHODS and 
  *      DATABASE FIELDS sections below. See existing subclasses for a crib sheet
@@ -32,20 +32,19 @@ class EventDataSource extends DataMapper {
  * FACTORY METHOD
  * query this EventDataSource and have it return an instance of the appropriate subclass, 
  * as detected by its "type" field. The alternative is that the Controller code has a bunch of
- * "if Google Calendar, else if ActiveNet, else if Google Spreadsheet" and that gets out of hand quickly!
+ * "if Atom, else if ActiveNet, else if iCal, ..." and that gets out of hand quickly!
  * Instead, use this handy method to have it return a brand-new instance of "whatever subclass this is"
  **********************************************************************************************/
 /*
  * convertToDriver()
  * This instance method will return a new DataMapper ORM class instance, that being a subclass of
- * EventDataSource. The subclass used, is detected from the "type" field, e.g. if it's "Google Calendar"
- * then the returned instance will be of the EventDataSource_GoogleCalendar class.
+ * EventDataSource. The subclass used, is detected from the "type" field, e.g. if it's "iCal"
+ * then the returned instance will be of the EventDataSource_iCal class.
  * 
  * Intended use is within Controller methods, where you have a EventDataSource instance fetched by ID#
  * and want to get an instance of the appropriate subclass... without writing a switch.
  */
 public static $SOURCE_TYPES = array(
-    'Google Calendar',
     'Atom Feed',
     'RSS 2.0 Feed',
     'iCal Feed',
@@ -54,9 +53,6 @@ public static $SOURCE_TYPES = array(
 
 public function convertToDriver() {
     switch ($this->type) {
-        case 'Google Calendar':
-            $subclass = "EventDataSource_GoogleCalendar";
-            break;
         case 'RSS 2.0 Feed':
             $subclass = "EventDataSource_RSS2";
             break;
@@ -93,7 +89,7 @@ var $has_one          = array();
 var $has_many         = array('event',);
 
 // these defines which fields/features are appropriate to your driver, and you will override these in subclasses
-// e.g. Google Calendar needs an URL but does not need an App ID nor username, while Active.com can *optionally* use the App ID to store your Org ID for filtering
+// e.g. iCal/ICS feeds need an URL and that's all, while Active.com can *optionally* use the App ID to store your Org ID for filtering
 // structure here: an assocarray of field names, most notably "url" and the arbitrary "option" fields
 // if a field is not used by your driver, make it NULL; this causes the field not to be displayed in the event datasource editing page
 // if the field is used, set it to an array and it will appear in the event datasource editing page
