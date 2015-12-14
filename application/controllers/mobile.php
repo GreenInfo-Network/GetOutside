@@ -233,27 +233,28 @@ public function fetchdata() {
         // this filter is done first as it typically eliminates the largest proportion
         if ($event->starts > $filter_time_end or $event->ends < $filter_time_start) continue;
 
-        // no EventLocations? then it can't go onto the map and isn't "near" us; skip it
-        // has locations? then collect the ones that are within range and bail if there are none (not close to us, skip)
-        if (! $event->eventlocation->count()) continue;
+        // Dec 2015, they changed their mind and do want to show non-geolocated events in the listing
+        // so, if this event has any EventLocations we can at least skip over it if all such locations are out of bounds
+        // if it lacks location info, well, we just have to list the event and that's that
         $locations = array();
-        foreach ($event->eventlocation as $loc) {
-            $distance_squared = ( ($_POST['lng']-$loc->longitude) * ($_POST['lng']-$loc->longitude) ) + ( ($_POST['lat']-$loc->latitude) * ($_POST['lat']-$loc->latitude) );
-            if ($distance_squared > $max_distance_squared) continue;
+        if ($event->eventlocation->count()) {
+            foreach ($event->eventlocation as $loc) {
+                $distance_squared = ( ($_POST['lng']-$loc->longitude) * ($_POST['lng']-$loc->longitude) ) + ( ($_POST['lat']-$loc->latitude) * ($_POST['lat']-$loc->latitude) );
+                if ($distance_squared > $max_distance_squared) continue;
 
-            $thisloc = array();
-            $thisloc['id']        = 'eventlocation-' . $loc->id;
-            $thisloc['title']     = $loc->title;
-            $thisloc['subtitle']  = $loc->subtitle;
-            $thisloc['lat']       = (float) $loc->latitude;
-            $thisloc['lng']       = (float) $loc->longitude;
+                $thisloc = array();
+                $thisloc['id']        = 'eventlocation-' . $loc->id;
+                $thisloc['title']     = $loc->title;
+                $thisloc['subtitle']  = $loc->subtitle;
+                $thisloc['lat']       = (float) $loc->latitude;
+                $thisloc['lng']       = (float) $loc->longitude;
 
-            $locations[] = $thisloc;
+                $locations[] = $thisloc;
+            }
+            if (! sizeof($locations) ) continue;
         }
-        if (! sizeof($locations) ) continue;
 
-        // guess it's a hit!
-        // that time above wasn't wasted: we did want the locations anyway
+        // guess it's a hit! either it had no locations, or at least one location was near us
         $thisone = array();
         $thisone['id']        = 'event-' . $event->id;
         $thisone['name']      = $event->name;
