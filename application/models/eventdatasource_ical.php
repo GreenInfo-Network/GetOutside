@@ -73,9 +73,18 @@ public function reloadContent() {
         $start  = @$entry['DTSTART'];
         $end    = @$entry['DTEND']; if (! $end) $end = $start;
 
-        // use the URL tag is available, but use the UID as the event URL if it looks like a URL
-        $url = substr(@$entry['URL'], 0, 250);
-        if (! $url and strpos($uid,'http')!==FALSE) $url = $uid;
+        // does this event have a URL tag in its block? most feeds do not use this, but some do!
+        // if we do not find one, then check the description and see if we can tease out a URL-looking string
+        $url = NULL;
+        if ( isset($entry['URL']) ) {
+            $url = substr($entry['URL'], 0, 250);
+        } else if (strpos(@$entry['DESCRIPTION'],'http') !== FALSE) {
+            preg_match('/((http|https):\/\/\S+)/', $entry['DESCRIPTION'], $url);
+            $url = @$url[1];
+        } else if (strpos(@$entry['DESCRIPTION'],'www') !== FALSE) {
+            preg_match('/(www\.\S+)/', $entry['DESCRIPTION'], $url);
+            $url = @$url[1] ? 'http://' . $url[1] : NULL;
+        }
 
         // if it's lacking a title or a time, something's not right
         if (! $name ) { $failed++; $details[] = "Skipping: Event missing a name, " . print_r($entry,TRUE); continue; }
