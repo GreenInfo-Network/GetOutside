@@ -49,6 +49,7 @@ public static $SOURCE_TYPES = array(
     'RSS 2.0 Feed',
     'iCal Feed',
     'Active.com API',
+    'Google Calendar API',
 );
 
 public function convertToDriver() {
@@ -64,6 +65,9 @@ public function convertToDriver() {
             break;
         case 'Active.com API':
             $subclass = "EventDataSource_Active";
+            break;
+        case 'Google Calendar API':
+            $subclass = "EventDataSource_GoogleCalendar";
             break;
         default:
             throw new EventDataSourceErrorException('This EventDataSource is of an unknown type ({$this->type}). How is that possible?');
