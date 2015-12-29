@@ -143,9 +143,13 @@ public function reloadContent() {
     }
 
     // load up the new Event records
+    // try to geocode them as we go
     $success = 0;
     $failed  = 0;
     $nogeo   = 0;
+
+    $geo_cache = array();
+
     foreach ($events->getItems() as $entry) {
         // an event without a title is silly, don't do that
         if (! @$entry->summary) { $failed++; continue; }
@@ -155,7 +159,7 @@ public function reloadContent() {
         $event->remoteid            = substr($entry->id, 0, 250);
         $event->name                = strip_tags(substr($entry->summary, 0, 100));
         $event->description         = @$entry->description ? $entry->description : '';
-        $event->address             = @$entry->location ? $entry->location : '';
+        $event->address             = @$entry->location ? preg_replace('/\s+/', ' ', preg_replace('/[\r\n]+/', ' ', $entry->location)) : '';
         $event->url                 = @$entry->htmlLink ? $entry->htmlLink : '';
 
         // Google Calendar has a concept of events being All-Day and represents dates slightly differrently when in use
@@ -184,15 +188,38 @@ public function reloadContent() {
             if ($event->mon and $event->tue and $event->wed and $event->thu and $event->fri and $event->sat and $event->sun) break;
         }
 
-        //GDA TO-DO
-        // attempt to geocode the Location if we have one
+        // attempt to geocode the Location if one is given
         // tip: cache the location strings onto lat-lng pairs, so we can skip geocoding the same address multiple times
+        $lat = $lon = NULL;
+        if ($event->address) {
+            $address = strtolower(trim($event->address));
 
+            if (! array_key_exists($address,$geo_cache)) {
+                $geo_cache[$address] = $this->_geocode($address);
+            }
+            $lat = $geo_cache[$address] ? $geo_cache[$address]['lat'] : NULL;
+            $lon = $geo_cache[$address] ? $geo_cache[$address]['lng'] : NULL;
+
+            if (!$lat or !$lon) {
+                $nogeo++;
+                $details[] = "Could not geocode location: {$event->address}";
+            }
+        }
 
         // we're done with this one!
-        //$details[] = "Loaded OK: {$event->name}";
+        // finalize the Event and create an EventLocation if we have a viable location
         $event->save();
         $success++;
+
+        if ($lat and $lon) {
+            $loc = new EventLocation();
+            $loc->event_id      = $event->id;
+            $loc->latitude      = $lat;
+            $loc->longitude     = $lon;
+            $loc->title         = $event->name;
+            $loc->subtitle      = $event->address;
+            $loc->save();
+        }
     }
 
     // update our last_fetch date
@@ -210,6 +237,83 @@ public function reloadContent() {
         'details'    => $details
     );
     throw new EventDataSourceSuccessException($messages,$info);
+}
+
+
+// the geocoder
+// sadly this violates MVC and model separation pretty thoroughly
+// the driver needs to be passed a siteconfig, to know which geocoder to use
+// "this is why we can't have nice UML diagrams"  :)
+private function _geocode($address) {
+    switch ( $this->siteconfig->get('preferred_geocoder') ) {
+        case 'bing':
+            return $this->_geocode_bing($address);
+            break;
+        case 'google':
+            return $this->_geocode_google($address);
+            break;
+        default:
+            return print "No geocoder enabled?";
+            break;
+    }
+}
+
+private function _geocode_google($address) {
+    // key is optional and is added to params if given; address is required
+    $key = $this->siteconfig->get('google_api_key');
+    if (! $address) return NULL;
+
+    // compose the request and grab it
+    $params = array();
+    if ($key) $params['key'] = $key;
+    $params['address']       =  $address;
+    $params['bounds']        = sprintf("%f,%f|%f,%f", $this->siteconfig->get('bbox_s'), $this->siteconfig->get('bbox_w'), $this->siteconfig->get('bbox_n'), $this->siteconfig->get('bbox_e') );
+    $url = sprintf("https://maps.googleapis.com/maps/api/geocode/json?%s", http_build_query($params) );
+    $result = json_decode(file_get_contents($url));
+    if (! @$result->results[0]) return NULL;
+
+    // start building output
+    $latlng = array();
+    $latlng['lng']  = (float)  $result->results[0]->geometry->location->lng;
+    $latlng['lat']  = (float)  $result->results[0]->geometry->location->lat;
+    $latlng['s']    = (float)  $result->results[0]->geometry->viewport->southwest->lat;
+    $latlng['w']    = (float)  $result->results[0]->geometry->viewport->southwest->lng;
+    $latlng['n']    = (float)  $result->results[0]->geometry->viewport->northeast->lat;
+    $latlng['e']    = (float)  $result->results[0]->geometry->viewport->northeast->lng;
+    $latlng['name'] = (string) $result->results[0]->formatted_address;
+    return $latlng;
+}
+
+private function _geocode_bing($address) {
+    // for Bing geocoding, the API key is required, so bail if it's lacking
+    $key = $this->siteconfig->get('bing_api_key');
+    if (! $key) return NULL;
+    if (! $address) return NULL;
+
+    // hit the service, grok the reply
+    $urltemplate = "http://dev.virtualearth.net/REST/v1/Locations?key=%s&output=json&query=%s";
+    $geocode     = sprintf($urltemplate, $key, urlencode($address) );
+    $geocode     = @json_decode(file_get_contents($geocode));
+    $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+    $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+
+    // if we got nothing, then try again; this time, strip off the first comma-joined element
+    // this (sorta) addresses a common use case of prepending the location name:  Cathedral of Saint Paul, 239 Selby Ave, St Paul, MN 55102, United States
+    if (! $lat and ! $lng) {
+        $address = implode(",", array_slice(explode(",",$address),1) );
+        $geocode = sprintf($urltemplate, $key, urlencode($address) );
+        $geocode = @json_decode(file_get_contents($geocode));
+        $lat = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[0];
+        $lng = (float) @$geocode->resourceSets[0]->resources[0]->geocodePoints[0]->coordinates[1];
+    }
+
+    // done!
+    if ($lat and $lng) {
+        return array('lat'=>$lat, 'lng'=>$lng);
+    } else {
+        return NULL;
+    }
+
 }
 
 
